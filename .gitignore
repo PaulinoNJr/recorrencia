@@ -1,0 +1,9 @@
+node_modules/
+.install-failed/
+.next/
+.vercel/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.env*
+reference.html
