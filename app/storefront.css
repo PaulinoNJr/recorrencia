@@ -1,3 +1,6 @@
+:root {
+  --storefront-content-width: 1292px;
+}
 .official-topbar {
   background: #fff;
   border-bottom: 1px solid #e2e7e0;
@@ -7,14 +10,14 @@
   background: #fff;
 }
 .department-nav-inner {
-  max-width: 1660px;
-  padding-left: 44px;
-  padding-right: 12px;
+  max-width: var(--storefront-content-width);
+  padding-left: 20px;
+  padding-right: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 80px;
+  gap: 20px;
+  min-height: 64px;
 }
 .department-links,
 .department-actions {
@@ -22,18 +25,18 @@
   align-items: center;
 }
 .department-links {
-  gap: 30px;
+  gap: 18px;
   min-width: 0;
 }
 .department-links > a {
-  font-family: Arial, sans-serif;
+  font-family: inherit;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   white-space: nowrap;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 600;
-  color: #000;
+  color: var(--text-primary);
   padding: 12px 0;
 }
 .department-links > a:hover {
@@ -47,19 +50,19 @@
   flex-shrink: 0;
 }
 .department-actions .nav-pill {
-  font-family: Arial, sans-serif;
+  font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-height: 49px;
-  padding: 11px 16px;
-  border: 1px solid #018530;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--brand-primary);
   border-radius: 30px;
-  background: #018530;
+  background: var(--brand-primary);
   color: #fff;
-  font-size: 17px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
   transition: background 0.18s;
 }
@@ -71,9 +74,9 @@
 }
 .department-actions .build-shopping {
   background: #fff;
-  border-color: #b8b8b8;
-  color: #000;
-  padding: 9px 22px;
+  border-color: var(--border);
+  color: var(--text-primary);
+  padding: 7px 14px;
 }
 .department-actions .build-shopping > svg {
   color: #018530;
@@ -99,7 +102,7 @@
   }
   .department-nav-inner {
     gap: 20px;
-    min-height: 70px;
+    min-height: 64px;
   }
 }
 @media (max-width: 1100px) {
@@ -188,7 +191,7 @@
   gap: 7px;
 }
 header > .container {
-  max-width: 1292px;
+  max-width: var(--storefront-content-width);
 }
 .main-header {
   gap: 38px;
@@ -291,7 +294,7 @@ header > .container {
   padding-bottom: 35px;
 }
 .home-container {
-  max-width: 1292px;
+  max-width: var(--storefront-content-width);
   margin: auto;
   padding: 0 20px;
 }
