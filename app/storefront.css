@@ -84,6 +84,15 @@
 .department-actions .build-shopping:hover {
   background: #f0f7ef;
 }
+.department-actions .recurrence-nav {
+  background: var(--surface);
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+.department-actions .recurrence-nav:hover,
+.department-actions .recurrence-nav[aria-current="page"] {
+  background: var(--brand-primary-light);
+}
 @media (max-width: 1450px) {
   .department-links {
     gap: 18px;
@@ -139,12 +148,14 @@
     width: 22px;
   }
   .department-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
     justify-content: flex-end;
     gap: 6px;
   }
   .department-actions .nav-pill {
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 11px;
     font-size: 12px;
   }

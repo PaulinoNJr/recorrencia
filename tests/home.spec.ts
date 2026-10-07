@@ -36,18 +36,19 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   ).toHaveCount(0);
   await expect(
     page.locator("header nav").getByRole("link", { name: /Recorrências/ }),
-  ).toHaveCount(0);
+  ).toHaveAttribute("href", "/recorrencias");
   if (testInfo.project.name === "desktop") await trigger.hover();
   else await trigger.tap();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
   await expect(
     page.getByRole("link", { name: "Minhas listas", exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: /Recorrências/ })).toBeVisible();
+  const managementLink = page.locator("#robson-dropdown").getByRole("link", { name: /Recorrências/ });
+  await expect(managementLink).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-robson-menu.png`,
   });
-  await page.getByRole("link", { name: /Recorrências/ }).click();
+  await managementLink.click();
   await expect(page).toHaveURL(/minhas-assinaturas$/);
   await page.getByRole("link", { name: "Covabra início" }).click();
   await expect(page).toHaveURL("/");

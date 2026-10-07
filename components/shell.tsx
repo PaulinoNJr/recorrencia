@@ -213,6 +213,13 @@ export function Header() {
             ))}
           </div>
           <div className="department-actions">
+            <Link
+              className="nav-pill recurrence-nav"
+              href="/recorrencias"
+              aria-current={path === "/recorrencias" ? "page" : undefined}
+            >
+              Recorrências
+            </Link>
             <Link className="nav-pill" href="/cupons">
               <BadgePercent size={23} />
               Cupons

@@ -1,0 +1,499 @@
+.recurrence-landing {
+  background: #fff;
+  padding-bottom: 55px;
+}
+.recurrence-container {
+  max-width: var(--storefront-content-width);
+  margin: auto;
+  padding: 0 20px;
+}
+.recurrence-hero {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr;
+  gap: 50px;
+  align-items: center;
+  background: #f1f7ed;
+  border: 1px solid #e3ebdf;
+  border-radius: 20px;
+  padding: 48px 48px 42px;
+  overflow: hidden;
+}
+.recurrence-hero-copy h1 {
+  font-size: 43px;
+  line-height: 1.18;
+  letter-spacing: -1.2px;
+}
+.recurrence-hero-copy h1 em {
+  font-style: normal;
+  color: var(--brand-primary);
+}
+.recurrence-hero-copy > .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  margin-bottom: 20px;
+}
+.recurrence-hero-copy > p {
+  font-size: 15px;
+  line-height: 1.85;
+  max-width: 440px;
+  margin: 20px 0 26px;
+}
+.recurrence-hero-copy > .btn {
+  min-height: 48px;
+  padding: 13px 22px;
+}
+.recurrence-how-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--brand-primary);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 17px;
+  width: fit-content;
+}
+.recurrence-reassurance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  margin-top: 23px;
+}
+.recurrence-reassurance svg {
+  color: var(--brand-primary);
+}
+.recurrence-visual {
+  position: relative;
+  min-height: 355px;
+  padding: 15px 8px;
+}
+.recurrence-orbit {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px dashed #aac79a;
+  border-radius: 50%;
+  background: #e6f0dc;
+  box-shadow: 0 0 0 25px #ebf3e5;
+}
+.recurrence-visual-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--brand-primary);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.recurrence-example {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 17px;
+  background: white;
+  border: 1px solid #e3e9dc;
+  border-radius: 12px;
+  box-shadow: 0 8px 23px #2843130b;
+  width: 290px;
+  min-height: 78px;
+  margin-bottom: 13px;
+}
+.recurrence-example img {
+  width: 46px;
+  height: 60px;
+}
+.recurrence-example span {
+  font-size: 12px;
+  flex: 1;
+  color: var(--text-primary);
+}
+.recurrence-example strong {
+  display: block;
+  color: var(--brand-primary);
+  font-size: 11px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+.recurrence-example > svg {
+  background: #e9f4e2;
+  color: var(--brand-primary);
+  width: 23px;
+  height: 23px;
+  padding: 4px;
+  border-radius: 50%;
+}
+.recurrence-example.milk {
+  margin-left: 12px;
+  transform: rotate(-3deg);
+}
+.recurrence-example.coffee {
+  margin-left: auto;
+  transform: rotate(2deg);
+}
+.recurrence-example.paper {
+  margin-left: 25px;
+  transform: rotate(-2deg);
+}
+.recurrence-delivery-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: 7px;
+  color: var(--brand-primary);
+  font-size: 11px;
+  margin-top: 17px;
+}
+.recurrence-benefits {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  padding: 27px 15px;
+  margin: 0 0 32px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.recurrence-benefits span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.recurrence-benefits svg {
+  color: var(--brand-primary);
+}
+.recurrence-section-heading {
+  text-align: center;
+  margin: 35px 0 26px;
+}
+.recurrence-section-heading h2,
+.recurrence-faq h2 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+.recurrence-section-heading > p {
+  font-size: 13px;
+  margin-top: 10px;
+}
+.recurrence-steps {
+  scroll-margin-top: 25px;
+}
+.recurrence-step-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 23px;
+}
+.recurrence-step-grid article {
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.recurrence-step-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 21px;
+}
+.recurrence-step-top > span {
+  font-size: 28px;
+  font-weight: 700;
+  color: #c0d3b5;
+}
+.recurrence-step-top svg {
+  color: var(--brand-primary);
+}
+.recurrence-step-grid h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.recurrence-step-grid p {
+  font-size: 13px;
+  line-height: 1.85;
+}
+.recurrence-menu-tip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 22px 0 55px;
+}
+.recurrence-menu-tip svg {
+  color: var(--brand-primary);
+  margin-right: 3px;
+}
+.recurrence-faq {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 65px;
+  padding: 38px 0;
+  border-top: 1px solid var(--border);
+}
+.recurrence-faq > div > p {
+  font-size: 13px;
+  margin-top: 10px;
+}
+.recurrence-faq > div > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-primary);
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 28px;
+}
+.recurrence-faq details {
+  border-bottom: 1px solid var(--border);
+}
+.recurrence-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 17px 0;
+}
+.recurrence-faq summary::-webkit-details-marker {
+  display: none;
+}
+.recurrence-faq summary svg {
+  color: var(--brand-primary);
+  transition: transform 0.2s;
+}
+.recurrence-faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+.recurrence-faq details > p {
+  font-size: 12px;
+  line-height: 1.85;
+  padding: 0 30px 20px 0;
+}
+.recurrence-bottom-cta {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: #edf7ee;
+  border-radius: 14px;
+  padding: 29px 32px;
+  margin-top: 25px;
+}
+.recurrence-bottom-cta > svg {
+  color: var(--brand-primary);
+}
+.recurrence-bottom-cta > div {
+  flex: 1;
+}
+.recurrence-bottom-cta h2 {
+  font-size: 22px;
+}
+.recurrence-bottom-cta p {
+  font-size: 12px;
+  margin-top: 7px;
+}
+.recurrence-bottom-cta .btn {
+  white-space: nowrap;
+}
+@media (max-width: 1100px) {
+  .recurrence-hero {
+    padding: 35px 30px;
+    gap: 25px;
+  }
+  .recurrence-hero-copy h1 {
+    font-size: 35px;
+  }
+  .recurrence-benefits {
+    gap: 25px;
+  }
+  .recurrence-faq {
+    gap: 35px;
+  }
+}
+@media (max-width: 800px) {
+  .recurrence-hero {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .recurrence-hero-copy > p {
+    max-width: 580px;
+  }
+  .recurrence-visual {
+    max-width: 425px;
+    width: 100%;
+    margin: auto;
+  }
+  .recurrence-step-grid {
+    gap: 14px;
+  }
+  .recurrence-step-grid article {
+    padding: 21px;
+  }
+  .recurrence-step-grid h3 {
+    font-size: 16px;
+  }
+  .recurrence-faq {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .recurrence-bottom-cta {
+    flex-wrap: wrap;
+  }
+  .recurrence-bottom-cta .btn {
+    margin-left: 56px;
+  }
+}
+@media (max-width: 580px) {
+  .recurrence-container {
+    padding: 0 17px;
+  }
+  .recurrence-hero {
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+  .recurrence-hero-copy h1 {
+    font-size: 31px;
+    letter-spacing: -0.7px;
+  }
+  .recurrence-hero-copy > .eyebrow {
+    font-size: 8px;
+    margin-bottom: 15px;
+  }
+  .recurrence-hero-copy > p {
+    font-size: 13px;
+    margin: 16px 0 22px;
+  }
+  .recurrence-hero-copy > .btn {
+    width: 100%;
+    font-size: 12px;
+    padding: 12px;
+  }
+  .recurrence-how-link {
+    justify-content: center;
+    width: 100%;
+  }
+  .recurrence-reassurance {
+    font-size: 9px;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+  .recurrence-visual {
+    min-height: 320px;
+    padding: 18px 0 0;
+  }
+  .recurrence-orbit {
+    width: 240px;
+    height: 240px;
+    box-shadow: 0 0 0 14px #ebf3e5;
+  }
+  .recurrence-example {
+    width: calc(100% - 14px);
+    gap: 10px;
+    padding: 9px 12px;
+    min-height: 73px;
+  }
+  .recurrence-example.milk {
+    margin-left: 0;
+  }
+  .recurrence-example.paper {
+    margin-left: 4px;
+  }
+  .recurrence-example img {
+    width: 37px;
+    height: 53px;
+  }
+  .recurrence-example span {
+    font-size: 11px;
+  }
+  .recurrence-visual-heading {
+    font-size: 11px;
+  }
+  .recurrence-benefits {
+    gap: 12px;
+    padding: 22px 0;
+    margin-bottom: 22px;
+    font-size: 9px;
+  }
+  .recurrence-benefits span {
+    flex: 1;
+    flex-direction: column;
+    text-align: center;
+    gap: 7px;
+  }
+  .recurrence-benefits svg {
+    width: 18px;
+  }
+  .recurrence-section-heading {
+    margin-top: 28px;
+  }
+  .recurrence-section-heading h2,
+  .recurrence-faq h2 {
+    font-size: 24px;
+  }
+  .recurrence-section-heading > p {
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .recurrence-step-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .recurrence-step-grid article {
+    padding: 22px;
+  }
+  .recurrence-step-top {
+    margin-bottom: 12px;
+  }
+  .recurrence-step-grid h3 {
+    font-size: 17px;
+  }
+  .recurrence-step-grid p {
+    font-size: 12px;
+  }
+  .recurrence-menu-tip {
+    font-size: 10px;
+    line-height: 1.8;
+    margin-bottom: 30px;
+  }
+  .recurrence-faq {
+    padding-top: 30px;
+  }
+  .recurrence-faq summary {
+    font-size: 12px;
+    padding: 16px 0;
+  }
+  .recurrence-bottom-cta {
+    padding: 23px 19px;
+    gap: 13px;
+    margin-top: 12px;
+  }
+  .recurrence-bottom-cta > svg {
+    width: 25px;
+  }
+  .recurrence-bottom-cta h2 {
+    font-size: 19px;
+    line-height: 1.4;
+  }
+  .recurrence-bottom-cta p {
+    font-size: 11px;
+  }
+  .recurrence-bottom-cta .btn {
+    margin-left: 0;
+    width: 100%;
+    font-size: 12px;
+  }
+}

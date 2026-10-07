@@ -45,6 +45,7 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 | Rota | Experiência |
 | --- | --- |
 | `/` | Página inicial com categorias, banners e ofertas da referência Covabra |
+| `/recorrencias` | Landing page educativa: o que é recorrência, 3 passos, perguntas frequentes e acesso ao carrinho |
 | `/carrinho` | Quantidades, remoção, compra única ou assinatura |
 | `/comprar` | Catálogo, busca e produtos para adicionar |
 | `/cupons`, `/listas` | Páginas auxiliares da navegação |
