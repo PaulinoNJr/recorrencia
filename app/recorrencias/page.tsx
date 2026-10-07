@@ -61,6 +61,32 @@ export default function Recurrences() {
     <main className="recurrence-landing">
       <div className="recurrence-container">
         <Breadcrumb items={[{ label: "Recorrências" }]} />
+        <section id="como-funciona" className="recurrence-steps">
+          <div className="recurrence-section-heading">
+            <div className="eyebrow">SIMPLES, DO COMEÇO AO FIM</div>
+            <h2>Sua assinatura em 3 passos</h2>
+            <p>
+              Comece com uma compra normal. A recorrência é uma escolha sua.
+            </p>
+          </div>
+          <div className="recurrence-step-grid">
+            {steps.map(({ Icon, title, text }, i) => (
+              <article key={title}>
+                <div className="recurrence-step-top">
+                  <span>0{i + 1}</span>
+                  <Icon size={26} />
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </article>
+            ))}
+          </div>
+          <p className="recurrence-menu-tip">
+            <SlidersHorizontal size={17} />
+            Para gerenciar, abra o menu de <strong>Robson</strong>, escolha{" "}
+            <strong>Recorrências</strong> e acesse sua assinatura.
+          </p>
+        </section>
         <section className="recurrence-hero">
           <div className="recurrence-hero-copy">
             <div className="eyebrow">
@@ -155,32 +181,6 @@ export default function Recurrences() {
             Pause quando precisar
           </span>
         </div>
-        <section id="como-funciona" className="recurrence-steps">
-          <div className="recurrence-section-heading">
-            <div className="eyebrow">SIMPLES, DO COMEÇO AO FIM</div>
-            <h2>Sua assinatura em 3 passos</h2>
-            <p>
-              Comece com uma compra normal. A recorrência é uma escolha sua.
-            </p>
-          </div>
-          <div className="recurrence-step-grid">
-            {steps.map(({ Icon, title, text }, i) => (
-              <article key={title}>
-                <div className="recurrence-step-top">
-                  <span>0{i + 1}</span>
-                  <Icon size={26} />
-                </div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-          <p className="recurrence-menu-tip">
-            <SlidersHorizontal size={17} />
-            Para gerenciar, abra o menu de <strong>Robson</strong>, escolha{" "}
-            <strong>Recorrências</strong> e acesse sua assinatura.
-          </p>
-        </section>
         <section className="recurrence-faq">
           <div>
             <div className="eyebrow">PARA COMPRAR COM TRANQUILIDADE</div>
