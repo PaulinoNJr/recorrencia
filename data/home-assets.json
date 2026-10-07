@@ -1,0 +1,189 @@
+{
+  "categories": [
+    {
+      "image": "/home/categories-0.webp",
+      "label": "",
+      "href": "/790?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/b4b94aa7-3e9b-4e15-bcb6-ecd1b49db999___910abd0b508b2ced0b8216e1c7ae0d0d.webp"
+    },
+    {
+      "image": "/home/categories-1.png",
+      "label": "",
+      "href": "/cortes-do-dia-a-dia",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/68361de8-0a83-4b94-a056-9e7ce24ec847___5c3a1b860c74842a95db0eacce736200.png"
+    },
+    {
+      "image": "/home/categories-2.png",
+      "label": "",
+      "href": "/hortifruti",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/812eb041-ea65-41e3-9412-c1f1125610f8___3ce66ed86ee81460235ebcea2407b7e4.png"
+    },
+    {
+      "image": "/home/categories-3.png",
+      "label": "",
+      "href": "/612?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/7cb7c7b6-e4f1-44c4-aa63-0f67a860e5e2___95b342644f7d79cded789df3a66e723f.png"
+    },
+    {
+      "image": "/home/categories-4.png",
+      "label": "",
+      "href": "/mercearia/bomboniere-e-doces/chocolate-e-bombom",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/78f1e5d9-aa7f-4353-9fad-f9c5ecf8ed53___b5b62fd8ef1874b2a315a9b041f37095.png"
+    },
+    {
+      "image": "/home/categories-5.png",
+      "label": "",
+      "href": "/padaria/paes-e-torradas",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/a7881a79-a834-4173-acb7-36b46356616e___c4493440927b25dc3dea165dd463c1f2.png"
+    },
+    {
+      "image": "/home/categories-6.png",
+      "label": "",
+      "href": "/frios-e-embutidos",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/578fdaca-1dc3-482f-a479-3884fbd37316___6683936fa783499b8cf967912ab7fa89.png"
+    },
+    {
+      "image": "/home/categories-7.png",
+      "label": "",
+      "href": "/vinhos",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/bf837018-0a61-402e-95c0-2021a85b45b9___3469418a866b0834792e4df75ea0ed9b.png"
+    },
+    {
+      "image": "/home/categories-8.png",
+      "label": "",
+      "href": "/limpeza",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/331d7de1-ea28-43fb-a4a5-5c7febdc1cbd___4bac02c92cefe640953866bb47941ee8.png"
+    },
+    {
+      "image": "/home/categories-9.png",
+      "label": "",
+      "href": "/vitaminas-e-suplementos",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/385efbeb-c920-4007-9b80-5aad045a4b2f___d8d683809b73e7cfd68816172a305247.png"
+    }
+  ],
+  "banners": [
+    {
+      "image": "/home/hero-0.jpg",
+      "mobileImage": "/home/hero-mobile-0.png",
+      "label": "Camil - Trade",
+      "href": "/arroz%20seleção?map=ft&p=arroz%20seleção",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/76ae154d-41a9-4559-90ea-7081a62425f2___b35f645217dab4bae05b0fc1404469c0.jpg"
+    },
+    {
+      "image": "/home/hero-1.jpg",
+      "mobileImage": "/home/hero-mobile-1.jpg",
+      "label": "Temático ",
+      "href": "https://www.covabra.com.br/coquetel-don-cream-doce-de-leite-750ml/p ",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/554315bd-a217-41bd-86a8-b785d00045f8___d332a9f942298e0746139a6fc1afba0b.jpg"
+    },
+    {
+      "image": "/home/hero-2.png",
+      "mobileImage": "/home/hero-mobile-2.png",
+      "label": "OX",
+      "href": "/693?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/33aac00f-decd-4484-8dc7-e549476367bc___2b7bf3ebc7ae92142b36c4f9c7b7f062.png"
+    },
+    {
+      "image": "/home/hero-3.jpg",
+      "mobileImage": "/home/hero-mobile-3.png",
+      "label": "Dona Benta",
+      "href": "https://www.covabra.com.br/macarrao%20dona%20benta?map=ft&p=macarrao%20dona%20benta ",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/d075086c-c234-4bff-850d-0c6ae258af2a___1af47738ce1a35f02158e3cf88f8a3a4.jpg"
+    },
+    {
+      "image": "/home/hero-4.png",
+      "mobileImage": "/home/hero-mobile-4.png",
+      "label": "SCJohnson",
+      "href": "/785?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/baadfb97-e340-4ab3-b6fd-05a1865d94d6___c16f5dabed0fe066af41524e2653251e.png"
+    },
+    {
+      "image": "/home/hero-5.jpg",
+      "mobileImage": "/home/hero-mobile-5.jpg",
+      "label": "Temático",
+      "href": "/798?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/9c6088a2-691a-407d-9f83-317f1dde7ba1___fe9b24e886625e3d7aff8caee3c32190.jpg"
+    },
+    {
+      "image": "/home/hero-6.png",
+      "mobileImage": "/home/hero-mobile-6.png",
+      "label": "HEINEKEN",
+      "href": "/cerveja-heineken-ultimate-s-gluten-long-neck-330ml/p",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/df75c75e-d423-4770-b5ab-393ebac63135___b406b9f7f83a6df4eb122b894c9a7398.png"
+    },
+    {
+      "image": "/home/hero-7.png",
+      "mobileImage": "/home/hero-mobile-7.png",
+      "label": "Pepsico",
+      "href": "/750?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/7431eadf-7b88-417d-a40b-68166cfb321e___a29d710128d4a1a05008eea5b6a5b3c7.png"
+    },
+    {
+      "image": "/home/hero-8.jpg",
+      "mobileImage": "/home/hero-mobile-8.png",
+      "label": "Nívea",
+      "href": "/nívea?map=ft&p=nívea",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/afa8e36c-f21d-4255-a3a7-646f9a7af11b___72364b861de5984fca514250e8308ce5.jpg"
+    },
+    {
+      "image": "/home/hero-9.png",
+      "mobileImage": "/home/hero-mobile-9.png",
+      "label": "Heinz",
+      "href": "758?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/2e8294da-e37a-448a-8182-686415f9f5b8___a935230600b3611db78ad448444b1934.png"
+    },
+    {
+      "image": "/home/hero-10.jpg",
+      "mobileImage": "/home/hero-mobile-10.png",
+      "label": "SCJohnson",
+      "href": "/799?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/4dda608a-f72c-4f2f-88c9-d6f5e28942e9___679e2fec9b62344b91d542bd65118325.jpg"
+    }
+  ],
+  "mosaic": [
+    {
+      "image": "/home/mosaic-0.png",
+      "label": "Oferta 1",
+      "href": "/vitaminas-e-suplementos",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/b0cc4126-23a8-4dd8-a51f-1f2332bbb3c8___2ca75a88c0cb32cc09a6f5e9edc94ee8.png"
+    },
+    {
+      "image": "/home/mosaic-1.png",
+      "label": "Oferta 2",
+      "href": "https://clientebemestar.covabra.com.br/",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/55bbfb5d-419f-481c-97df-b55d17de8af6___5dc63441daa94b1680207d479a9a7d68.png"
+    },
+    {
+      "image": "/home/mosaic-2.webp",
+      "label": "Oferta 3",
+      "href": "/647?map=productClusterIds",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/ae47dae3-b503-4bdc-aedd-e83af0041f02___52adb2cb86af9a8495c309cb1d9e2b8c.webp"
+    },
+    {
+      "image": "/home/mosaic-3.png",
+      "label": "Oferta 4",
+      "href": "/cupons",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/c0bcb526-57bd-4460-a2ae-049247a9cc94___1f99a638bc03ecd4ab2c5e6bb7c5fb7f.png"
+    },
+    {
+      "image": "/home/mosaic-4.jpg",
+      "label": "Oferta 5",
+      "href": "https://rama.covabra.com.br/",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/7dfc1d0e-0f44-4f46-8eb0-60bd78fdab9c___aa10e1d5812420c8737b9ee31a34124c.jpg"
+    }
+  ],
+  "secondary": [
+    {
+      "image": "/home/secondary-0.jpg",
+      "label": "",
+      "href": "/comprar",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/c728039f-45b4-4ebd-be59-3e38917ec13e___dc62365aa8a649c32465b4ef6e87192c.jpg"
+    },
+    {
+      "image": "/home/secondary-1.jpg",
+      "label": "",
+      "href": "https://clientebemestar.covabra.com.br/",
+      "source": "https://covabra.vtexassets.com/assets/vtex.file-manager-graphql/images/173bfe6a-a962-43fc-8b17-c5c5407a91e1___a0cb0ba79ba08db99a1a6fc7115731b0.jpg"
+    }
+  ]
+}

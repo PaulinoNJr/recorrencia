@@ -7,3 +7,4 @@ playwright-report/
 *.tsbuildinfo
 .env*
 reference.html
+.reference-assets.mjs

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { Storefront } from "@/components/storefront";
 export default function Home() {
-  redirect("/carrinho");
+  return <Storefront />;
 }

@@ -42,7 +42,7 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 
 | Rota | Experiência |
 | --- | --- |
-| `/` | Redireciona ao carrinho |
+| `/` | Página inicial com categorias, banners e ofertas da referência Covabra |
 | `/carrinho` | Quantidades, remoção, compra única ou assinatura |
 | `/comprar` | Catálogo, busca e produtos para adicionar |
 | `/cupons`, `/listas` | Páginas auxiliares da navegação |
@@ -73,6 +73,7 @@ Mocks iniciais: `00124` ativa com café indisponível e histórico; `00125` paus
 
 - **Cores, medidas e responsividade:** tokens no início de `app/globals.css`. Tailwind é carregado pelo PostCSS; componentes reutilizáveis usam classes semânticas para concentrar os ajustes visuais.
 - **Logo:** `public/logo.webp`, utilizado em `components/shell.tsx`.
+- **Página inicial:** `components/storefront.tsx`, `app/storefront.css` e `data/home-assets.json`; imagens oficiais salvas em `public/home/`.
 - **Produtos:** `data/products.ts`; imagens em `public/products/`.
 - **Assinaturas, endereços e pagamentos:** `data/subscriptions.ts`, na função `initialState`.
 - **Persistência:** `components/store.tsx`, chave `covabra-prototype-v1`. Restaure os dados após mudar os mocks.
@@ -100,9 +101,13 @@ npm run test:e2e
 
 Os testes exercitam criação, edição, persistência após reload, pausa/reativação, pulo, cancelamento, cartão fictício, substituição, histórico, rotas e ausência de overflow em desktop e iPhone. O servidor de produção é iniciado pelo Playwright quando necessário. Capturas de tela são gravadas em `test-results/` para revisão visual.
 
+`tests/home.spec.ts` verifica também a nova página inicial, a troca de banners, o dropdown por hover/toque, links, navegação por teclado e Escape. Os dois testes da página inicial passaram em desktop/mobile, além dos seis testes do fluxo de assinatura.
+
 Se o Google Drive apresentar erros de gravação ao instalar dependências, copie o projeto para uma pasta local fora da unidade sincronizada e execute os mesmos comandos. `node_modules` e `.next` não devem ser enviados ao GitHub.
 
 ## Validação realizada
+
+A página inicial foi atualizada em 07/10/2026 com a composição e as imagens públicas do site Covabra: categorias, carrossel de 11 banners (desktop/mobile), mosaico e vitrine. Os materiais promocionais são uma fotografia da referência nessa data; não representam condições comerciais reais do protótipo. O catálogo e seus preços continuam mockados. Minhas listas e Recorrências ficam no dropdown de Robson, acessível por hover em desktop, clique/toque, Enter, seta para baixo e Escape. A raiz e o logo abrem a página inicial; o carrinho permanece em `/carrinho`.
 
 Instalação limpa, servidor de desenvolvimento (HTTP 200 em `/carrinho`), lint sem avisos, build de produção e os seis testes Playwright passaram em desktop e mobile. Carrinho, lista, detalhe, configuração, revisão e sucesso também foram revisados por capturas de tela.
 
