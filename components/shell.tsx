@@ -16,7 +16,8 @@ import {
   TicketPercent,
   Newspaper,
   Gift,
-  ShoppingBag,
+  ShoppingBasket,
+  BadgePercent,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "./store";
@@ -183,21 +184,47 @@ export function Header() {
           <b>{state.cart.length}</b>
         </Link>
       </div>
-      <nav>
-        <div className="container nav-inner">
-          <Link href="/comprar">
-            <Menu size={19} />
-            Todos os departamentos
-          </Link>
-          <Link className="coupon-nav" href="/cupons">
-            <TicketPercent size={18} />
-            Cupons
-          </Link>
-          <Link href="/comprar?ofertas=1">Ofertas</Link>
-          <Link href="/comprar">
-            <ShoppingBag size={17} />
-            Montar Compra
-          </Link>
+      <nav
+        className="department-navigation"
+        aria-label="Departamentos e ofertas"
+      >
+        <div className="container department-nav-inner">
+          <div className="department-links">
+            <Link className="categories-link" href="/comprar">
+              <Menu size={28} />
+              Categorias
+            </Link>
+            {[
+              "Bebidas",
+              "Mercearia",
+              "Hortifruti",
+              "Laticínios",
+              "Limpeza",
+              "Carnes",
+              "Padaria",
+              "Higiene",
+            ].map((category) => (
+              <Link
+                key={category}
+                href={"/comprar?categoria=" + encodeURIComponent(category)}
+              >
+                {category}
+              </Link>
+            ))}
+          </div>
+          <div className="department-actions">
+            <Link className="nav-pill" href="/cupons">
+              <BadgePercent size={23} />
+              Cupons
+            </Link>
+            <Link className="nav-pill" href="/comprar?ofertas=1">
+              Ofertas
+            </Link>
+            <Link className="nav-pill build-shopping" href="/comprar">
+              <ShoppingBasket size={30} />
+              Montar Compra
+            </Link>
+          </div>
         </div>
       </nav>
     </header>

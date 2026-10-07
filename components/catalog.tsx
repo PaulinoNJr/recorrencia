@@ -12,6 +12,7 @@ export function Catalog() {
   const query = useSearchParams();
   const { setState, notify } = useStore();
   const q = query.get("q") || "";
+  const department = query.get("categoria");
   const [category, setCategory] = useState("Todos");
   const visible = products.filter(
     (p) =>
@@ -20,6 +21,7 @@ export function Catalog() {
         .toLocaleLowerCase("pt-BR")
         .includes(q.toLocaleLowerCase("pt-BR")) &&
       (category === "Todos" || p.category.startsWith(category)) &&
+      (!department || p.category.startsWith(department)) &&
       (query.get("ofertas") !== "1" || p.previousPrice),
   );
   return (
@@ -29,7 +31,9 @@ export function Catalog() {
         title={
           q
             ? `Resultados para “${q}”`
-            : query.get("ofertas")
+            : department
+              ? department
+              : query.get("ofertas")
               ? "Ofertas para sua casa"
               : "O que sua casa precisa hoje?"
         }
@@ -99,8 +103,8 @@ export function Catalog() {
       </div>
       {!visible.length && (
         <div className="empty">
-          <h2>Nenhum produto encontrado</h2>
-          <p>Tente buscar por leite, café ou pão.</p>
+          <h2>{department ? "Nenhum produto disponível nesta categoria" : "Nenhum produto encontrado"}</h2>
+          <p>{department ? "Explore as outras categorias para continuar suas compras." : "Tente buscar por leite, café ou pão."}</p>
           <Link className="btn secondary" href="/comprar">
             Ver todos os produtos
           </Link>

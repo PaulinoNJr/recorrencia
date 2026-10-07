@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Plus,
   Heart,
-  ShoppingCart,
 } from "lucide-react";
 import assets from "@/data/home-assets.json";
 import { products } from "@/data/products";
@@ -195,16 +194,6 @@ export function Storefront() {
             />
           </Link>
         ))}
-        <div className="home-cart-cta">
-          <ShoppingCart size={21} />
-          <p>
-            Seus produtos estão no carrinho. Continue sua compra quando quiser.
-          </p>
-          <Link className="btn primary" href="/carrinho">
-            Ver meu carrinho
-            <ChevronRight size={17} />
-          </Link>
-        </div>
         <section className="home-about">
           <p>
             Com mais de 35 anos de história, o Covabra está presente no interior

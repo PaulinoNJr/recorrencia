@@ -11,7 +11,9 @@ npm install
 npm run dev
 ```
 
-Abra http://localhost:3000/carrinho.
+Abra http://localhost:3000/. A primeira tela é a página inicial do Covabra; o carrinho é acessado pelo ícone no cabeçalho.
+
+Na demonstração local já iniciada neste computador, use http://localhost:3001/ como link de entrada do protótipo.
 
 ```bash
 npm run lint
