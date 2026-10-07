@@ -15,7 +15,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
     page.getByRole("navigation", { name: "Categorias de produtos" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("img", { name: "Destaque Camil - Trade" }),
+    page.getByRole("heading", { name: /Seus essenciais.*No seu tempo/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Próximo banner", exact: true })
@@ -43,7 +43,9 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("link", { name: "Minhas listas", exact: true }),
   ).toBeVisible();
-  const managementLink = page.locator("#robson-dropdown").getByRole("link", { name: /Recorrências/ });
+  const managementLink = page
+    .locator("#robson-dropdown")
+    .getByRole("link", { name: /Recorrências/ });
   await expect(managementLink).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-robson-menu.png`,
