@@ -16,6 +16,12 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
       draft: {
         ...s.draft,
         source,
+        frequencyPending:
+          source === "cart"
+            ? s.cart
+                .filter((item) => productById(item.productId).eligible)
+                .map((item) => item.productId)
+            : [],
         items:
           source === "cart"
             ? s.cart
@@ -32,7 +38,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
       <button
         className="btn primary"
         disabled={!ready}
-        onClick={() => setOpen(true)}
+        onClick={() => (state.cart.length ? setOpen(true) : start("catalog"))}
       >
         {children}
         <ArrowRight size={18} />

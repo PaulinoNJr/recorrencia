@@ -21,6 +21,9 @@ test("criação, edição e gerenciamento persistem", async ({
   await page
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption("Todo mês");
+  await page
+    .getByLabel("Frequência de Papel higiênico folha dupla")
+    .selectOption("A cada 15 dias");
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-configurar.png`,
     fullPage: true,

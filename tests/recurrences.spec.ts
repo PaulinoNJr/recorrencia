@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 test("cliente aprende e escolhe os produtos da assinatura", async ({
   page,
 }, testInfo) => {
@@ -26,7 +26,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   ).toBeVisible();
   await page.goto("/recorrencias");
   await page
-    .getByRole("button", { name: "Criar minha assinatura", exact: true })
+    .getByRole("button", { name: "Quero criar minha assinatura", exact: true })
     .click();
   await page.getByRole("button", { name: /Do catálogo de produtos/ }).click();
   await expect(page.getByRole("checkbox").first()).not.toBeChecked();
@@ -60,6 +60,9 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
+  await page
+    .getByLabel("Frequência de Leite integral Shefa")
+    .selectOption("Toda semana");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
   expect(errors).toEqual([]);

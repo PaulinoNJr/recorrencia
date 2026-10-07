@@ -45,8 +45,11 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 | Rota | Experiência |
 | --- | --- |
 | `/` | Página inicial com categorias, banners e ofertas da referência Covabra |
-| `/recorrencias` | Landing page educativa: o que é recorrência, 3 passos, perguntas frequentes e acesso ao carrinho |
-| `/carrinho` | Quantidades, remoção, compra única ou assinatura |
+| `/recorrencias` | Landing page educativa: 3 passos e criação de assinatura pelo carrinho ou catálogo |
+| `/carrinho` | Layout do checkout Covabra: substituição, produtos, CPF na nota e resumo; compra única ou assinatura |
+| `/checkout` | Identificação por e-mail |
+| `/checkout/dados`, `/checkout/entrega`, `/checkout/pagamento` | Dados pessoais, entrega e pagamento da compra única |
+| `/checkout/sucesso` | Confirmação de compra de demonstração |
 | `/comprar` | Catálogo, busca e produtos para adicionar |
 | `/cupons`, `/listas` | Páginas auxiliares da navegação |
 | `/assinatura/configurar` | Seleção explícita e frequência por produto |

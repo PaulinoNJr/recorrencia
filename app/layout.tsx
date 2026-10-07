@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./storefront.css";
 import { StoreProvider } from "@/components/store";
-import { Header, Footer } from "@/components/shell";
+import { SiteFrame } from "@/components/site-frame";
+import "./checkout.css";
+import "./mobile.css";
 export const metadata: Metadata = {
   title: "Covabra | Compras que acompanham sua rotina",
   description:
@@ -17,9 +19,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <StoreProvider>
-          <Header />
-          {children}
-          <Footer />
+          <SiteFrame>{children}</SiteFrame>
         </StoreProvider>
       </body>
     </html>

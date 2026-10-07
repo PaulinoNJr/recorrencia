@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
-  ArrowRight,
   Repeat2,
   ShoppingBasket,
   CalendarDays,
@@ -21,7 +19,7 @@ export const metadata: Metadata = {
 const steps = [
   {
     Icon: ShoppingBasket,
-    title: "Escolha seus essenciais",
+    title: "Escolha seus Produtos",
     text: "Clique em “Criar minha assinatura”. Use os produtos do seu carrinho atual ou busque seus essenciais no catálogo.",
   },
   {
@@ -33,28 +31,6 @@ const steps = [
     Icon: SlidersHorizontal,
     title: "Confirme. E controle tudo.",
     text: "Revise e confirme sua assinatura. Em Minhas Assinaturas, você pode editar produtos, pular uma entrega, pausar ou cancelar.",
-  },
-];
-const questions = [
-  {
-    q: "O que é uma compra recorrente?",
-    a: "É uma assinatura dos produtos que você escolhe para receber automaticamente, na frequência que combina com sua rotina. Assim, você não precisa montar a mesma compra toda vez.",
-  },
-  {
-    q: "Preciso incluir todos os produtos do carrinho?",
-    a: "Não. Você escolhe quais produtos elegíveis entram na assinatura. Os demais continuam no carrinho para uma compra única, que você finaliza separadamente.",
-  },
-  {
-    q: "Posso escolher uma frequência para cada produto?",
-    a: "Sim. Você pode receber toda semana, a cada 15 dias, todo mês ou a cada 2 meses. Cada produto pode ter sua própria quantidade e frequência.",
-  },
-  {
-    q: "Como funciona o pagamento?",
-    a: "Você escolhe um cartão e confere a estimativa antes de confirmar. As cobranças acontecem automaticamente antes de cada ciclo. Preços e disponibilidade podem variar; confira os detalhes da próxima entrega em Minhas Assinaturas.",
-  },
-  {
-    q: "E se minha rotina mudar?",
-    a: "Você pode alterar produtos, quantidades, entrega e cartão em Minhas Assinaturas. Também pode pular a próxima entrega, pausar ou cancelar. Durante uma pausa, nenhuma nova cobrança é realizada.",
   },
 ];
 export default function Recurrences() {
@@ -180,36 +156,6 @@ export default function Recurrences() {
             Pause quando precisar
           </span>
         </div>
-        <section className="recurrence-faq">
-          <div>
-            <div className="eyebrow">PARA COMPRAR COM TRANQUILIDADE</div>
-            <h2>Ficou alguma dúvida?</h2>
-            <p>O que você precisa saber antes de começar.</p>
-            <Link href="/minhas-assinaturas">
-              Já tem uma assinatura? Gerencie aqui
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-          <div>
-            {questions.map(({ q, a }) => (
-              <details key={q}>
-                <summary>
-                  {q}
-                  <ChevronDown size={18} />
-                </summary>
-                <p>{a}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-        <section className="recurrence-bottom-cta">
-          <Repeat2 size={34} />
-          <div>
-            <h2>Pronto para facilitar sua rotina?</h2>
-            <p>Use seu carrinho ou escolha seus essenciais no catálogo.</p>
-          </div>
-          <SubscriptionStart>Criar minha assinatura</SubscriptionStart>
-        </section>
       </div>
     </main>
   );

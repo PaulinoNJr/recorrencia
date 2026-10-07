@@ -25,7 +25,7 @@ import {
 import { ProductEditor, ItemList } from "./products";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
-import { products } from "@/data/products";
+import { products, productById } from "@/data/products";
 export function Checkout({ step }: { step: number }) {
   const { state, setState, ready } = useStore();
   const router = useRouter();
@@ -34,11 +34,16 @@ export function Checkout({ step }: { step: number }) {
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const draft = state.draft;
+  const pendingFrequencyIds = draft.frequencyPending ?? draft.items.map((item) => item.productId);
+  const hasMissingFrequency = draft.items.some((item) =>
+    pendingFrequencyIds.includes(item.productId),
+  );
   const fromCatalog = draft.source === "catalog";
   const catalogIds = products
     .filter(
       (p) =>
         p.id !== "substituto" &&
+        p.eligible &&
         `${p.name} ${p.category}`
           .toLocaleLowerCase("pt-BR")
           .includes(search.toLocaleLowerCase("pt-BR")),
@@ -66,6 +71,19 @@ export function Checkout({ step }: { step: number }) {
         </Link>
       </main>
     );
+  if (step > 0 && hasMissingFrequency)
+    return (
+      <main className="container">
+        <h1>Escolha a frequência dos produtos</h1>
+        <p>
+          Defina a frequência de cada item selecionado ou remova-o da assinatura
+          para continuar.
+        </p>
+        <Link className="btn primary" href="/assinatura/configurar">
+          Voltar aos produtos
+        </Link>
+      </main>
+    );
   const titles = [
     "Monte sua assinatura",
     "Quando e onde você quer receber?",
@@ -79,7 +97,7 @@ export function Checkout({ step }: { step: number }) {
     "Confira os detalhes. Está tudo do seu jeito?",
   ];
   const confirm = () => {
-    if (!agreed || submitting) return;
+    if (!agreed || submitting || hasMissingFrequency) return;
     setSubmitting(true);
     const id = String(
       Math.max(126, ...state.subscriptions.map((s) => Number(s.id))) + 1,
@@ -154,10 +172,38 @@ export function Checkout({ step }: { step: number }) {
               <ProductEditor
                 defaults={fromCatalog ? [] : state.cart}
                 ids={
-                  fromCatalog ? catalogIds : state.cart.map((i) => i.productId)
+                  fromCatalog
+                    ? catalogIds
+                    : state.cart
+                        .filter((i) => productById(i.productId).eligible)
+                        .map((i) => i.productId)
                 }
                 items={draft.items}
-                onChange={(items) => patch({ items })}
+                pendingFrequencyIds={pendingFrequencyIds}
+                onFrequencyChange={(id, frequency) =>
+                  patch({
+                    items: draft.items.map((item) =>
+                      item.productId === id ? { ...item, frequency } : item,
+                    ),
+                    frequencyPending: pendingFrequencyIds.filter(
+                      (pendingId) => pendingId !== id,
+                    ),
+                  })
+                }
+                onChange={(items) =>
+                  patch({
+                    items,
+                    frequencyPending: items
+                      .filter(
+                        (item) =>
+                          pendingFrequencyIds.includes(item.productId) ||
+                          !draft.items.some(
+                            (current) => current.productId === item.productId,
+                          ),
+                      )
+                      .map((item) => item.productId),
+                  })
+                }
               />
               {fromCatalog && !catalogIds.length && (
                 <div className="panel empty">
@@ -297,9 +343,16 @@ export function Checkout({ step }: { step: number }) {
           )}
         </div>
         <Summary items={draft.items} date={draft.date}>
+          {hasMissingFrequency && (
+            <p className="frequency-required-message" role="status">
+              Escolha a frequência de cada produto selecionado ou remova o item
+              da assinatura para continuar.
+            </p>
+          )}
           <Button
             disabled={
               !draft.items.length ||
+              hasMissingFrequency ||
               !draft.date ||
               (step === 3 && !agreed) ||
               submitting

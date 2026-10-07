@@ -54,6 +54,7 @@ export interface Subscription {
   history: SubscriptionCycle[];
 }
 export interface Draft {
+  frequencyPending?: string[];
   source?: "cart" | "catalog";
   items: SubscriptionItem[];
   date: string;
@@ -62,6 +63,19 @@ export interface Draft {
   paymentId: string;
 }
 export interface PrototypeState {
+  purchase?: {
+    substitute?: string;
+    invoice?: string;
+    cpf?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    addressId?: string;
+    paymentId?: string;
+    date?: string;
+    period?: string;
+  };
   cart: SubscriptionItem[];
   draft: Draft;
   subscriptions: Subscription[];

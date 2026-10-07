@@ -8,12 +8,19 @@ export function ProductEditor({
   items,
   onChange,
   defaults = [],
+  pendingFrequencyIds = [],
+  onFrequencyChange,
   ids = products.filter((p) => p.id !== "substituto").map((p) => p.id),
 }: {
   items: SubscriptionItem[];
   onChange: (items: SubscriptionItem[]) => void;
   ids?: string[];
   defaults?: SubscriptionItem[];
+  pendingFrequencyIds?: string[];
+  onFrequencyChange?: (
+    id: string,
+    frequency: SubscriptionItem["frequency"],
+  ) => void;
 }) {
   const change = (id: string, patch: Partial<SubscriptionItem>) =>
     onChange(items.map((i) => (i.productId === id ? { ...i, ...patch } : i)));
@@ -69,9 +76,7 @@ export function ProductEditor({
                   <>
                     <Repeat2 size={13} /> Incluído na assinatura
                   </>
-                ) : (
-                  "Somente nesta compra"
-                )}
+                ) : null}
               </small>
             </div>
             <div className="product-controls">
@@ -88,14 +93,29 @@ export function ProductEditor({
                     Receber
                     <select
                       aria-label={"Frequência de " + p.name}
-                      value={item.frequency}
+                      value={
+                        pendingFrequencyIds.includes(id) ? "" : item.frequency
+                      }
+                      aria-invalid={
+                        pendingFrequencyIds.includes(id) || undefined
+                      }
                       onChange={(e) =>
-                        change(id, {
-                          frequency: e.target
-                            .value as SubscriptionItem["frequency"],
-                        })
+                        onFrequencyChange
+                          ? onFrequencyChange(
+                              id,
+                              e.target.value as SubscriptionItem["frequency"],
+                            )
+                          : change(id, {
+                              frequency: e.target
+                                .value as SubscriptionItem["frequency"],
+                            })
                       }
                     >
+                      {onFrequencyChange && (
+                        <option value="" disabled>
+                          Escolha a frequência
+                        </option>
+                      )}
                       {frequencies.map((f) => (
                         <option key={f}>{f}</option>
                       ))}
@@ -121,9 +141,11 @@ export function ProductEditor({
 export function CartItems({
   items,
   onChange,
+  showUnitPrice = false,
 }: {
   items: SubscriptionItem[];
   onChange: (items: SubscriptionItem[]) => void;
+  showUnitPrice?: boolean;
 }) {
   return (
     <div className="panel cart-products">
@@ -151,6 +173,9 @@ export function CartItems({
                 </small>
               )}
             </div>
+            {showUnitPrice && (
+              <strong className="cart-unit-price">{money(p.price)}</strong>
+            )}
             <Quantity
               value={item.quantity}
               onChange={(quantity) =>
@@ -179,7 +204,13 @@ export function CartItems({
     </div>
   );
 }
-export function ItemList({ items }: { items: SubscriptionItem[] }) {
+export function ItemList({
+  items,
+  recurring = true,
+}: {
+  items: SubscriptionItem[];
+  recurring?: boolean;
+}) {
   return (
     <div>
       {items.map((i) => {
@@ -191,7 +222,11 @@ export function ItemList({ items }: { items: SubscriptionItem[] }) {
               <h3>{p.name}</h3>
               <p>
                 {i.quantity} {i.quantity === 1 ? "unidade" : "unidades"}{" "}
-                <span>·</span> {i.frequency}
+                {recurring && (
+                  <>
+                    <span>·</span> {i.frequency}
+                  </>
+                )}
               </p>
               {i.skipOnce && (
                 <small className="warning-text">
