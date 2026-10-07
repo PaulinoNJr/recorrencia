@@ -85,7 +85,7 @@ export default function Cart() {
                     onClick={() => {
                       setState((s) => ({
                         ...s,
-                        draft: { ...s.draft, items: [] },
+                        draft: { ...s.draft, source: "cart", items: [] },
                       }));
                       router.push("/assinatura/configurar");
                     }}

@@ -25,13 +25,25 @@ import {
 import { ProductEditor, ItemList } from "./products";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
+import { products } from "@/data/products";
 export function Checkout({ step }: { step: number }) {
   const { state, setState, ready } = useStore();
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
   const [terms, setTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
   const draft = state.draft;
+  const fromCatalog = draft.source === "catalog";
+  const catalogIds = products
+    .filter(
+      (p) =>
+        p.id !== "substituto" &&
+        `${p.name} ${p.category}`
+          .toLocaleLowerCase("pt-BR")
+          .includes(search.toLocaleLowerCase("pt-BR")),
+    )
+    .map((p) => p.id);
   const patch = (change: Partial<typeof draft>) =>
     setState((s) => ({ ...s, draft: { ...s.draft, ...change } }));
   const address = state.addresses.find((a) => a.id === draft.addressId);
@@ -113,18 +125,49 @@ export function Checkout({ step }: { step: number }) {
                   Você está no controle. Cada produto pode ter uma frequência
                   diferente.
                   <br />
-                  <strong>
-                    Os itens não selecionados continuam como compra única no
-                    carrinho.
-                  </strong>
+                  {!fromCatalog && (
+                    <strong>
+                      Os itens não selecionados continuam como compra única no
+                      carrinho.
+                    </strong>
+                  )}
                 </span>
               </div>
+              {fromCatalog && (
+                <div className="subscription-catalog-search">
+                  <label htmlFor="subscription-search">
+                    Buscar no catálogo de produtos
+                  </label>
+                  <input
+                    id="subscription-search"
+                    type="search"
+                    placeholder="Busque por produto ou categoria"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <p>
+                    {catalogIds.length} produtos encontrados ·{" "}
+                    {draft.items.length} selecionados para assinatura
+                  </p>
+                </div>
+              )}
               <ProductEditor
-                defaults={state.cart}
-                ids={state.cart.map((i) => i.productId)}
+                defaults={fromCatalog ? [] : state.cart}
+                ids={
+                  fromCatalog ? catalogIds : state.cart.map((i) => i.productId)
+                }
                 items={draft.items}
                 onChange={(items) => patch({ items })}
               />
+              {fromCatalog && !catalogIds.length && (
+                <div className="panel empty">
+                  <h2>Nenhum produto encontrado</h2>
+                  <p>Tente outro nome ou categoria.</p>
+                  <Button variant="secondary" onClick={() => setSearch("")}>
+                    Ver todos os produtos
+                  </Button>
+                </div>
+              )}
             </>
           )}
           {step === 1 && (

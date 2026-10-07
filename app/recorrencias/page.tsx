@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Breadcrumb } from "@/components/shell";
 import "./recorrencias.css";
+import { SubscriptionStart } from "@/components/subscription-start";
 export const metadata: Metadata = {
   title: "Recorrências | Sua rotina mais prática | Covabra",
   description:
@@ -21,7 +22,7 @@ const steps = [
   {
     Icon: ShoppingBasket,
     title: "Escolha seus essenciais",
-    text: "Monte seu carrinho normalmente. Clique em “Criar assinatura” e selecione quais produtos quer receber de novo.",
+    text: "Clique em “Criar minha assinatura”. Use os produtos do seu carrinho atual ou busque seus essenciais no catálogo.",
   },
   {
     Icon: CalendarDays,
@@ -66,7 +67,8 @@ export default function Recurrences() {
             <div className="eyebrow">SIMPLES, DO COMEÇO AO FIM</div>
             <h2>Sua assinatura em 3 passos</h2>
             <p>
-              Comece com uma compra normal. A recorrência é uma escolha sua.
+              Comece pelo carrinho ou pelo catálogo. A recorrência é uma escolha
+              sua.
             </p>
           </div>
           <div className="recurrence-step-grid">
@@ -103,10 +105,7 @@ export default function Recurrences() {
               assinatura, eles chegam automaticamente, no ritmo que você
               escolher.
             </p>
-            <Link className="btn primary" href="/carrinho">
-              Quero criar minha assinatura
-              <ArrowRight size={18} />
-            </Link>
+            <SubscriptionStart>Quero criar minha assinatura</SubscriptionStart>
             <a className="recurrence-how-link" href="#como-funciona">
               Veja como funciona
               <ChevronDown size={16} />
@@ -207,12 +206,9 @@ export default function Recurrences() {
           <Repeat2 size={34} />
           <div>
             <h2>Pronto para facilitar sua rotina?</h2>
-            <p>Comece pelos produtos que você já tem no carrinho.</p>
+            <p>Use seu carrinho ou escolha seus essenciais no catálogo.</p>
           </div>
-          <Link className="btn primary" href="/carrinho">
-            Criar minha assinatura
-            <ArrowRight size={17} />
-          </Link>
+          <SubscriptionStart>Criar minha assinatura</SubscriptionStart>
         </section>
       </div>
     </main>

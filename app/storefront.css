@@ -663,3 +663,41 @@ header > .container {
     font-size: 11px;
   }
 }
+.home-recurrence-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 30px;
+  padding: 34px 44px;
+  margin: 32px 0;
+  border-radius: 16px;
+  background: #edf7ee;
+  border: 1px solid #dcebdd;
+  overflow: hidden;
+}
+.home-recurrence-label { display: flex; align-items: center; gap: 8px; color: var(--brand-primary); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+.home-recurrence-copy h2 { font-size: 32px; line-height: 1.2; letter-spacing: -.6px; margin: 13px 0; }
+.home-recurrence-copy p { font-size: 14px; line-height: 1.8; max-width: 490px; margin-bottom: 21px; color: var(--text-secondary); }
+.home-recurrence-copy .btn { width: fit-content; min-height: 44px; }
+.home-recurrence-art { position: relative; height: 220px; width: 320px; margin: auto; }
+.home-recurrence-circle { position: absolute; inset: 0 50px; border-radius: 50%; background: #dcefd4; display: grid; place-items: center; color: #8cbc81; }
+.home-recurrence-art img { position: absolute; width: 80px; height: 110px; object-fit: contain; background: white; border-radius: 12px; padding: 10px; border: 1px solid #dcebdd; box-shadow: 0 6px 18px #2843130b; }
+.recurrence-banner-milk { top: 20px; left: 20px; transform: rotate(-8deg); }
+.recurrence-banner-coffee { top: 6px; right: 35px; transform: rotate(8deg); }
+.recurrence-banner-paper { bottom: 12px; left: 119px; transform: rotate(-3deg); }
+.home-recurrence-art > span { position: absolute; bottom: 0; right: -10px; color: var(--brand-primary); background: white; border-radius: 24px; padding: 9px 14px; font-size: 11px; font-weight: 600; }
+@media (max-width: 800px) {
+  .home-recurrence-banner { padding: 28px; gap: 15px; }
+  .home-recurrence-copy h2 { font-size: 27px; }
+  .home-recurrence-art { width: 260px; }
+  .home-recurrence-circle { inset: 10px 30px; }
+  .recurrence-banner-paper { left: 90px; }
+}
+@media (max-width: 580px) {
+  .home-recurrence-banner { grid-template-columns: 1fr; padding: 25px 22px; margin: 25px 0; gap: 24px; }
+  .home-recurrence-copy h2 { font-size: 28px; }
+  .home-recurrence-copy p { font-size: 13px; }
+  .home-recurrence-copy .btn { width: 100%; }
+  .home-recurrence-art { width: 260px; max-width: 100%; }
+  .home-recurrence-art > span { right: 0; }
+}

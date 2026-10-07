@@ -54,6 +54,7 @@ export interface Subscription {
   history: SubscriptionCycle[];
 }
 export interface Draft {
+  source?: "cart" | "catalog";
   items: SubscriptionItem[];
   date: string;
   period: string;

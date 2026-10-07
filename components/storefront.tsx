@@ -6,6 +6,8 @@ import {
   ChevronRight,
   Plus,
   Heart,
+  Repeat2,
+  ArrowRight,
 } from "lucide-react";
 import assets from "@/data/home-assets.json";
 import { products } from "@/data/products";
@@ -97,6 +99,21 @@ export function Storefront() {
                 onClick={() => setSlide(i)}
               />
             ))}
+          </div>
+        </section>
+        <section className="home-recurrence-banner" aria-labelledby="home-recurrence-heading">
+          <div className="home-recurrence-copy">
+            <span className="home-recurrence-label"><Repeat2 size={17} /> RECORRÊNCIAS COVABRA</span>
+            <h2 id="home-recurrence-heading">Seus essenciais, no seu tempo.</h2>
+            <p>Receba os produtos da sua rotina automaticamente. Você escolhe a frequência e controla tudo.</p>
+            <Link className="btn primary" href="/recorrencias">Conheça a recorrência <ArrowRight size={18} /></Link>
+          </div>
+          <div className="home-recurrence-art" aria-hidden="true">
+            <div className="home-recurrence-circle"><Repeat2 size={140} strokeWidth={1} /></div>
+            <img className="recurrence-banner-milk" src="/products/leite.jpg" alt="" width="80" height="110" />
+            <img className="recurrence-banner-coffee" src="/products/cafe.svg" alt="" width="80" height="110" />
+            <img className="recurrence-banner-paper" src="/products/papel.svg" alt="" width="80" height="110" />
+            <span>Uma rotina mais prática</span>
           </div>
         </section>
         <section className="home-mosaic" aria-label="Novidades e serviços">
