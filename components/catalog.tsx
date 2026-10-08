@@ -1,16 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { products } from "@/data/products";
-import { useStore } from "./store";
-import { Button, PageHeading } from "./ui";
+import { ProductCartControl } from "./product-cart-control";
+import { PageHeading } from "./ui";
 import { Breadcrumb } from "./shell";
 import { money } from "@/lib/utils";
 export function Catalog() {
   const query = useSearchParams();
-  const { setState, notify } = useStore();
   const q = query.get("q") || "";
   const department = query.get("categoria");
   const [category, setCategory] = useState("Todos");
@@ -34,8 +33,8 @@ export function Catalog() {
             : department
               ? department
               : query.get("ofertas")
-              ? "Ofertas para sua casa"
-              : "O que sua casa precisa hoje?"
+                ? "Ofertas para sua casa"
+                : "O que sua casa precisa hoje?"
         }
         description="Escolha seus produtos. Depois, decida o que combina com uma assinatura."
         action={
@@ -70,41 +69,22 @@ export function Catalog() {
             <h3>{p.name}</h3>
             <p>{p.category}</p>
             <strong>{money(p.price)}</strong>
-            <Button
-              onClick={() => {
-                setState((s) => {
-                  const exists = s.cart.some((i) => i.productId === p.id);
-                  return {
-                    ...s,
-                    cart: exists
-                      ? s.cart.map((i) =>
-                          i.productId === p.id
-                            ? { ...i, quantity: Math.min(99, i.quantity + 1) }
-                            : i,
-                        )
-                      : [
-                          ...s.cart,
-                          {
-                            productId: p.id,
-                            quantity: 1,
-                            frequency: p.frequency,
-                          },
-                        ],
-                  };
-                });
-                notify(p.name + " adicionado ao carrinho.");
-              }}
-            >
-              <Plus size={16} />
-              Adicionar
-            </Button>
+            <ProductCartControl product={p} />
           </article>
         ))}
       </div>
       {!visible.length && (
         <div className="empty">
-          <h2>{department ? "Nenhum produto disponível nesta categoria" : "Nenhum produto encontrado"}</h2>
-          <p>{department ? "Explore as outras categorias para continuar suas compras." : "Tente buscar por leite, café ou pão."}</p>
+          <h2>
+            {department
+              ? "Nenhum produto disponível nesta categoria"
+              : "Nenhum produto encontrado"}
+          </h2>
+          <p>
+            {department
+              ? "Explore as outras categorias para continuar suas compras."
+              : "Tente buscar por leite, café ou pão."}
+          </p>
           <Link className="btn secondary" href="/comprar">
             Ver todos os produtos
           </Link>

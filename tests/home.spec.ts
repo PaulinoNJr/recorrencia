@@ -34,18 +34,29 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   await expect(
     page.locator("header nav").getByRole("link", { name: "Minhas listas" }),
   ).toHaveCount(0);
-  await expect(
-    page.locator("header nav").getByRole("link", { name: /Recorrências/ }),
-  ).toHaveAttribute("href", "/recorrencias");
-  if (testInfo.project.name === "desktop") await trigger.hover();
-  else await trigger.tap();
+  if (testInfo.project.name === "desktop") {
+    await expect(
+      page
+        .locator(".department-navigation")
+        .getByRole("link", { name: /Recorrências/ }),
+    ).toHaveAttribute("href", "/recorrencias");
+    await trigger.hover();
+  } else await trigger.tap();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
   await expect(
     page.getByRole("link", { name: "Minhas listas", exact: true }),
   ).toBeVisible();
   const managementLink = page
-    .locator("#robson-dropdown")
-    .getByRole("link", { name: /Recorrências/ });
+    .locator(
+      testInfo.project.name === "desktop"
+        ? "#robson-dropdown"
+        : "#mobile-store-menu",
+    )
+    .getByRole("link", {
+      name:
+        testInfo.project.name === "desktop" ? /Recorrências/ : "Recorrências",
+      exact: testInfo.project.name !== "desktop",
+    });
   await expect(managementLink).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-robson-menu.png`,
@@ -54,15 +65,28 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   await expect(page).toHaveURL(/minhas-assinaturas$/);
   await page.getByRole("link", { name: "Covabra início" }).click();
   await expect(page).toHaveURL("/");
-  await trigger.focus();
-  await trigger.press("ArrowDown");
-  await expect(
-    page.getByRole("link", { name: "Minhas listas", exact: true }),
-  ).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(trigger).toHaveAttribute("aria-expanded", "false");
-  await trigger.press("Enter");
-  await page.getByRole("link", { name: "Minhas listas", exact: true }).click();
-  await expect(page).toHaveURL(/listas$/);
+  if (testInfo.project.name === "desktop") {
+    await trigger.focus();
+    await trigger.press("ArrowDown");
+    await expect(
+      page.getByRole("link", { name: "Minhas listas", exact: true }),
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await trigger.press("Enter");
+    await page
+      .getByRole("link", { name: "Minhas listas", exact: true })
+      .click();
+    await expect(page).toHaveURL(/listas$/);
+  } else {
+    await trigger.click();
+    await page.keyboard.press("Escape");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await trigger.click();
+    await page
+      .getByRole("link", { name: "Minhas listas", exact: true })
+      .click();
+    await expect(page).toHaveURL(/listas$/);
+  }
   expect(errors).toEqual([]);
 });

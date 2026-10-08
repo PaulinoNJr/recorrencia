@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
   Heart,
   Repeat2,
   ArrowRight,
@@ -15,6 +14,7 @@ import assets from "@/data/home-assets.json";
 import { products } from "@/data/products";
 import { money } from "@/lib/utils";
 import { useStore } from "./store";
+import { ProductCartControl } from "./product-cart-control";
 const categories = [
   "Plenitud",
   "Açougue",
@@ -36,7 +36,7 @@ const mosaicLabels = [
 ];
 const slides = [null, ...assets.banners];
 export function Storefront() {
-  const { setState, notify } = useStore();
+  const { notify } = useStore();
   const [slide, setSlide] = useState(0);
   const [paused, setPaused] = useState(false);
   useEffect(() => {
@@ -219,32 +219,7 @@ export function Storefront() {
                   {p.previousPrice && <del>{money(p.previousPrice)}</del>}
                   <strong>{money(p.price)}</strong>
                 </div>
-                <button
-                  className="btn primary"
-                  onClick={() => {
-                    setState((s) => ({
-                      ...s,
-                      cart: s.cart.some((i) => i.productId === p.id)
-                        ? s.cart.map((i) =>
-                            i.productId === p.id
-                              ? { ...i, quantity: Math.min(99, i.quantity + 1) }
-                              : i,
-                          )
-                        : [
-                            ...s.cart,
-                            {
-                              productId: p.id,
-                              quantity: 1,
-                              frequency: p.frequency,
-                            },
-                          ],
-                    }));
-                    notify(p.name + " adicionado ao carrinho.");
-                  }}
-                >
-                  <Plus size={17} />
-                  Adicionar
-                </button>
+                <ProductCartControl product={p} />
               </article>
             ))}
           </div>

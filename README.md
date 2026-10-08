@@ -78,6 +78,7 @@ Mocks iniciais: `00124` ativa com café indisponível e histórico; `00125` paus
 ## Alterar conteúdo e identidade
 
 - **Cores, medidas e responsividade:** tokens no início de `app/globals.css`. Tailwind é carregado pelo PostCSS; componentes reutilizáveis usam classes semânticas para concentrar os ajustes visuais.
+- **Mobile:** `app/mobile.css` é carregado após os estilos compartilhados. Controles de toque, formulários com fonte de 16 px, produtos, modais e linha do tempo se adaptam ao celular. `tests/mobile.spec.ts` verifica todas as telas em 320, 360, 390, 430 e 768 px, além do menu e dos modais na horizontal.
 - **Logo:** `public/logo.webp`, utilizado em `components/shell.tsx`.
 - **Página inicial:** `components/storefront.tsx`, `app/storefront.css` e `data/home-assets.json`; imagens oficiais salvas em `public/home/`.
 - **Produtos:** `data/products.ts`; imagens em `public/products/`.

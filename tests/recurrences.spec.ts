@@ -6,6 +6,24 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/recorrencias");
   await expect(
+    page.getByRole("heading", { level: 1, name: "Recorrências Covabra" }),
+  ).toBeVisible();
+  const shortcuts = page.getByRole("navigation", {
+    name: "Explore as recorrências Covabra",
+  });
+  await expect(
+    shortcuts.getByRole("link", { name: "Minhas assinaturas" }),
+  ).toHaveAttribute("href", "/minhas-assinaturas");
+  await shortcuts.getByRole("link", { name: "Como funciona" }).click();
+  await expect(page).toHaveURL(/#como-funciona$/);
+  await shortcuts.getByRole("link", { name: "Monte sua assinatura" }).click();
+  await expect(page).toHaveURL(/#monte-sua-assinatura$/);
+  await page.goto("/recorrencias");
+  await page.screenshot({
+    path: `test-results/${testInfo.project.name}-recurrence-identity.png`,
+    fullPage: true,
+  });
+  await expect(
     page.getByRole("heading", { name: "Sua assinatura em 3 passos" }),
   ).toBeVisible();
   await page

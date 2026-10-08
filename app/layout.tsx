@@ -5,6 +5,7 @@ import { StoreProvider } from "@/components/store";
 import { SiteFrame } from "@/components/site-frame";
 import "./checkout.css";
 import "./mobile.css";
+import "./mobile-storefront.css";
 export const metadata: Metadata = {
   title: "Covabra | Compras que acompanham sua rotina",
   description:

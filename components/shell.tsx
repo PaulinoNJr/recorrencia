@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "./store";
+import { MobileNavigation, MobileMenu } from "./mobile-navigation";
 export function Header() {
   const { state } = useStore();
   const path = usePathname();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState<MobileMenu>(null);
   const accountRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const close = (event: PointerEvent) => {
@@ -38,6 +40,10 @@ export function Header() {
   }, []);
   return (
     <header>
+      <div className="mobile-promotion">
+        <Truck size={17} />
+        FRETE GRÁTIS a partir de R$299
+      </div>
       <div className="official-topbar">
         <div className="container">
           <a
@@ -80,6 +86,16 @@ export function Header() {
         </div>
       </div>
       <div className="container main-header">
+        <button
+          className="mobile-menu-trigger"
+          type="button"
+          aria-label="Abrir menu de categorias"
+          aria-expanded={mobileMenu === "menu"}
+          aria-controls="mobile-store-menu"
+          onClick={() => setMobileMenu("menu")}
+        >
+          <Menu size={23} />
+        </button>
         <Link href="/" aria-label="Covabra início">
           <img
             className="logo"
@@ -184,6 +200,17 @@ export function Header() {
           <b>{state.cart.length}</b>
         </Link>
       </div>
+      <div className="mobile-delivery-context">
+        <span>
+          Entrega em:{" "}
+          <strong>
+            {state.addresses.find(
+              (address) => address.id === state.draft.addressId,
+            )?.city || "Selecione no checkout"}
+          </strong>
+        </span>
+        <span>Frete no checkout</span>
+      </div>
       <nav
         className="department-navigation"
         aria-label="Departamentos e ofertas"
@@ -234,6 +261,7 @@ export function Header() {
           </div>
         </div>
       </nav>
+      <MobileNavigation mode={mobileMenu} onChange={setMobileMenu} />
     </header>
   );
 }
@@ -257,6 +285,66 @@ export function Footer() {
   const { reset } = useStore();
   return (
     <footer>
+      <div className="mobile-footer-links">
+        <details>
+          <summary>
+            Institucional <ChevronDown size={18} />
+          </summary>
+          <a
+            href="https://www.covabra.com.br/nossas-lojas"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Nossas lojas
+          </a>
+          <a
+            href="https://blog.covabra.com.br/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Blog Covabra
+          </a>
+          <a
+            href="https://www.covabra.com.br/jornal-de-ofertas"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Jornal de Ofertas
+          </a>
+        </details>
+        <details>
+          <summary>
+            Políticas <ChevronDown size={18} />
+          </summary>
+          <a
+            href="https://www.covabra.com.br/termos-e-politicas"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Políticas do Covabra
+          </a>
+        </details>
+        <details>
+          <summary>
+            Atendimento <ChevronDown size={18} />
+          </summary>
+          <a
+            href="https://www.covabra.com.br/fale-conosco"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Fale conosco
+          </a>
+        </details>
+        <details>
+          <summary>
+            Outros contatos <ChevronDown size={18} />
+          </summary>
+          <a href="https://www.covabra.com.br" target="_blank" rel="noreferrer">
+            Acesse o site Covabra
+          </a>
+        </details>
+      </div>
       <div className="container footer-benefits">
         <span>
           <ShieldCheck />

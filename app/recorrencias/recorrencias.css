@@ -7,6 +7,299 @@
   margin: auto;
   padding: 0 20px;
 }
+.recurrence-identity {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 35px;
+  padding: 42px 48px;
+  border-radius: 24px;
+  background: #15296c;
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+.recurrence-identity-copy {
+  position: relative;
+  z-index: 1;
+}
+.recurrence-identity-label {
+  color: #d5ed61;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+.recurrence-brand {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin: 22px 0;
+}
+.recurrence-brand-symbol {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  background: #d5ed61;
+  color: #15296c;
+  border-radius: 24px 24px 24px 6px;
+}
+.recurrence-brand-symbol svg {
+  width: 42px;
+  height: 42px;
+}
+.recurrence-brand h1 {
+  font-size: 46px;
+  line-height: 1.08;
+  letter-spacing: -1.3px;
+}
+.recurrence-brand h1 span {
+  display: block;
+  font-size: 23px;
+  margin-top: 8px;
+  letter-spacing: 0;
+}
+.recurrence-identity-copy h2 {
+  font-size: 24px;
+  line-height: 1.3;
+}
+.recurrence-identity-copy p {
+  color: #e0e8f5;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 500px;
+  margin-top: 12px;
+}
+.recurrence-identity-art {
+  position: relative;
+  min-height: 260px;
+}
+.recurrence-identity-art::before {
+  content: "";
+  position: absolute;
+  width: 245px;
+  height: 245px;
+  border-radius: 50%;
+  background: #244786;
+  border: 1px dashed #7894c2;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 22px #ffffff05;
+}
+.recurrence-calendar {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  width: 112px;
+  height: 122px;
+  border-radius: 22px;
+  background: #f4f8eb;
+  display: grid;
+  place-items: center;
+  color: #008a30;
+  box-shadow: 8px 12px 0 #102359;
+}
+.recurrence-calendar > svg:first-child {
+  width: 65px;
+  height: 65px;
+  stroke-width: 1.5;
+}
+.recurrence-calendar > svg:last-child {
+  position: absolute;
+  right: -16px;
+  bottom: -9px;
+  width: 47px;
+  height: 47px;
+  padding: 9px;
+  background: #d5ed61;
+  color: #15296c;
+  border-radius: 50%;
+}
+.recurrence-rhythm {
+  position: absolute;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 16px;
+  border-radius: 30px;
+  box-shadow: 0 6px 16px #081b4433;
+  white-space: nowrap;
+}
+.recurrence-rhythm.weekly {
+  top: 14px;
+  left: 14%;
+  background: #d5ed61;
+  color: #15296c;
+  transform: rotate(-6deg);
+}
+.recurrence-rhythm.fortnightly {
+  right: 0;
+  top: 103px;
+  background: #fff;
+  color: #15296c;
+  transform: rotate(7deg);
+}
+.recurrence-rhythm.monthly {
+  bottom: 42px;
+  left: 0;
+  background: #008a30;
+  color: #fff;
+  transform: rotate(-4deg);
+}
+.recurrence-art-note {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: #e0e8f5;
+}
+.recurrence-shortcuts {
+  display: flex;
+  justify-content: center;
+  gap: 76px;
+  padding: 30px 0 8px;
+}
+.recurrence-shortcuts a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 150px;
+  color: #15296c;
+  font-size: 14px;
+}
+.recurrence-shortcut-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: transform 150ms ease;
+}
+.recurrence-shortcut-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.6;
+}
+.recurrence-shortcut-icon.green {
+  background: #008a30;
+  color: white;
+}
+.recurrence-shortcut-icon.blue {
+  background: #15296c;
+  color: white;
+}
+.recurrence-shortcut-icon.yellow {
+  background: #d5ed61;
+  color: #15296c;
+}
+.recurrence-shortcuts a:hover .recurrence-shortcut-icon {
+  transform: translateY(-3px);
+}
+.recurrence-landing .recurrence-section-heading h2 {
+  color: #15296c;
+}
+.recurrence-landing .recurrence-step-grid article {
+  border-top: 4px solid #008a30;
+  background: #fbfdf9;
+}
+.recurrence-landing .recurrence-step-grid article:nth-child(2) {
+  border-top-color: #15296c;
+}
+.recurrence-landing .recurrence-step-grid article:nth-child(3) {
+  border-top-color: #c5d93c;
+}
+.recurrence-landing .recurrence-step-top > span {
+  color: #15296c;
+}
+@media (max-width: 800px) {
+  .recurrence-identity {
+    padding: 30px;
+    gap: 20px;
+    grid-template-columns: 1fr;
+  }
+  .recurrence-brand h1 {
+    font-size: 38px;
+  }
+  .recurrence-identity-art {
+    min-height: 220px;
+    width: 100%;
+    max-width: 350px;
+    margin: 5px auto 0;
+  }
+  .recurrence-identity-art::before {
+    width: 200px;
+    height: 200px;
+  }
+  .recurrence-calendar {
+    width: 96px;
+    height: 106px;
+  }
+  .recurrence-shortcuts {
+    gap: 30px;
+  }
+}
+@media (max-width: 580px) {
+  .recurrence-identity {
+    padding: 26px 20px;
+    border-radius: 18px;
+  }
+  .recurrence-brand {
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .recurrence-brand-symbol {
+    width: 52px;
+    height: 58px;
+    border-radius: 18px 18px 18px 5px;
+  }
+  .recurrence-brand-symbol svg {
+    width: 32px;
+    height: 32px;
+  }
+  .recurrence-brand h1 {
+    font-size: clamp(25px, 7.4vw, 36px);
+    letter-spacing: -0.8px;
+  }
+  .recurrence-brand h1 span {
+    font-size: 19px;
+    margin-top: 6px;
+  }
+  .recurrence-identity-label {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+  }
+  .recurrence-identity-copy h2 {
+    font-size: 23px;
+  }
+  .recurrence-identity-copy p {
+    font-size: 14px;
+  }
+  .recurrence-rhythm {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+  .recurrence-rhythm.weekly {
+    left: 4%;
+  }
+  .recurrence-shortcuts {
+    gap: 10px;
+    padding-top: 24px;
+  }
+  .recurrence-shortcuts a {
+    flex: 1;
+    font-size: 12px;
+    gap: 10px;
+  }
+  .recurrence-shortcut-icon {
+    width: 64px;
+    height: 64px;
+  }
+}
 .recurrence-hero {
   display: grid;
   grid-template-columns: 1.12fr 1fr;
@@ -18,12 +311,12 @@
   padding: 48px 48px 42px;
   overflow: hidden;
 }
-.recurrence-hero-copy h1 {
+.recurrence-hero-copy h2 {
   font-size: 43px;
   line-height: 1.18;
   letter-spacing: -1.2px;
 }
-.recurrence-hero-copy h1 em {
+.recurrence-hero-copy h2 em {
   font-style: normal;
   color: var(--brand-primary);
 }
@@ -239,7 +532,7 @@
     padding: 35px 30px;
     gap: 25px;
   }
-  .recurrence-hero-copy h1 {
+  .recurrence-hero-copy h2 {
     font-size: 35px;
   }
   .recurrence-benefits {
@@ -277,7 +570,7 @@
     padding: 28px 20px;
     border-radius: 14px;
   }
-  .recurrence-hero-copy h1 {
+  .recurrence-hero-copy h2 {
     font-size: 31px;
     letter-spacing: -0.7px;
   }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Repeat2,
   ShoppingBasket,
@@ -38,6 +39,64 @@ export default function Recurrences() {
     <main className="recurrence-landing">
       <div className="recurrence-container">
         <Breadcrumb items={[{ label: "Recorrências" }]} />
+        <section
+          className="recurrence-identity"
+          aria-labelledby="recurrence-title"
+        >
+          <div className="recurrence-identity-copy">
+            <span className="recurrence-identity-label">
+              SUA COMPRA RECORRENTE
+            </span>
+            <div className="recurrence-brand">
+              <span className="recurrence-brand-symbol" aria-hidden="true">
+                <Repeat2 />
+              </span>
+              <h1 id="recurrence-title">
+                Recorrências <span>Covabra</span>
+              </h1>
+            </div>
+            <h2>Sua rotina merece essa facilidade.</h2>
+            <p>
+              Escolha seus produtos e a frequência. Receba suas compras
+              automaticamente e ajuste sua assinatura quando precisar.
+            </p>
+          </div>
+          <div className="recurrence-identity-art" aria-hidden="true">
+            <div className="recurrence-calendar">
+              <CalendarDays />
+              <Repeat2 />
+            </div>
+            <span className="recurrence-rhythm weekly">Toda semana</span>
+            <span className="recurrence-rhythm fortnightly">
+              A cada 15 dias
+            </span>
+            <span className="recurrence-rhythm monthly">Todo mês</span>
+            <span className="recurrence-art-note">No ritmo da sua casa.</span>
+          </div>
+        </section>
+        <nav
+          className="recurrence-shortcuts"
+          aria-label="Explore as recorrências Covabra"
+        >
+          <a href="#como-funciona">
+            <span className="recurrence-shortcut-icon green">
+              <Repeat2 />
+            </span>
+            <strong>Como funciona</strong>
+          </a>
+          <a href="#monte-sua-assinatura">
+            <span className="recurrence-shortcut-icon blue">
+              <ShoppingBasket />
+            </span>
+            <strong>Monte sua assinatura</strong>
+          </a>
+          <Link href="/minhas-assinaturas">
+            <span className="recurrence-shortcut-icon yellow">
+              <SlidersHorizontal />
+            </span>
+            <strong>Minhas assinaturas</strong>
+          </Link>
+        </nav>
         <section id="como-funciona" className="recurrence-steps">
           <div className="recurrence-section-heading">
             <div className="eyebrow">SIMPLES, DO COMEÇO AO FIM</div>
@@ -65,17 +124,17 @@ export default function Recurrences() {
             <strong>Recorrências</strong> e acesse sua assinatura.
           </p>
         </section>
-        <section className="recurrence-hero">
+        <section id="monte-sua-assinatura" className="recurrence-hero">
           <div className="recurrence-hero-copy">
             <div className="eyebrow">
               <Repeat2 size={16} />
               RECORRÊNCIAS COVABRA
             </div>
-            <h1>
+            <h2>
               Seus essenciais em dia.
               <br />
               <em>Mais tempo para você.</em>
-            </h1>
+            </h2>
             <p>
               Leite, café e os produtos que fazem parte da sua vida. Com uma
               assinatura, eles chegam automaticamente, no ritmo que você
