@@ -24,6 +24,9 @@ test("criação, edição e gerenciamento persistem", async ({
   await page
     .getByLabel("Frequência de Papel higiênico folha dupla")
     .selectOption("A cada 15 dias");
+  for (let count = 0; count < 4; count++)
+    await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-configurar.png`,
     fullPage: true,
@@ -41,15 +44,19 @@ test("criação, edição e gerenciamento persistem", async ({
   });
   await page.getByRole("button", { name: "Confirmar assinatura" }).click();
   await expect(
-    page.getByRole("heading", { name: "Sua assinatura foi criada!" }),
+    page.getByRole("heading", { name: "Suas assinaturas foram criadas!" }),
   ).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-sucesso.png`,
     fullPage: true,
   });
-  await page.getByRole("link", { name: "Ver minha assinatura" }).click();
+  const id = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
+    return state.subscriptions.find((subscription: { originId: string; items: { productId: string }[] }) => subscription.originId === state.lastCreated && subscription.items.some((item) => item.productId === "leite")).id;
+  });
+  await page.getByRole("region", { name: "Resumo do ciclo · Todo mês" }).getByRole("link", { name: "Ver detalhes desta assinatura" }).click();
   await expect(
-    page.getByRole("heading", { name: "Assinatura #00127" }),
+    page.getByRole("heading", { name: `Assinatura #${id}` }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Editar produtos" }).first().click();
   await page
@@ -60,7 +67,7 @@ test("criação, edição e gerenciamento persistem", async ({
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption("A cada 2 meses");
   await page.getByRole("button", { name: "Salvar alterações" }).click();
-  await expect(page).toHaveURL("/minhas-assinaturas/00127");
+  await expect(page).toHaveURL(`/minhas-assinaturas/${id}`);
   await page.reload();
   await expect(page.getByText("5 unidades")).toBeVisible();
   await page.getByRole("button", { name: "Pular próxima entrega" }).click();
@@ -90,11 +97,12 @@ test("criação, edição e gerenciamento persistem", async ({
   await expect(page.getByText("Cancelada", { exact: true })).toBeVisible();
   await page.goto("/minhas-assinaturas");
   await page.getByRole("tab", { name: /Canceladas/ }).click();
-  await expect(page.getByText("ASSINATURA #00127")).toBeVisible();
+  await expect(page.getByText(`ASSINATURA #${id}`)).toBeVisible();
   expect(errors).toEqual([]);
 });
 test("substituição, histórico e pagamento recusado", async ({ page }) => {
-  await page.goto("/minhas-assinaturas/00124");
+  await page.goto("/minhas-assinaturas");
+  await page.getByRole("article").filter({ hasText: "Essenciais de casa" }).filter({ hasText: "Todo mês" }).getByRole("link", { name: "Ver detalhes" }).click();
   await page.getByRole("button", { name: "Escolher substituto" }).click();
   await page.getByRole("button", { name: "Confirmar substituição" }).click();
   await page.reload();

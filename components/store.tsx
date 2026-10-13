@@ -11,6 +11,10 @@ import {
   SetStateAction,
 } from "react";
 import { guestState } from "@/data/subscriptions";
+import { withFakeAddresses } from "@/data/addresses";
+import { withFakeCustomer } from "@/data/customer";
+import { withFakePayments } from "@/data/payments";
+import { withIndependentSubscriptions } from "@/lib/independent-subscriptions";
 import { PrototypeState, Subscription } from "@/types";
 import { addDays } from "@/lib/utils";
 interface Store {
@@ -34,8 +38,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Save before navigation so an immediate reload cannot lose the last action.
   const setState: Dispatch<SetStateAction<PrototypeState>> = useCallback(
     (action) => {
-      const next =
-        typeof action === "function" ? action(currentState.current) : action;
+      const next = withIndependentSubscriptions(withFakeCustomer(withFakePayments(withFakeAddresses(
+        typeof action === "function" ? action(currentState.current) : action,
+      ))));
       currentState.current = next;
       try {
         localStorage.setItem("covabra-prototype-v1", JSON.stringify(next));
@@ -136,8 +141,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           localStorage.clear();
           sessionStorage.clear();
           if ("caches" in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.map((key) => caches.delete(key)));
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            try {
+              await Promise.race([
+                (async () => {
+                  const keys = await caches.keys();
+                  await Promise.all(keys.map((key) => caches.delete(key)));
+                })(),
+                new Promise<never>((_, reject) => {
+                  timer = setTimeout(() => reject(new Error("Tempo esgotado ao limpar o cache.")), 5000);
+                }),
+              ]);
+            } finally {
+              clearTimeout(timer);
+            }
           }
           const fresh = guestState();
           // Do not navigate if storage cannot be cleared and replaced reliably.

@@ -3,7 +3,7 @@ import { useId, useState } from "react";
 import { MapPin, Plus, CreditCard, Check } from "lucide-react";
 import { useStore } from "./store";
 import { Button, Modal } from "./ui";
-import { saoPauloToday, validFirstDelivery } from "@/lib/delivery-date";
+import { saoPauloToday, validFirstDelivery, validSubscriptionDelivery } from "@/lib/delivery-date";
 import { dateLabel } from "@/lib/utils";
 export function AddressChoices({
   value,
@@ -196,15 +196,20 @@ export function DeliveryOptions({
   period,
   onChange,
   dateWindow,
+  minDate,
   labelPrefix,
 }: {
   date: string;
   period: string;
   onChange: (patch: { date?: string; period?: string }) => void;
   dateWindow?: { min: string; max: string };
+  minDate?: string;
   labelPrefix?: string;
 }) {
   const rangeId = useId();
+  const invalidDate = dateWindow
+    ? !validFirstDelivery(date, dateWindow)
+    : minDate ? !validSubscriptionDelivery(date, minDate) : false;
   return (
     <>
       <h3 className="section-label">Primeira entrega</h3>
@@ -215,14 +220,12 @@ export function DeliveryOptions({
             labelPrefix ? `Data de entrega · ${labelPrefix}` : "Data de entrega"
           }
           type="date"
-          min={dateWindow?.min ?? saoPauloToday()}
+          min={dateWindow?.min ?? minDate ?? saoPauloToday()}
           max={dateWindow?.max}
-          value={
-            dateWindow && !validFirstDelivery(date, dateWindow) ? "" : date
-          }
-          aria-describedby={dateWindow ? rangeId : undefined}
+          value={invalidDate ? "" : date}
+          aria-describedby={dateWindow || minDate ? rangeId : undefined}
           aria-invalid={
-            dateWindow && !!date && !validFirstDelivery(date, dateWindow)
+            !!date && invalidDate
               ? true
               : undefined
           }

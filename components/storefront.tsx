@@ -38,7 +38,7 @@ const slides = [null, ...assets.banners];
 export function Storefront() {
   const { notify } = useStore();
   const [slide, setSlide] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
   useEffect(() => {
     if (paused) return;
     const timer = setTimeout(

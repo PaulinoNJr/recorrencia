@@ -38,6 +38,9 @@ export function SubscriptionList() {
   const { state, ready, setState, notify } = useStore();
   const [filter, setFilter] = useState("Todas");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const countCycles = (subscriptions: typeof state.subscriptions) => subscriptions.reduce(
+    (count, subscription) => count + subscriptionCycles(subscription.items, subscription.date, subscription.period, subscription.cycleDeliveries).length, 0,
+  );
   const deleting = state.subscriptions.find(
     (subscription) => subscription.id === deletingId,
   );
@@ -125,8 +128,8 @@ export function SubscriptionList() {
             {f}{" "}
             <span>
               {f === "Todas"
-                ? state.subscriptions.length
-                : state.subscriptions.filter(
+                ? countCycles(state.subscriptions)
+                : countCycles(state.subscriptions.filter(
                     (s) =>
                       s.status ===
                       (
@@ -136,7 +139,7 @@ export function SubscriptionList() {
                           Canceladas: "Cancelada",
                         } as Record<string, string>
                       )[f],
-                  ).length}
+                  ))}
             </span>
           </button>
         ))}
@@ -145,8 +148,8 @@ export function SubscriptionList() {
         <div className="loading">Carregando suas assinaturas…</div>
       ) : visible.length ? (
         <div className="subscription-grid">
-          {visible.map((s) => (
-            <article className="panel subscription-card" key={s.id}>
+          {visible.flatMap((s) => subscriptionCycles(s.items, s.date, s.period, s.cycleDeliveries).map((cycle) => (
+            <article className="panel subscription-card" key={`${s.id}-${cycle.frequency}`} aria-label={`Assinatura #${s.id} · ${cycle.frequency}`}>
               <button
                 type="button"
                 className="subscription-delete"
@@ -161,16 +164,9 @@ export function SubscriptionList() {
                 <Badge status={s.status} />
               </div>
               <h2>{s.name}</h2>
-              <div className="product-thumbnails">
-                {s.items.slice(0, 4).map((i) => (
-                  <img
-                    key={i.productId}
-                    src={productById(i.substituteId || i.productId).image}
-                    alt={productById(i.productId).name}
-                  />
-                ))}
-                <span>{s.items.length} produtos</span>
-              </div>
+              <h3 className="subscription-cycle-frequency">{cycle.frequency}</h3>
+              <p className="subscription-cycle-count">{cycle.items.length} {cycle.items.length === 1 ? "produto" : "produtos"}</p>
+              <div className="subscription-cycle-products"><ItemList items={cycle.items} recurring={false} /></div>
               {s.status === "Pagamento recusado" && (
                 <div className="inline-alert">
                   <AlertTriangle size={15} />
@@ -186,24 +182,13 @@ export function SubscriptionList() {
                 <div>
                   <span>Próxima entrega</span>
                   <strong>
-                    {s.status === "Cancelada" ? "—" : dateLabel(s.date)}
+                    {s.status === "Cancelada" ? "—" : dateLabel(cycle.date)}
                   </strong>
                 </div>
                 <div>
                   <span>Valor estimado</span>
                   <strong>
-                    {money(
-                      s.cycleDeliveries
-                        ? cycleEstimate(
-                            subscriptionCycles(
-                              s.items,
-                              s.date,
-                              s.period,
-                              s.cycleDeliveries,
-                            ),
-                          )
-                        : total(s.items) + 9.9,
-                    )}
+                    {money(total(cycle.items) + 9.9)}
                   </strong>
                 </div>
               </div>
@@ -211,7 +196,7 @@ export function SubscriptionList() {
                 Ver detalhes <ArrowRight size={17} />
               </Link>
             </article>
-          ))}
+          )))}
         </div>
       ) : (
         <EmptyState
@@ -230,7 +215,7 @@ export function SubscriptionList() {
             <strong>
               #{deleting.id} · {deleting.name}
             </strong>{" "}
-            será excluída, incluindo seu histórico. Essa ação não pode ser
+            será excluída, incluindo todos os seus ciclos e seu histórico. Essa ação não pode ser
             desfeita.
           </p>
           <div className="modal-actions">
@@ -251,12 +236,21 @@ type Action =
 export function SubscriptionDetail({
   id,
   operation = false,
+  cycleFrequency,
 }: {
   id: string;
   operation?: boolean;
+  cycleFrequency?: string;
 }) {
   const { state, ready, updateSubscription, notify } = useStore();
-  const s = state.subscriptions.find((s) => s.id === id);
+  const original = state.subscriptions.find((s) => s.id === id);
+  const allCycles = original ? subscriptionCycles(original.items, original.date, original.period, original.cycleDeliveries) : [];
+  const selectedCycle = !operation ? allCycles.find((cycle) => cycle.frequency === cycleFrequency) ?? firstCycle(allCycles) : undefined;
+  const s = original && selectedCycle ? {
+    ...original, items: selectedCycle.items, date: selectedCycle.date, period: selectedCycle.period,
+    cycleDeliveries: { [selectedCycle.frequency]: { date: selectedCycle.date, period: selectedCycle.period } },
+  } : original;
+  const cycleQuery = selectedCycle && allCycles.length > 1 ? "?ciclo=" + encodeURIComponent(selectedCycle.frequency) : "";
   const [action, setAction] = useState<Action>(null);
   const [pauseDays, setPauseDays] = useState("30");
   const [pauseDate, setPauseDate] = useState(() => addDays(saoPauloToday(), 30));
@@ -301,7 +295,21 @@ export function SubscriptionDetail({
     patch: Parameters<typeof updateSubscription>[1],
     message: string,
   ) => {
-    updateSubscription(id, patch, message);
+    if (selectedCycle && original) {
+      const items = patch.items ? [
+        ...original.items.filter((item) => item.frequency !== selectedCycle.frequency), ...patch.items,
+      ] : original.items;
+      const cycleDeliveries = {
+        ...Object.fromEntries(allCycles.map((cycle) => [cycle.frequency, { date: cycle.date, period: cycle.period }])),
+        ...patch.cycleDeliveries,
+        [selectedCycle.frequency]: {
+          date: patch.date ?? patch.cycleDeliveries?.[selectedCycle.frequency]?.date ?? s.date,
+          period: patch.period ?? patch.cycleDeliveries?.[selectedCycle.frequency]?.period ?? s.period,
+        },
+      };
+      const next = firstCycle(subscriptionCycles(items, original.date, original.period, cycleDeliveries));
+      updateSubscription(id, { ...patch, items, cycleDeliveries, date: next.date, period: next.period }, message);
+    } else updateSubscription(id, patch, message);
     setAction(null);
     notify(message);
   };
@@ -318,7 +326,7 @@ export function SubscriptionDetail({
       />
       <PageHeading
         title={"Assinatura #" + id}
-        description={s.name}
+        description={s.name + (selectedCycle ? " · " + selectedCycle.frequency : "")}
         action={<Badge status={s.status} />}
       />
       {s.status === "Pagamento recusado" && (
@@ -488,7 +496,7 @@ export function SubscriptionDetail({
             <div className="section-title">
               <h2>Produtos da assinatura</h2>
               {!locked && (
-                <Link href={"/minhas-assinaturas/" + id + "/editar"}>
+                <Link href={"/minhas-assinaturas/" + id + "/editar" + cycleQuery}>
                   Editar produtos
                 </Link>
               )}
@@ -578,12 +586,12 @@ export function SubscriptionDetail({
           <p>Ajuste sempre que sua rotina mudar.</p>
           {!locked && (
             <>
-              <Link href={"/minhas-assinaturas/" + id + "/editar"}>
+              <Link href={"/minhas-assinaturas/" + id + "/editar" + cycleQuery}>
                 <Package size={18} />
                 Editar produtos
                 <ChevronRight size={15} />
               </Link>
-              <Link href={"/minhas-assinaturas/" + id + "/editar"}>
+              <Link href={"/minhas-assinaturas/" + id + "/editar" + cycleQuery}>
                 <Repeat2 size={18} />
                 Alterar frequência
                 <ChevronRight size={15} />
@@ -881,12 +889,16 @@ export function SubscriptionDetail({
     </main>
   );
 }
-export function EditSubscription({ id }: { id: string }) {
+export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFrequency?: string }) {
   const { state, ready, updateSubscription, notify } = useStore();
   const router = useRouter();
   const sub = state.subscriptions.find((s) => s.id === id);
+  const cycles = sub ? subscriptionCycles(sub.items, sub.date, sub.period, sub.cycleDeliveries) : [];
+  const selectedCycle = cycles.find((cycle) => cycle.frequency === cycleFrequency) ?? firstCycle(cycles);
+  const selectedItems = selectedCycle?.items ?? [];
+  const cycleQuery = selectedCycle && cycles.length > 1 ? "?ciclo=" + encodeURIComponent(selectedCycle.frequency) : "";
   const [local, setLocal] = useState<SubscriptionItem[] | null>(null);
-  const items = local ?? sub?.items ?? [];
+  const items = local ?? selectedItems;
   if (!ready) return <main className="container loading">Carregando…</main>;
   if (!sub || sub.status === "Cancelada")
     return (
@@ -897,13 +909,14 @@ export function EditSubscription({ id }: { id: string }) {
         />
       </main>
     );
-  const changed = JSON.stringify(items) !== JSON.stringify(sub.items);
+  const changed = JSON.stringify(items) !== JSON.stringify(selectedItems);
+  const hasInvalidQuantity = items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1);
   return (
     <main className="container">
       <Breadcrumb
         items={[
           { label: "Minhas assinaturas", href: "/minhas-assinaturas" },
-          { label: "Assinatura #" + id, href: "/minhas-assinaturas/" + id },
+          { label: "Assinatura #" + id, href: "/minhas-assinaturas/" + id + cycleQuery },
           { label: "Editar produtos" },
         ]}
       />
@@ -912,10 +925,10 @@ export function EditSubscription({ id }: { id: string }) {
         description="Adicione ou remova produtos e ajuste quantidades e frequências."
       />
       <div className="content-grid">
-        <ProductEditor items={items} onChange={setLocal} />
+        <ProductEditor items={items} ids={selectedItems.map((item) => item.productId)} allowAllProducts onChange={setLocal} />
         <Summary
           items={items}
-          date={sub.date}
+          date={selectedCycle?.date}
           deliveryCost={
             sub.cycleDeliveries
               ? subscriptionCycles(
@@ -939,25 +952,27 @@ export function EditSubscription({ id }: { id: string }) {
               ? "Você tem alterações para salvar."
               : "Nenhuma alteração até agora."}
             <br />
-            {sub.items.length} → {items.length} produtos
+            {selectedItems.length} → {items.length} produtos
             <br />
-            {money(total(sub.items))} → {money(total(items))}
+            {money(total(selectedItems))} → {money(total(items))}
           </div>
           <Button
-            disabled={!items.length || !changed}
+            disabled={!items.length || !changed || hasInvalidQuantity}
             onClick={() => {
+              if (hasInvalidQuantity) return;
               updateSubscription(
                 id,
-                { items },
+                { items: [...sub.items.filter((item) => item.frequency !== selectedCycle?.frequency), ...items] },
                 "Produtos e frequências atualizados.",
               );
               notify("Assinatura atualizada com sucesso.");
-              router.push("/minhas-assinaturas/" + id);
+              router.push("/minhas-assinaturas/" + id + cycleQuery);
             }}
           >
             Salvar alterações
           </Button>
-          <Link className="back-link" href={"/minhas-assinaturas/" + id}>
+          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura para salvar.</p>}
+          <Link className="back-link" href={"/minhas-assinaturas/" + id + cycleQuery}>
             Voltar sem salvar
           </Link>
         </Summary>

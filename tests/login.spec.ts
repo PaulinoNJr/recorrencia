@@ -25,6 +25,8 @@ test("entrar aceita e-mail sem cadastro e senha de um caractere sem salvar a sen
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
   expect(saved.customer.email).toBe("sem-cadastro+teste@example.net");
   expect(saved.customer.firstName).toBe("Paulino");
+  expect(saved.customer.cpf).toBe("123.456.789-99");
+  expect(saved.purchase.cpf).toBe("123.456.789-99");
   expect(saved.password).toBeUndefined();
   expect(saved.customer.password).toBeUndefined();
   expect(saved.purchase.password).toBeUndefined();
@@ -33,10 +35,9 @@ test("entrar aceita e-mail sem cadastro e senha de um caractere sem salvar a sen
   await expect(page.getByLabel("Senha", { exact: true })).toHaveValue("");
 });
 
-test("login retoma o fluxo e pede os dados pessoais restantes antes da entrega", async ({ page }) => {
+test("login retoma o fluxo e avança para entrega sem repetir identificação", async ({ page }) => {
   await page.goto("/minhas-assinaturas");
-  await page.getByRole("link", { name: "Entrar", exact: true }).last().click();
-  await expect(page).toHaveURL("/entrar?next=%2Fminhas-assinaturas");
+  await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
   await page.getByLabel("E-mail", { exact: true }).fill("outro@example.org");
   await page.getByLabel("Senha", { exact: true }).fill("qualquer senha de teste");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
@@ -47,16 +48,20 @@ test("login retoma o fluxo e pede os dados pessoais restantes antes da entrega",
   await page.goto("/carrinho");
   await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
   await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }).check();
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
-  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
-  await expect(page.getByLabel("E-mail", { exact: true })).toHaveValue("outro@example.org");
-  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("Paulino");
-  await page.getByLabel("Nome", { exact: true }).fill("Bia");
-  await page.getByLabel("Sobrenome", { exact: true }).fill("Teste");
-  await page.getByLabel("CPF", { exact: true }).fill("12345678901");
-  await page.getByLabel("Telefone", { exact: true }).fill("11999999999");
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Adicionar endereço", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toHaveCount(0);
+  await expect(page.getByLabel("Sobrenome", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Telefone", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Casa", exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Trabalho", exact: false })).toBeVisible();
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await page.getByRole("button", { name: "Adicionar cartão fictício" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Adicionar cartão", exact: true }).click();
+  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Confirmar assinatura" }).click();
+  await expect(page.getByRole("heading", { name: "Sua assinatura foi criada!" })).toBeVisible();
 });

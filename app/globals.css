@@ -1262,6 +1262,13 @@ label {
 .subscription-card h2 {
   font-size: 18px;
 }
+.subscription-cycle-frequency { color: var(--brand-primary); font-size: 16px; margin-top: 10px; }
+.subscription-cycle-count { color: var(--text-secondary); font-size: 12px; margin-top: 6px; }
+.subscription-cycle-products { flex: 1; margin: 12px 0; }
+.subscription-cycle-products .detail-product { gap: 10px; }
+.subscription-cycle-products .detail-product img { width: 40px; height: 48px; }
+.subscription-cycle-products .detail-product h3 { font-size: 14px; }
+.subscription-cycle-products .detail-product > strong { font-size: 12px; }
 .product-thumbnails {
   display: flex;
   align-items: center;

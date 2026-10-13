@@ -371,7 +371,7 @@ export function Footer() {
       <div className="container footer-bottom">
         <img src="/logo.webp" alt="Covabra" width="110" height="39" />
         <p>Protótipo de experiência · Nenhuma cobrança real é realizada.</p>
-        <Link href="/">Início do teste</Link>
+        <Link href="/home">Início do teste</Link>
         <Link href="/operacao">Área de operação</Link>
         <button onClick={reset}>Restaurar dados do protótipo</button>
       </div>

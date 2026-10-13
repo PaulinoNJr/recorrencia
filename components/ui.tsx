@@ -57,16 +57,18 @@ export function Quantity({
   value,
   onChange,
   max = 99,
+  min = 1,
 }: {
   value: number;
   onChange: (v: number) => void;
   max?: number;
+  min?: number;
 }) {
   return (
     <div className="quantity">
       <button
         aria-label="Diminuir quantidade"
-        disabled={value <= 1}
+        disabled={value <= min}
         onClick={() => onChange(value - 1)}
       >
         <Minus size={14} />

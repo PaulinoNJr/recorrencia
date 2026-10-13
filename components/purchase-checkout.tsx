@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "./store";
 import { AddressChoices, DeliveryOptions, PaymentChoices } from "./choices";
@@ -7,17 +8,36 @@ import { ItemList } from "./products";
 import { money, total, dateLabel } from "@/lib/utils";
 import { Check, Repeat2, ArrowRight } from "lucide-react";
 import { productById } from "@/data/products";
-import { CustomerForm } from "./customer-identification";
-import { firstDeliveryWindow } from "@/lib/delivery-date";
+import { Login } from "./login";
+import { firstDeliveryWindow, validFirstDelivery } from "@/lib/delivery-date";
 export function PurchaseCheckout({ step }: { step: string }) {
   const { state, setState, ready } = useStore();
   const router = useRouter();
+  const [dateWindow, setDateWindow] = useState(firstDeliveryWindow);
+  useEffect(() => {
+    const refresh = () => setDateWindow((previous) => {
+      const next = firstDeliveryWindow();
+      return previous.min === next.min ? previous : next;
+    });
+    refresh();
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  const skipIdentification = !!state.customer && (step === "email" || step === "dados");
+  useEffect(() => {
+    if (ready && skipIdentification) router.replace("/checkout/entrega");
+  }, [ready, skipIdentification, router]);
   const data = state.purchase || {};
   const patch = (change: Partial<typeof data>) =>
     setState((s) => ({ ...s, purchase: { ...s.purchase, ...change } }));
   const addressId = state.addresses.find((address) => address.id === data.addressId)?.id || state.addresses[0]?.id || "";
   const paymentId = state.payments.find((payment) => payment.id === data.paymentId)?.id || state.payments[0]?.id || "";
-  const date = data.date || state.draft.date;
+  const date = data.date ?? state.draft.date;
+  const hasValidDeliveryDate = validFirstDelivery(date, dateWindow);
   const period = data.period || state.draft.period;
   const purchasedItems = data.completedItems ?? state.cart;
   const recurringItems = purchasedItems.filter(
@@ -60,6 +80,8 @@ export function PurchaseCheckout({ step }: { step: string }) {
         </Link>
       </main>
     );
+  if (skipIdentification)
+    return <main className="checkout-width checkout-main loading">Continuando para entrega…</main>;
   if (step === "sucesso" && !data.completedItems?.length)
     return <main className="checkout-width checkout-main"><h1>Nenhuma compra concluída</h1><Link className="btn primary" href="/carrinho">Voltar para o carrinho</Link></main>;
   if (step === "sucesso")
@@ -107,40 +129,13 @@ export function PurchaseCheckout({ step }: { step: string }) {
         </section>
       </main>
     );
-  if (step === "email")
+  if (!state.customer && (step === "email" || step === "dados")) return <Login next="/checkout/entrega" />;
+  if (step === "pagamento" && !hasValidDeliveryDate)
     return (
-      <main className="checkout-width checkout-main checkout-email-page">
-        <h1 className="checkout-page-title">Finalizar compra</h1>
-        <section className="checkout-box">
-          <h2>Para finalizar a compra, informe seu e-mail.</h2>
-          <p>Rápido. Fácil. Seguro.</p>
-          <form
-            className="checkout-email-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              router.push("/checkout/dados");
-            }}
-          >
-            <input
-              aria-label="E-mail"
-              type="email"
-              required
-              placeholder="seu@email.com"
-              value={data.email || ""}
-              onChange={(e) => patch({ email: e.target.value })}
-            />
-            <button className="btn primary">Continuar</button>
-          </form>
-          <div className="checkout-email-info">
-            <strong>Usamos seu e-mail de forma 100% segura para:</strong>
-            <ul>
-              <li>Identificar seu perfil</li>
-              <li>Notificar sobre o andamento do seu pedido</li>
-              <li>Gerenciar seu histórico de compras</li>
-              <li>Acelerar o preenchimento de suas informações</li>
-            </ul>
-          </div>
-        </section>
+      <main className="checkout-width checkout-main">
+        <h1>Escolha a data da entrega</h1>
+        <p>A entrega precisa ser em um dos próximos 3 dias.</p>
+        <Link className="btn primary" href="/checkout/entrega">Voltar à entrega</Link>
       </main>
     );
   return (
@@ -151,11 +146,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
           <section className="checkout-box">
             <h2>
               Dados pessoais{" "}
-              {step !== "dados" && <Link href="/checkout/dados">Editar</Link>}
             </h2>
-            {step === "dados" ? (
-              <CustomerForm submitLabel="Ir para entrega" onComplete={() => router.push("/checkout/entrega")} />
-            ) : (
               <div className="checkout-saved-info">
                 <strong>
                   {data.firstName} {data.lastName}
@@ -163,7 +154,6 @@ export function PurchaseCheckout({ step }: { step: string }) {
                 <p>{data.email}</p>
                 <p>{data.phone}</p>
               </div>
-            )}
           </section>
           <section
             className={
@@ -186,13 +176,15 @@ export function PurchaseCheckout({ step }: { step: string }) {
                 />
                 <DeliveryOptions
                   date={date}
+                  dateWindow={dateWindow}
                   period={period}
                   onChange={(change) => patch(change)}
                 />
                 <button
                   className="btn primary checkout-full-button"
-                  disabled={!addressId || !date}
+                  disabled={!addressId || !hasValidDeliveryDate}
                   onClick={() => {
+                    if (!validFirstDelivery(date)) return;
                     patch({ addressId, date, period });
                     router.push("/checkout/pagamento");
                   }}
@@ -257,9 +249,9 @@ export function PurchaseCheckout({ step }: { step: string }) {
           {step === "pagamento" && (
             <button
               className="btn primary checkout-full-button"
-              disabled={!state.customer || !addressId || !paymentId || !date || !period}
+              disabled={!state.customer || !addressId || !paymentId || !hasValidDeliveryDate || !period}
               onClick={() => {
-                if (!state.customer || !addressId || !paymentId || !date || !period) return;
+                if (!state.customer || !addressId || !paymentId || !validFirstDelivery(date) || !period) return;
                 setState((current) => ({
                   ...current,
                   cart: [],

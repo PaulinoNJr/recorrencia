@@ -533,6 +533,42 @@
   color: var(--brand-primary);
   margin-bottom: 8px;
 }
+.cycle-delivery-products {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 22px;
+  display: grid;
+  gap: 10px;
+}
+.cycle-delivery-product {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #d4e7d6;
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 12px;
+  background: #f4faf4;
+}
+.cycle-delivery-product img {
+  flex-shrink: 0;
+  width: 56px;
+  height: 64px;
+  object-fit: contain;
+  padding: 5px;
+  border-radius: 8px;
+  background: white;
+}
+.cycle-delivery-product-info { flex: 1; min-width: 0; }
+.cycle-delivery-product-info strong { display: block; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.cycle-delivery-product-info small { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+.cycle-delivery-quantity { flex-shrink: 0; background: white; border: 1px solid #d4e7d6; border-radius: 8px; padding: 6px 10px; color: var(--brand-primary-dark); font-size: 14px; font-weight: 700; }
+@media (max-width: 580px) {
+  .cycle-delivery-product { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px 12px; padding: 12px; }
+  .cycle-delivery-product img { width: 44px; height: 56px; grid-row: span 2; }
+  .cycle-delivery-product-info strong { font-size: 16px; }
+  .cycle-delivery-quantity { grid-column: 2; justify-self: start; font-size: 13px; }
+}
 .cycle-delivery-group > p,
 .review-cycle-products {
   font-size: 13px;
@@ -560,6 +596,26 @@
   margin: 8px 0;
   font-size: 14px;
   line-height: 1.6;
+}
+.success-cycles {
+  display: grid;
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.success-cycle {
+  padding: 20px;
+  border: 1px solid #d4e7d6;
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 12px;
+  background: #f4faf4;
+}
+.success-cycle h3 { color: var(--brand-primary); font-size: 18px; }
+.success-cycle .detail-product { gap: 12px; }
+.success-cycle .summary-total { margin-bottom: 0; }
+@media (max-width: 580px) {
+  .success-cycle { padding: 14px; }
 }
 .purchase-recurrence-invite {
   max-width: 620px;

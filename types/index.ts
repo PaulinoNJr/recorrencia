@@ -44,6 +44,7 @@ export type CycleDeliveries = Partial<
   Record<Frequency, { date: string; period: string }>
 >;
 export interface Subscription {
+  originId?: string;
   cycleDeliveries?: CycleDeliveries;
   id: string;
   name: string;

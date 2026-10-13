@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useStore } from "./store";
 import { PrototypeState } from "@/types";
+import { Login } from "./login";
 
 type Customer = NonNullable<PrototypeState["customer"]>;
 
@@ -45,6 +46,7 @@ export function CustomerForm({ onComplete, submitLabel = "Continuar" }: { onComp
           <label className="checkout-field" key={key}>
             {label}
             <input required type={type} autoComplete={autoComplete} value={data[key]}
+              readOnly={!!state.customer && (key === "firstName" || key === "cpf")}
               inputMode={key === "cpf" ? "numeric" : undefined}
               pattern={key === "cpf" ? "[0-9.\\-]{11,14}" : undefined}
               onChange={(event) => {
@@ -64,7 +66,13 @@ export function CustomerForm({ onComplete, submitLabel = "Continuar" }: { onComp
 export function Identification({ next = "/loja", title = "Identifique-se para continuar" }: { next?: string; title?: string }) {
   const { state, ready } = useStore();
   const router = useRouter();
+  const skip = !!state.customer && title === "Identifique-se para continuar";
+  useEffect(() => {
+    if (ready && skip) router.replace(next);
+  }, [ready, skip, next, router]);
   if (!ready) return <main className="container loading">Carregando…</main>;
+  if (skip) return <main className="container loading">Continuando…</main>;
+  if (title === "Identifique-se para continuar") return <Login next={next} />;
   return (
     <main className="checkout-width checkout-main checkout-email-page">
       <h1 className="checkout-page-title">{title}</h1>
@@ -78,20 +86,10 @@ export function Identification({ next = "/loja", title = "Identifique-se para co
   );
 }
 
-export function CustomerGate({ children, requireDetails = false }: { children: React.ReactNode; requireDetails?: boolean }) {
+export function CustomerGate({ children }: { children: React.ReactNode }) {
   const { state, ready } = useStore();
   const path = usePathname();
   if (!ready) return <main className="container loading">Carregando…</main>;
-  if (state.customer && (!requireDetails || Object.values(state.customer).every((value) => value.trim()))) return <>{children}</>;
-  return (
-    <main className="checkout-width checkout-main checkout-email-page">
-      <h1 className="checkout-page-title">Identifique-se para continuar</h1>
-      <section className="checkout-box">
-        <h2>Seus dados</h2>
-        <p>Use dados fictícios para avaliar este protótipo.</p>
-        <CustomerForm onComplete={() => {}} />
-        {!state.customer && <p>Já tem conta? <Link className="text-action" href={`/entrar?next=${encodeURIComponent(path)}`}>Entrar</Link></p>}
-      </section>
-    </main>
-  );
+  if (state.customer) return <>{children}</>;
+  return <Login next={path} />;
 }

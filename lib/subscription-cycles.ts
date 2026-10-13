@@ -1,6 +1,18 @@
 import { frequencies } from "@/data/products";
-import { CycleDeliveries, SubscriptionItem } from "@/types";
+import { CycleDeliveries, Draft, SubscriptionItem } from "@/types";
 import { total } from "./utils";
+import { firstSubscriptionDelivery, saoPauloToday } from "./delivery-date";
+
+export function subscriptionDraftCycles(draft: Draft, today = saoPauloToday()) {
+  const deliveries = Object.fromEntries(frequencies.map((frequency) => [
+    frequency,
+    draft.cycleDeliveries?.[frequency] ?? {
+      date: firstSubscriptionDelivery(frequency, today),
+      period: draft.period,
+    },
+  ]));
+  return subscriptionCycles(draft.items, draft.date, draft.period, deliveries);
+}
 
 export function subscriptionCycles(
   items: SubscriptionItem[],

@@ -15,6 +15,8 @@ test("frequencia exige escolha explicita e remover pendencia libera continuar", 
   const next = page.getByRole("button", { name: "Continuar para entrega" });
   await milk.check();
   await paper.check();
+  await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
   await expect(
     page.getByLabel("Frequência de Leite integral Shefa"),
   ).toHaveValue("");
@@ -33,6 +35,7 @@ test("frequencia exige escolha explicita e remover pendencia libera continuar", 
   await paper.uncheck();
   await expect(next).toBeEnabled();
   await paper.check();
+  await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
   await expect(
     page.getByLabel("Frequência de Papel higiênico folha dupla"),
   ).toHaveValue("");

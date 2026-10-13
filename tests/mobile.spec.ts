@@ -1,6 +1,7 @@
 ﻿import { test, expect } from "./fixtures";
 const routes = [
   "/",
+  "/home",
   "/loja",
   "/recorrencias",
   "/comprar",

@@ -1,4 +1,5 @@
 import { addDays } from "./utils";
+import type { Frequency } from "@/types";
 
 export function saoPauloToday(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -20,4 +21,24 @@ export function validFirstDelivery(
   window = firstDeliveryWindow(),
 ) {
   return [window.min, addDays(window.min, 1), window.max].includes(date);
+}
+
+export function validSubscriptionDelivery(date: string, today = saoPauloToday()) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const parsed = new Date(`${date}T12:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === date && date >= today;
+}
+
+export function firstSubscriptionDelivery(frequency: Frequency, today = saoPauloToday()) {
+  if (frequency === "Toda semana") return addDays(today, 7);
+  if (frequency === "A cada 15 dias") return addDays(today, 15);
+  const months = frequency === "Todo mês" ? 1 : 2;
+  const date = new Date(`${today}T12:00:00Z`);
+  const day = date.getUTCDate();
+  date.setUTCDate(1);
+  date.setUTCMonth(date.getUTCMonth() + months);
+  const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
+  date.setUTCDate(Math.min(day, lastDay));
+  return date.toISOString().slice(0, 10);
 }

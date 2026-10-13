@@ -1,4 +1,5 @@
-import { ExperienceHome } from "@/components/experience-home";
-export default function Home() {
-  return <ExperienceHome />;
+import { redirect } from "next/navigation";
+
+export default function Index() {
+  redirect("/home");
 }

@@ -1,6 +1,8 @@
 import { PrototypeState, SubscriptionItem } from "@/types";
 import { products } from "./products";
 import { firstDeliveryWindow } from "@/lib/delivery-date";
+import { fakeAddresses } from "./addresses";
+import { fakePayments, DEFAULT_PAYMENT_ID } from "./payments";
 const items: SubscriptionItem[] = [
   { productId: "leite", quantity: 4, frequency: "Toda semana" },
   { productId: "cafe", quantity: 2, frequency: "Todo mês" },
@@ -23,30 +25,9 @@ export function initialState(): PrototypeState {
       addressId: "casa",
       paymentId: "master",
     },
-    addresses: [
-      {
-        id: "casa",
-        label: "Casa",
-        street: "Rua das Flores, 123 · Jardim Primavera",
-        city: "Sumaré – SP",
-        zip: "13170-000",
-      },
-      {
-        id: "trabalho",
-        label: "Trabalho",
-        street: "Av. Rebouças, 450 · Centro",
-        city: "Sumaré – SP",
-        zip: "13170-020",
-      },
-    ],
+    addresses: fakeAddresses(),
     payments: [
-      {
-        id: "master",
-        brand: "Mastercard",
-        last4: "4821",
-        holder: "Robson Ferreira",
-        expiry: "08/29",
-      },
+      ...fakePayments(),
       {
         id: "visa",
         brand: "Visa",
@@ -129,9 +110,9 @@ export function guestState(): PrototypeState {
     customer: null,
     cart: [],
     subscriptions: [],
-    addresses: [],
-    payments: [],
+    addresses: fakeAddresses(),
+    payments: fakePayments(),
     lastCreated: null,
-    draft: { items: [], date: firstDeliveryWindow().min, period: "08h às 12h", addressId: "", paymentId: "" },
+    draft: { items: [], date: firstDeliveryWindow().min, period: "08h às 12h", addressId: "casa", paymentId: DEFAULT_PAYMENT_ID },
   };
 }

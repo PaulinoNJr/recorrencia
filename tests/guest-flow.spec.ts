@@ -7,24 +7,22 @@ async function start(page: Page) {
   await expect(page.getByText("Robson", { exact: false })).toHaveCount(0);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
   expect(saved.customer).toBeNull();
-  expect(saved.addresses).toEqual([]);
-  expect(saved.payments).toEqual([]);
+  expect(saved.addresses.map((address: { label: string }) => address.label)).toEqual(["Casa", "Trabalho"]);
+  expect(saved.payments).toHaveLength(1);
+  expect(saved.payments[0].id).toBe("master");
   await page.locator(".home-product").first().getByRole("button", { name: "Eu quero!", exact: true }).click();
   await page.goto("/carrinho");
 }
 
 async function identify(page: Page) {
-  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("");
-  await expect(page.getByLabel("Sobrenome", { exact: true })).toHaveValue("");
-  await page.getByLabel("Nome", { exact: true }).fill("Ana");
-  await page.getByLabel("Sobrenome", { exact: true }).fill("Teste");
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Sobrenome", { exact: true })).toHaveCount(0);
   await page.getByLabel("E-mail", { exact: true }).fill("ana@example.com");
-  await page.getByLabel("CPF", { exact: true }).fill("12345678901");
-  await page.getByLabel("Telefone", { exact: true }).fill("11999999999");
+  await page.getByLabel("Senha", { exact: true }).fill("teste");
 }
 
 async function addAddress(page: Page) {
-  await page.getByRole("button", { name: "Adicionar endereço", exact: true }).click();
+  await page.getByRole("button", { name: "Adicionar outro endereço", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Nome do endereço").fill("Casa de teste");
   await dialog.getByLabel("Rua, número e bairro").fill("Rua de teste, 10 · Centro");
@@ -36,7 +34,7 @@ async function addAddress(page: Page) {
 async function addCard(page: Page) {
   await page.getByRole("button", { name: "Adicionar cartão fictício" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Adicionar cartão", exact: true }).click();
-  await expect(page.locator(".choice-grid").getByText("Ana Teste", { exact: true })).toBeVisible();
+  await expect(page.locator(".choice-grid .chosen").getByText("Paulino", { exact: true })).toBeVisible();
 }
 
 test("visitante cria e gerencia recorrência com sua própria identificação", async ({ page }, testInfo) => {
@@ -45,17 +43,18 @@ test("visitante cria e gerencia recorrência com sua própria identificação", 
   await start(page);
   await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
   await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }).check();
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
-  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
   await identify(page);
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
-  await expect(page.getByRole("button", { name: "Continuar para pagamento" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Continuar para pagamento" })).toBeEnabled();
   await page.screenshot({ path: `test-results/${testInfo.project.name}-guest-delivery.png`, fullPage: true });
   await addAddress(page);
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
-  await expect(page.getByRole("button", { name: "Revisar assinatura" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Revisar assinatura" })).toBeEnabled();
   await addCard(page);
   await page.getByRole("button", { name: "Revisar assinatura" }).click();
   await page.getByRole("checkbox").check();
@@ -69,13 +68,13 @@ test("visitante cria e gerencia recorrência com sua própria identificação", 
   await page.getByRole("button", { name: "Confirmar pausa", exact: true }).click();
   await page.getByRole("button", { name: "Reativar assinatura", exact: true }).click();
   await page.goto("/operacao/assinaturas/00127");
-  await expect(page.getByText("Ana Teste · ana@example.com", { exact: true })).toBeVisible();
+  await expect(page.getByText("Paulino · ana@example.com", { exact: true })).toBeVisible();
   await expect(page.getByText(/Robson/)).toHaveCount(0);
   await page.goto("/");
   await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
   await page.goto("/minhas-assinaturas/00127");
-  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
-  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("");
+  await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -84,14 +83,14 @@ test("visitante finaliza compra e reaproveita seus dados na recorrência", async
   await page.getByRole("radio", { name: "Reembolso do valor", exact: true }).check();
   await page.getByRole("radio", { name: "Não", exact: true }).check();
   await page.getByRole("button", { name: "Finalizar pedido", exact: true }).click();
-  await page.getByLabel("E-mail", { exact: true }).fill("ana@example.com");
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await expect(page).toHaveURL("/checkout");
   await identify(page);
-  await page.getByRole("button", { name: "Ir para entrega", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Ir para pagamento", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL("/checkout/entrega");
+  await expect(page.getByRole("button", { name: "Ir para pagamento", exact: true })).toBeEnabled();
   await addAddress(page);
   await page.getByRole("button", { name: "Ir para pagamento", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Confirmar compra", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Confirmar compra", exact: true })).toBeEnabled();
   await addCard(page);
   await page.getByRole("button", { name: "Confirmar compra", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Compra realizada!" })).toBeVisible();
@@ -106,7 +105,8 @@ test("visitante finaliza compra e reaproveita seus dados na recorrência", async
   await page.getByRole("button", { name: "Confirmar assinatura" }).click();
   await expect(page.getByRole("heading", { name: "Sua assinatura foi criada!" })).toBeVisible();
   const state = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
-  expect(state.customer.firstName).toBe("Ana");
+  expect(state.customer.firstName).toBe("Paulino");
+  expect(state.customer.cpf).toBe("123.456.789-99");
   expect(state.subscriptions).toHaveLength(1);
   expect(state.cart).toEqual([]);
 });
@@ -115,9 +115,9 @@ test("acesso direto às etapas exige identificação e não confirma compras ine
   await page.goto("/loja");
   await expect(page.getByText(/Robson/)).toHaveCount(0);
   await page.goto("/assinatura/revisao");
-  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
   await identify(page);
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Vamos escolher seus produtos?" })).toBeVisible();
   await page.goto("/checkout/sucesso");
   await expect(page.getByRole("heading", { name: "Compra realizada!" })).toHaveCount(0);

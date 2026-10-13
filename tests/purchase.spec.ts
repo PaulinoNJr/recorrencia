@@ -5,6 +5,14 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/carrinho");
+  await page.getByRole("button", { name: "Aumentar quantidade" }).first().waitFor();
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
+    state.customer = null;
+    delete state.purchase;
+    localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
+  });
+  await page.reload();
   await expect(
     page.getByRole("button", { name: "Finalizar pedido", exact: true }),
   ).toBeDisabled();
@@ -27,28 +35,11 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
     path: `test-results/${testInfo.project.name}-checkout-email.png`,
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await page.getByRole("textbox", { name: "Nome", exact: true }).fill("Robson");
-  await page
-    .getByRole("textbox", { name: "Sobrenome", exact: true })
-    .fill("Cliente");
-  await page
-    .getByRole("textbox", { name: "CPF", exact: true })
-    .fill("12345678901");
-  await page
-    .getByRole("textbox", { name: "Telefone", exact: true })
-    .fill("11999999999");
+  await page.getByLabel("Senha", { exact: true }).fill("teste");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL("/checkout/entrega");
   await page.reload();
-  await expect(
-    page.getByRole("textbox", { name: "Nome", exact: true }),
-  ).toHaveValue("Robson");
-  await page.screenshot({
-    path: `test-results/${testInfo.project.name}-checkout-data.png`,
-    fullPage: true,
-  });
-  await page
-    .getByRole("button", { name: "Ir para entrega", exact: true })
-    .click();
+  await expect(page.locator(".checkout-saved-info").first()).toContainText("Paulino");
   await page.getByRole("button", { name: /Trabalho/ }).click();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-checkout-delivery.png`,
@@ -57,7 +48,8 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
   await page
     .getByRole("button", { name: "Ir para pagamento", exact: true })
     .click();
-  await page.getByRole("button", { name: /Visa/ }).click();
+  await page.getByRole("button", { name: "Adicionar cartão fictício" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Adicionar cartão", exact: true }).click();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-checkout-payment.png`,
     fullPage: true,

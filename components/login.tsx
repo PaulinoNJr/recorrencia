@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "./store";
+import { fakeAddresses } from "@/data/addresses";
+import { CUSTOMER_NAME, CUSTOMER_CPF } from "@/data/customer";
+import { fakePayments, DEFAULT_PAYMENT_ID } from "@/data/payments";
 
 export function Login({ next = "/loja" }: { next?: string }) {
   const { ready, setState } = useStore();
@@ -23,15 +26,15 @@ export function Login({ next = "/loja" }: { next?: string }) {
           setState((current) => current.customer?.email === email.trim()
             ? {
               ...current,
-              customer: { ...current.customer, firstName: "Paulino" },
-              purchase: { ...current.purchase, firstName: "Paulino" },
+              customer: { ...current.customer, firstName: CUSTOMER_NAME, cpf: CUSTOMER_CPF },
+              purchase: { ...current.purchase, firstName: CUSTOMER_NAME, cpf: CUSTOMER_CPF },
             }
             : {
               ...current,
-              customer: { email: email.trim(), firstName: "Paulino", lastName: "", phone: "", cpf: "" },
-              addresses: [], payments: [], subscriptions: [], lastCreated: null,
-              draft: { ...current.draft, addressId: "", paymentId: "" },
-              purchase: { email: email.trim(), firstName: "Paulino", substitute: current.purchase?.substitute, invoice: current.purchase?.invoice },
+              customer: { email: email.trim(), firstName: CUSTOMER_NAME, lastName: "", phone: "", cpf: CUSTOMER_CPF },
+              addresses: fakeAddresses(), payments: fakePayments(), subscriptions: [], lastCreated: null,
+              draft: { ...current.draft, addressId: "casa", paymentId: DEFAULT_PAYMENT_ID },
+              purchase: { email: email.trim(), firstName: CUSTOMER_NAME, cpf: CUSTOMER_CPF, substitute: current.purchase?.substitute, invoice: current.purchase?.invoice },
             });
           // Passwords are used only for the simulated entry and never persisted.
           setPassword("");

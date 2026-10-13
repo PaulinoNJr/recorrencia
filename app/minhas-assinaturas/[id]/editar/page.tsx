@@ -1,9 +1,12 @@
 import { EditSubscription } from "@/components/account";
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ ciclo?: string }>;
 }) {
   const { id } = await params;
-  return <EditSubscription id={id} />;
+  const { ciclo } = await searchParams;
+  return <EditSubscription id={id} cycleFrequency={ciclo} />;
 }

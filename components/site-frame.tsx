@@ -17,14 +17,14 @@ const paymentMarks = [
 export function SiteFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const { reset } = useStore();
-  if (path === "/") return <>{children}</>;
+  if (path === "/" || path === "/home") return <>{children}</>;
   const recurring = path.startsWith("/assinatura/");
   const checkout =
     recurring || path === "/carrinho" || path.startsWith("/checkout");
   const protectedPage = path === "/listas" || path.startsWith("/minhas-assinaturas") ||
     (recurring && path !== "/assinatura/configurar") ||
     (path.startsWith("/checkout/") && path !== "/checkout/dados");
-  const content = protectedPage ? <CustomerGate requireDetails={recurring || path.startsWith("/checkout/")}>{children}</CustomerGate> : children;
+  const content = protectedPage ? <CustomerGate>{children}</CustomerGate> : children;
   if (!checkout)
     return (
       <>
@@ -120,7 +120,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
             <span>Protótipo · Nenhuma cobrança real é realizada.</span>
           </div>
           <div className="checkout-prototype-links">
-            <Link href="/">Início do teste</Link>
+            <Link href="/home">Início do teste</Link>
             <Link href="/operacao">Área de operação</Link>
             <button onClick={reset}>Restaurar dados do protótipo</button>
           </div>

@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 test.use({ timezoneId: "Asia/Tokyo" });
-async function openDelivery(page: Page) {
+async function openDelivery(page: Page, frequency = "Toda semana") {
   await page.goto("/carrinho");
   await page
     .getByRole("button", { name: "Criar assinatura", exact: true })
@@ -14,28 +14,49 @@ async function openDelivery(page: Page) {
     .check();
   await page
     .getByLabel("Frequência de Leite integral Shefa")
-    .selectOption("Toda semana");
+    .selectOption(frequency);
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
 }
 
-test("primeira entrega aceita somente os proximos tres dias de Sao Paulo", async ({
+test("primeira entrega e calculada pela frequencia e preserva ajustes manuais", async ({ page }) => {
+  await page.clock.install({ time: new Date("2027-01-31T15:00:00Z") });
+  for (const [frequency, expected] of [
+    ["Toda semana", "2027-02-07"],
+    ["A cada 15 dias", "2027-02-15"],
+    ["Todo mês", "2027-02-28"],
+    ["A cada 2 meses", "2027-03-31"],
+  ]) {
+    await openDelivery(page, frequency);
+    const date = page.getByLabel("Data de entrega");
+    await expect(date).toHaveValue(expected);
+    await page.reload();
+    await expect(date).toHaveValue(expected);
+    await date.fill("2027-04-20");
+    await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+    await page.goto("/assinatura/entrega");
+    await expect(date).toHaveValue("2027-04-20");
+  }
+});
+
+test("primeira entrega aceita hoje e qualquer data futura de Sao Paulo", async ({
   page,
 }) => {
   await page.clock.install({ time: new Date("2026-10-09T01:00:00Z") });
   await openDelivery(page);
   const date = page.getByLabel("Data de entrega");
   const next = page.getByRole("button", { name: "Continuar para pagamento" });
-  await expect(date).toHaveAttribute("min", "2026-10-09");
-  await expect(date).toHaveAttribute("max", "2026-10-11");
-  for (const value of ["2026-10-09", "2026-10-10", "2026-10-11"]) {
+  await expect(date).toHaveAttribute("min", "2026-10-08");
+  await expect(date).not.toHaveAttribute("max");
+  for (const value of ["2026-10-08", "2026-10-09", "2099-01-01"]) {
     await date.fill(value);
     await expect(next).toBeEnabled();
   }
-  for (const value of ["2026-10-08", "2026-10-12", ""]) {
+  for (const value of ["2026-10-07", ""]) {
     await date.fill(value);
     await expect(next).toBeDisabled();
   }
-  await date.fill("2026-10-15");
+  await date.fill("2026-10-07");
   await page.reload();
   await expect(date).toHaveValue("");
   await expect(next).toBeDisabled();
@@ -44,26 +65,26 @@ test("primeira entrega aceita somente os proximos tres dias de Sao Paulo", async
     page.getByRole("heading", { name: "Escolha a data da primeira entrega" }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Voltar à entrega" }).click();
-  await date.fill("2026-10-11");
+  await date.fill("2099-01-01");
   await next.click();
   await expect(page).toHaveURL("/assinatura/pagamento");
 });
 
-test("intervalo acompanha virada de dia e de ano com a pagina aberta", async ({
+test("data minima acompanha virada de dia com a pagina aberta", async ({
   page,
 }) => {
   await page.clock.install({ time: new Date("2026-12-31T02:59:30Z") });
   await openDelivery(page);
   const date = page.getByLabel("Data de entrega");
-  await expect(date).toHaveAttribute("min", "2026-12-31");
-  await expect(date).toHaveAttribute("max", "2027-01-02");
-  await date.fill("2026-12-31");
+  await expect(date).toHaveAttribute("min", "2026-12-30");
+  await expect(date).not.toHaveAttribute("max");
+  await date.fill("2026-12-30");
   await expect(
     page.getByRole("button", { name: "Continuar para pagamento" }),
   ).toBeEnabled();
   await page.clock.fastForward(90000);
-  await expect(date).toHaveAttribute("min", "2027-01-01");
-  await expect(date).toHaveAttribute("max", "2027-01-03");
+  await expect(date).toHaveAttribute("min", "2026-12-31");
+  await expect(date).not.toHaveAttribute("max");
   await expect(date).toHaveValue("");
   await expect(
     page.getByRole("button", { name: "Continuar para pagamento" }),

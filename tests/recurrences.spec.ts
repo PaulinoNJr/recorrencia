@@ -24,7 +24,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
     fullPage: true,
   });
   await expect(
-    page.getByRole("heading", { name: "Sua assinatura em 3 passos" }),
+    page.getByRole("heading", { name: "Sua assinatura em 4 passos" }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Quero criar minha assinatura" })
@@ -53,6 +53,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
     .fill("leite");
   await expect(page.getByRole("checkbox")).toHaveCount(1);
   await page.getByRole("checkbox").check();
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page
     .getByRole("searchbox", { name: "Buscar no catálogo de produtos" })
     .fill("xyz-inexistente");

@@ -8,6 +8,7 @@ import {
   Pause,
   Check,
   ChevronDown,
+  LogIn,
 } from "lucide-react";
 import { Breadcrumb } from "@/components/shell";
 import "./recorrencias.css";
@@ -19,6 +20,11 @@ export const metadata: Metadata = {
     "Entenda como receber seus produtos essenciais automaticamente. Escolha os itens, defina a frequência e mantenha tudo sob seu controle.",
 };
 const steps = [
+  {
+    Icon: LogIn,
+    title: "Faça login no site",
+    text: "No menu da sua conta, clique em “Entrar” e informe seu e-mail e senha. Depois de entrar, você pode começar a montar sua assinatura.",
+  },
   {
     Icon: ShoppingBasket,
     title: "Escolha seus Produtos",
@@ -101,10 +107,10 @@ export default function Recurrences() {
         <section id="como-funciona" className="recurrence-steps">
           <div className="recurrence-section-heading">
             <div className="eyebrow">SIMPLES, DO COMEÇO AO FIM</div>
-            <h2>Sua assinatura em 3 passos</h2>
+            <h2>Sua assinatura em 4 passos</h2>
             <p>
-              Comece pelo carrinho ou pelo catálogo. A recorrência é uma escolha
-              sua.
+              Primeiro, faça login. Depois, escolha seus produtos pelo carrinho
+              ou pelo catálogo.
             </p>
           </div>
           <div className="recurrence-step-grid">

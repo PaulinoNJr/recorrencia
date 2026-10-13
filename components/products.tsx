@@ -7,15 +7,15 @@ import { Quantity } from "./ui";
 export function ProductEditor({
   items,
   onChange,
-  defaults = [],
   pendingFrequencyIds = [],
   onFrequencyChange,
+  allowAllProducts = false,
   ids = products.filter((p) => p.id !== "substituto").map((p) => p.id),
 }: {
   items: SubscriptionItem[];
   onChange: (items: SubscriptionItem[]) => void;
   ids?: string[];
-  defaults?: SubscriptionItem[];
+  allowAllProducts?: boolean;
   pendingFrequencyIds?: string[];
   onFrequencyChange?: (
     id: string,
@@ -29,20 +29,21 @@ export function ProductEditor({
       {ids.map((id) => {
         const p = productById(id),
           item = items.find((i) => i.productId === id);
+        const eligible = allowAllProducts || p.eligible;
         return (
           <div
             key={id}
             className={
               "subscription-product panel " +
               (item ? "selected" : "") +
-              (!p.eligible ? " ineligible" : "")
+              (!eligible ? " ineligible" : "")
             }
           >
             <label className="product-checkbox">
               <input
                 type="checkbox"
                 aria-label={"Incluir " + p.name + " na assinatura"}
-                disabled={!p.eligible}
+                disabled={!eligible}
                 checked={!!item}
                 onChange={(e) =>
                   onChange(
@@ -51,9 +52,7 @@ export function ProductEditor({
                           ...items,
                           {
                             productId: id,
-                            quantity:
-                              defaults.find((i) => i.productId === id)
-                                ?.quantity ?? p.quantity,
+                            quantity: 0,
                             frequency: p.frequency,
                           },
                         ]
@@ -70,7 +69,7 @@ export function ProductEditor({
               <h3>{p.name}</h3>
               <p>{p.category}</p>
               <small>
-                {!p.eligible ? (
+                {!eligible ? (
                   "Este produto não está disponível para assinatura."
                 ) : item ? (
                   <>
@@ -85,6 +84,7 @@ export function ProductEditor({
                   <label>
                     Quantidade
                     <Quantity
+                      min={0}
                       value={item.quantity}
                       onChange={(quantity) => change(id, { quantity })}
                     />
@@ -124,12 +124,12 @@ export function ProductEditor({
                 </>
               ) : (
                 <span className="muted">
-                  {p.eligible ? "Selecione para configurar" : "Compra única"}
+                  {eligible ? "Selecione para configurar" : "Compra única"}
                 </span>
               )}
             </div>
             <div className="product-price">
-              <strong>{money(p.price * (item?.quantity || p.quantity))}</strong>
+              <strong>{money(p.price * (item?.quantity ?? p.quantity))}</strong>
               <small>{money(p.price)} / un.</small>
             </div>
           </div>

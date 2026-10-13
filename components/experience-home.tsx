@@ -24,6 +24,7 @@ export function ExperienceHome() {
       router.push("/loja");
     } catch {
       setError("Não foi possível limpar os dados anteriores. Tente novamente ou permita o armazenamento neste navegador.");
+    } finally {
       setStarting(false);
     }
   }
@@ -44,11 +45,11 @@ export function ExperienceHome() {
           <p className={styles.note}>Cada nova experiência começa do zero, sem compras ou assinaturas de testes anteriores.</p>
           {FORM_URL ? (
             <a className={styles.secondary} href={FORM_URL} target="_blank" rel="noreferrer">
-              <ClipboardList size={23} aria-hidden="true" />Responder formulário<ArrowRight size={22} aria-hidden="true" />
+              <ClipboardList size={23} aria-hidden="true" />Responder pesquisa<ArrowRight size={22} aria-hidden="true" />
             </a>
           ) : (
             <button className={styles.secondary} disabled aria-describedby="form-status">
-              <ClipboardList size={23} aria-hidden="true" />Responder formulário<ArrowRight size={22} aria-hidden="true" />
+              <ClipboardList size={23} aria-hidden="true" />Responder pesquisa<ArrowRight size={22} aria-hidden="true" />
             </button>
           )}
           {!FORM_URL && <p className={styles.note} id="form-status">O formulário estará disponível em breve.</p>}

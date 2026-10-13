@@ -89,6 +89,7 @@ export default function Cart() {
                       inputMode="numeric"
                       placeholder="000.000.000-00"
                       value={purchase.cpf || ""}
+                      readOnly={!!state.customer}
                       onChange={(e) => patch({ cpf: e.target.value })}
                     />
                   </label>

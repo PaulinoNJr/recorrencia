@@ -11,11 +11,17 @@ npm install
 npm run dev
 ```
 
-Abra http://localhost:3000/. A primeira tela é a entrada do teste. **Iniciar uma nova experiência com a recorrência** limpa o armazenamento desta origem e abre `/loja` como visitante, sem cliente, compras, assinaturas, endereços ou cartões anteriores. Abrir a entrada sem iniciar novamente preserva o progresso. **Responder formulário** fica desabilitado até configurar `FORM_URL` em `components/experience-home.tsx`.
+Abra http://localhost:3000/. A primeira tela é a entrada do teste. **Iniciar uma nova experiência com a recorrência** limpa o armazenamento desta origem e abre `/loja` como visitante, sem cliente, compras, assinaturas, endereços adicionados ou cartões anteriores. Os endereços fictícios **Casa** e **Trabalho** sempre ficam disponíveis, independentemente do usuário, inclusive após login, cadastro, saída, restauração e recuperação de sessões antigas. Endereços adicionais e escolhas válidas são preservados durante a sessão. Abrir a entrada sem iniciar novamente preserva o progresso. **Responder formulário** fica desabilitado até configurar `FORM_URL` em `components/experience-home.tsx`.
 
-A loja começa sem identificação. O menu oferece **Entrar** e **Cadastrar-se** separadamente. Entrar aceita qualquer e-mail válido e qualquer senha preenchida, sem exigir cadastro prévio; a senha não é persistida. O cadastro solicita os dados pessoais fictícios. Quem entra apenas com e-mail e senha completa os dados pessoais antes da entrega ou do pagamento. O participante pode escolher produtos antes de se identificar. Depois, adiciona seu endereço e um cartão fictício. Os dados informados são usados no cabeçalho, no titular do cartão e na visão de operação. Essa identificação existe apenas no navegador; não é autenticação real nem cria uma conta externa.
+A loja começa sem identificação. O menu oferece **Entrar** e **Cadastrar-se** separadamente. Entrar aceita qualquer e-mail válido e qualquer senha preenchida, sem exigir cadastro prévio; a senha não é persistida. O cadastro solicita os dados pessoais fictícios. Quem já estiver identificado segue diretamente para a entrega, sem repetir os dados pessoais. O participante pode escolher produtos antes de se identificar. Depois, escolhe Casa ou Trabalho (ou adiciona outro endereço) e um cartão fictício. Os dados informados são usados no cabeçalho, no titular do cartão e na visão de operação. Essa identificação existe apenas no navegador; não é autenticação real nem cria uma conta externa.
 
 Na demonstração local já iniciada neste computador, use http://localhost:3001/ como link de entrada do protótipo.
+
+Sempre existe um cartão fictício **Mastercard · final 1234 · validade 12/30**, selecionado por padrão quando não há outro cartão escolhido. Ele permanece disponível após login, cadastro, saída, restauração e nova experiência, tanto na compra quanto na recorrência. Sessões antigas sem cartão também são recuperadas automaticamente. Adicionar outro cartão fictício continua opcional.
+
+Para continuar como visitante na compra, recorrência ou conta, a identificação solicita somente **e-mail e senha**, usando a mesma tela de Entrar. Depois do login, o fluxo retoma a etapa solicitada sem pedir nome, CPF, sobrenome ou telefone. O cadastro completo permanece como opção separada em `/cadastro`.
+
+Após a identificação, o nome é sempre **Paulino** e o CPF é sempre **123.456.789-99**, independentemente do e-mail ou dos valores informados no cadastro. Esses dados fictícios são aplicados ao perfil, checkout, CPF da nota e titular dos cartões, inclusive ao recuperar sessões antigas. Nome e CPF ficam fixos nos formulários do usuário identificado; e-mail, sobrenome e telefone permanecem como os dados informados no teste.
 
 ```bash
 npm run lint
@@ -46,7 +52,8 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 
 | Rota | Experiência |
 | --- | --- |
-| `/` | Entrada do teste: nova experiência e formulário |
+| `/` | Redireciona para `/home` |
+| `/home` | Entrada do teste: nova experiência e formulário |
 | `/loja` | Página inicial com categorias, banners e ofertas da referência Covabra |
 | `/identificacao` | Identificação local do participante com dados fictícios |
 | `/entrar` | Entrada simulada com e-mail e senha livres |
@@ -73,7 +80,7 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 ## Demonstração
 
 1. No carrinho, clique em **Criar assinatura**. Nenhum produto é selecionado automaticamente.
-2. Selecione produtos, altere quantidades/frequências e avance por entrega e pagamento.
+2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade e a frequência de cada produto selecionado para avançar por entrega e pagamento. A edição de assinaturas também bloqueia o salvamento de produtos com quantidade 0.
 3. Revise, aceite os termos e confirme. A assinatura aparece na conta e na operação.
 4. No detalhe, edite produtos, altere cartão/entrega, pule um ciclo ou pause.
 5. Visualize o histórico; reative ou cancele quando desejar.

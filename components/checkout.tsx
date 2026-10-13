@@ -26,9 +26,10 @@ import { ProductEditor, ItemList } from "./products";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
 import { products, productById } from "@/data/products";
-import { firstDeliveryWindow, validFirstDelivery, saoPauloToday } from "@/lib/delivery-date";
+import { validSubscriptionDelivery, saoPauloToday } from "@/lib/delivery-date";
 import {
   subscriptionCycles,
+  subscriptionDraftCycles,
   firstCycle,
   cycleEstimate,
 } from "@/lib/subscription-cycles";
@@ -45,13 +46,10 @@ export function Checkout({ step }: { step: number }) {
     date: string;
     period: string;
   } | null>(null);
-  const [dateWindow, setDateWindow] = useState(firstDeliveryWindow);
+  const [today, setToday] = useState(saoPauloToday);
   useEffect(() => {
     const refresh = () =>
-      setDateWindow((previous) => {
-        const next = firstDeliveryWindow();
-        return previous.min === next.min ? previous : next;
-      });
+      setToday(saoPauloToday());
     refresh();
     const timer = window.setInterval(refresh, 60000);
     window.addEventListener("focus", refresh);
@@ -61,27 +59,18 @@ export function Checkout({ step }: { step: number }) {
     };
   }, []);
   const draft = state.draft;
-  const cycles = subscriptionCycles(
-    draft.items,
-    draft.date,
-    draft.period,
-    draft.cycleDeliveries,
-  );
+  const cycles = subscriptionDraftCycles(draft, today);
   const earliestCycle = firstCycle(cycles);
+  const nextCycles = cycles.filter((cycle) => cycle.date === earliestCycle?.date);
   const hasValidDeliveryDate = cycles.every((cycle) =>
-    validFirstDelivery(cycle.date, dateWindow),
+    validSubscriptionDelivery(cycle.date, today),
   );
   const patchCycle = (
     frequency: Frequency,
     change: { date?: string; period?: string },
   ) =>
     setState((s) => {
-      const cycle = subscriptionCycles(
-        s.draft.items,
-        s.draft.date,
-        s.draft.period,
-        s.draft.cycleDeliveries,
-      ).find((c) => c.frequency === frequency);
+      const cycle = subscriptionDraftCycles(s.draft).find((c) => c.frequency === frequency);
       if (!cycle) return s;
       return {
         ...s,
@@ -99,6 +88,7 @@ export function Checkout({ step }: { step: number }) {
   const hasMissingFrequency = draft.items.some((item) =>
     pendingFrequencyIds.includes(item.productId),
   );
+  const hasInvalidQuantity = draft.items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1);
   const fromCatalog = draft.source === "catalog";
   const fromPurchase = draft.source === "purchase";
   const availableItems = fromPurchase
@@ -159,6 +149,14 @@ export function Checkout({ step }: { step: number }) {
         </Link>
       </main>
     );
+  if (step > 0 && hasInvalidQuantity)
+    return (
+      <main className="container">
+        <h1>Defina a quantidade dos produtos</h1>
+        <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura.</p>
+        <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
+      </main>
+    );
   if ((step > 1 && !address) || (step > 2 && !payment))
     return (
       <main className="container">
@@ -187,7 +185,8 @@ export function Checkout({ step }: { step: number }) {
       submitting ||
       !state.customer || !address || !payment || !draft.items.length ||
       hasMissingFrequency ||
-      !cycles.every((cycle) => validFirstDelivery(cycle.date))
+      hasInvalidQuantity ||
+      !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
     )
       return;
     setSubmitting(true);
@@ -198,22 +197,19 @@ export function Checkout({ step }: { step: number }) {
       ...s,
       lastCreated: id,
       subscriptions: [
-        {
+        ...cycles.map((cycle, index) => ({
           ...s.draft,
-          date: earliestCycle.date,
-          period: earliestCycle.period,
-          cycleDeliveries: Object.fromEntries(
-            cycles.map((cycle) => [
-              cycle.frequency,
-              { date: cycle.date, period: cycle.period },
-            ]),
-          ),
-          id,
+          items: cycle.items,
+          date: cycle.date,
+          period: cycle.period,
+          cycleDeliveries: { [cycle.frequency]: { date: cycle.date, period: cycle.period } },
+          id: String(Number(id) + index).padStart(5, "0"),
+          originId: id,
           name: "Minha nova assinatura",
-          status: "Ativa",
+          status: "Ativa" as const,
           events: [`Assinatura criada em ${dateLabel(saoPauloToday())}`],
           history: [],
-        },
+        })),
         ...s.subscriptions,
       ],
     }));
@@ -270,14 +266,14 @@ export function Checkout({ step }: { step: number }) {
                 </div>
               )}
               <ProductEditor
-                defaults={fromCatalog ? [] : availableItems}
                 ids={
                   fromCatalog
                     ? catalogIds
                     : availableItems
-                        .filter((i) => productById(i.productId).eligible)
+                        .filter((i) => !fromPurchase || productById(i.productId).eligible)
                         .map((i) => i.productId)
                 }
+                allowAllProducts={!fromCatalog && !fromPurchase}
                 items={draft.items}
                 pendingFrequencyIds={pendingFrequencyIds}
                 onFrequencyChange={(id, frequency) =>
@@ -337,19 +333,25 @@ export function Checkout({ step }: { step: number }) {
                     role="group"
                     aria-label={`Entrega · ${cycle.frequency}`}
                   >
-                    {cycles.length > 1 && (
-                      <>
-                        <h3>{cycle.frequency}</h3>
-                        <p>
-                          {cycle.items
-                            .map((item) => productById(item.productId).name)
-                            .join(" · ")}
-                        </p>
-                      </>
-                    )}
+                    <h3>{cycle.frequency}</h3>
+                    <ul className="cycle-delivery-products" aria-label={`Produtos · ${cycle.frequency}`}>
+                      {cycle.items.map((item) => {
+                        const product = productById(item.substituteId || item.productId);
+                        return (
+                          <li className="cycle-delivery-product" key={item.productId}>
+                            <img src={product.image} alt="" width="56" height="64" />
+                            <span className="cycle-delivery-product-info">
+                              <strong>{product.name}</strong>
+                              <small>{product.category}</small>
+                            </span>
+                            <span className="cycle-delivery-quantity">{item.quantity} {item.quantity === 1 ? "unidade" : "unidades"}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
                     <DeliveryOptions
                       date={cycle.date}
-                      dateWindow={dateWindow}
+                      minDate={today}
                       period={cycle.period}
                       labelPrefix={
                         cycles.length > 1 ? cycle.frequency : undefined
@@ -399,7 +401,7 @@ export function Checkout({ step }: { step: number }) {
                   <div className="section-title">
                     <h2>
                       Próximo ciclo{" "}
-                      {cycles.length > 1 && <small>· {cycle.frequency}</small>}
+                      <small>· {cycle.frequency}</small>
                     </h2>
                     <button
                       type="button"
@@ -416,16 +418,21 @@ export function Checkout({ step }: { step: number }) {
                       Editar
                     </button>
                   </div>
-                  {cycles.length > 1 && (
-                    <p className="review-cycle-products">
-                      {cycle.items
-                        .map(
-                          (item) =>
-                            `${productById(item.productId).name} (${item.quantity})`,
-                        )
-                        .join(" · ")}
-                    </p>
-                  )}
+                  <ul className="cycle-delivery-products" aria-label={`Produtos · ${cycle.frequency}`}>
+                    {cycle.items.map((item) => {
+                      const product = productById(item.substituteId || item.productId);
+                      return (
+                        <li className="cycle-delivery-product" key={item.productId}>
+                          <img src={product.image} alt="" width="56" height="64" />
+                          <span className="cycle-delivery-product-info">
+                            <strong>{product.name}</strong>
+                            <small>{product.category}</small>
+                          </span>
+                          <span className="cycle-delivery-quantity">{item.quantity} {item.quantity === 1 ? "unidade" : "unidades"}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
                   <p>
                     Primeira entrega: <strong>{dateLabel(cycle.date)}</strong> ·{" "}
                     {cycle.period}
@@ -445,15 +452,6 @@ export function Checkout({ step }: { step: number }) {
                   </div>
                 </section>
               ))}
-              <section className="panel section-panel">
-                <div className="section-title">
-                  <h2>
-                    Produtos <small>({draft.items.length})</small>
-                  </h2>
-                  <Link href="/assinatura/configurar">Editar</Link>
-                </div>
-                <ItemList items={draft.items} />
-              </section>
               <div className="review-grid">
                 <section className="panel section-panel">
                   <div className="section-title">
@@ -511,11 +509,12 @@ export function Checkout({ step }: { step: number }) {
           )}
         </div>
         <Summary
-          items={draft.items}
-          date={hasValidDeliveryDate ? earliestCycle?.date : undefined}
-          deliveryCost={Math.max(1, cycles.length) * 9.9}
+          items={step > 0 ? nextCycles.flatMap((cycle) => cycle.items) : draft.items}
+          date={step > 0 && hasValidDeliveryDate ? earliestCycle?.date : undefined}
+          deliveryCost={Math.max(1, step > 0 ? nextCycles.length : cycles.length) * 9.9}
           totalLabel={
-            cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
+            step > 0 ? "Valor estimado do próximo ciclo" :
+              cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
           }
         >
           {hasMissingFrequency && (
@@ -524,10 +523,12 @@ export function Checkout({ step }: { step: number }) {
               da assinatura para continuar.
             </p>
           )}
+          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura para continuar.</p>}
           <Button
             disabled={
               !draft.items.length ||
               hasMissingFrequency ||
+              hasInvalidQuantity ||
               (step > 0 && !hasValidDeliveryDate) ||
               (step >= 1 && !address) ||
               (step >= 2 && !payment) ||
@@ -535,11 +536,20 @@ export function Checkout({ step }: { step: number }) {
               submitting
             }
             onClick={() => {
+              if (hasInvalidQuantity) return;
               if (
                 step > 0 &&
-                !cycles.every((cycle) => validFirstDelivery(cycle.date))
+                !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
               )
                 return;
+              if (step === 0 || step === 1) {
+                patch({
+                  date: earliestCycle.date,
+                  cycleDeliveries: Object.fromEntries(cycles.map((cycle) => [
+                    cycle.frequency, { date: cycle.date, period: cycle.period },
+                  ])),
+                });
+              }
               if (step === 3) confirm();
               else if (step === 0 && !state.customer)
                 router.push("/identificacao?next=/assinatura/entrega");
@@ -581,7 +591,7 @@ export function Checkout({ step }: { step: number }) {
           <DeliveryOptions
             date={editingCycle.date}
             period={editingCycle.period}
-            dateWindow={dateWindow}
+            minDate={today}
             onChange={(change) =>
               setEditingCycle((current) =>
                 current ? { ...current, ...change } : null,
@@ -593,9 +603,9 @@ export function Checkout({ step }: { step: number }) {
               Cancelar
             </Button>
             <Button
-              disabled={!validFirstDelivery(editingCycle.date, dateWindow)}
+              disabled={!validSubscriptionDelivery(editingCycle.date, today)}
               onClick={() => {
-                if (!validFirstDelivery(editingCycle.date)) return;
+                if (!validSubscriptionDelivery(editingCycle.date)) return;
                 patchCycle(editingCycle.frequency, {
                   date: editingCycle.date,
                   period: editingCycle.period,
@@ -648,13 +658,15 @@ export function Success() {
         />
       </main>
     );
+  const created = sub.originId ? state.subscriptions.filter((subscription) => subscription.originId === sub.originId) : [sub];
+  const cycles = created.flatMap((subscription) => subscriptionCycles(subscription.items, subscription.date, subscription.period, subscription.cycleDeliveries).map((cycle) => ({ ...cycle, subscriptionId: subscription.id })));
   return (
     <main className="container success-page">
       <div className="success-icon">
         <Check size={38} />
       </div>
       <div className="eyebrow">MAIS TEMPO PARA O QUE IMPORTA</div>
-      <h1>Sua assinatura foi criada!</h1>
+      <h1>{created.length > 1 ? "Suas assinaturas foram criadas!" : "Sua assinatura foi criada!"}</h1>
       <p>Agora suas compras essenciais chegam até você automaticamente.</p>
       <section className="panel success-card">
         <div className="section-title">
@@ -665,53 +677,40 @@ export function Success() {
           <div>
             <CalendarDays />
             <span>Próxima entrega</span>
-            <strong>{dateLabel(sub.date)}</strong>
+            <strong>{dateLabel(firstCycle(cycles).date)}</strong>
           </div>
           <div>
             <Repeat2 />
-            <span>Valor estimado</span>
+            <span>{cycles.length > 1 ? "Total estimado dos primeiros ciclos" : "Valor estimado do ciclo"}</span>
             <strong>
-              {money(
-                sub.cycleDeliveries
-                  ? cycleEstimate(
-                      subscriptionCycles(
-                        sub.items,
-                        sub.date,
-                        sub.period,
-                        sub.cycleDeliveries,
-                      ),
-                    )
-                  : total(sub.items) + 9.9,
-              )}
+              {money(cycleEstimate(cycles))}
             </strong>
           </div>
           <div>
             <Package />
             <span>Produtos</span>
-            <strong>{sub.items.length}</strong>
+            <strong>{created.reduce((count, subscription) => count + subscription.items.length, 0)}</strong>
           </div>
         </div>
-        {sub.cycleDeliveries && Object.keys(sub.cycleDeliveries).length > 1 && (
-          <div className="saved-cycle-list">
-            {subscriptionCycles(
-              sub.items,
-              sub.date,
-              sub.period,
-              sub.cycleDeliveries,
-            ).map((cycle) => (
-              <p key={cycle.frequency}>
-                <strong>{cycle.frequency}</strong> · {dateLabel(cycle.date)} ·{" "}
-                {cycle.period} · {money(total(cycle.items) + 9.9)}
-              </p>
-            ))}
-          </div>
-        )}
+        <div className="saved-cycle-list success-cycles">
+          {cycles.map((cycle) => (
+            <section className="success-cycle" key={cycle.subscriptionId} aria-label={`Resumo do ciclo · ${cycle.frequency}`}>
+              <h3>Assinatura #{cycle.subscriptionId} · {cycle.frequency}</h3>
+              <p>Primeira entrega: <strong>{dateLabel(cycle.date)}</strong> · {cycle.period}</p>
+              <ItemList items={cycle.items} recurring={false} />
+              <div className="summary-row"><span>Subtotal dos produtos</span><strong>{money(total(cycle.items))}</strong></div>
+              <div className="summary-row"><span>Entrega estimada</span><strong>{money(9.9)}</strong></div>
+              <div className="summary-total"><span>Valor estimado deste ciclo<b>{money(total(cycle.items) + 9.9)}</b></span></div>
+              <Link className="text-action" href={"/minhas-assinaturas/" + cycle.subscriptionId}>Ver detalhes desta assinatura <ArrowRight size={16} /></Link>
+            </section>
+          ))}
+        </div>
         <div className="notice">
           <Heart size={19} />
           Tudo sob seu controle. Edite, pause ou cancele quando precisar.
         </div>
-        <Link className="btn primary" href={"/minhas-assinaturas/" + sub.id}>
-          Ver minha assinatura <ArrowRight size={17} />
+        <Link className="btn primary" href={created.length > 1 ? "/minhas-assinaturas" : "/minhas-assinaturas/" + sub.id}>
+          {created.length > 1 ? "Ver minhas assinaturas" : "Ver minha assinatura"} <ArrowRight size={17} />
         </Link>
         <Link className="back-link" href="/comprar">
           Continuar comprando
