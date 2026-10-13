@@ -4,6 +4,7 @@ import { useStore } from "./store";
 import { Breadcrumb } from "./shell";
 import { PageHeading, Badge } from "./ui";
 import { money, total, dateLabel } from "@/lib/utils";
+import { subscriptionCycles, cycleEstimate } from "@/lib/subscription-cycles";
 export function Operation() {
   const { state } = useStore();
   const subscriptions = state.subscriptions;
@@ -61,10 +62,23 @@ export function Operation() {
             key={s.id}
             href={"/operacao/assinaturas/" + s.id}
           >
-            <span>Robson Ferreira</span>
+            <span>{state.customer ? `${state.customer.firstName} ${state.customer.lastName}` : "Cliente não identificado"}</span>
             <span>#{s.id}</span>
             <span>{s.status === "Cancelada" ? "—" : dateLabel(s.date)}</span>
-            <span>{money(total(s.items) + 9.9)}</span>
+            <span>
+              {money(
+                s.cycleDeliveries
+                  ? cycleEstimate(
+                      subscriptionCycles(
+                        s.items,
+                        s.date,
+                        s.period,
+                        s.cycleDeliveries,
+                      ),
+                    )
+                  : total(s.items) + 9.9,
+              )}
+            </span>
             <Badge status={s.status} />
           </Link>
         ))}

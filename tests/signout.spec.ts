@@ -1,0 +1,41 @@
+import { test, expect } from "@playwright/test";
+
+test("identificação e saída usam apenas o participante atual", async ({ page }, testInfo) => {
+  const menu = page.locator(testInfo.project.name === "mobile" ? "#mobile-store-menu" : "#account-dropdown");
+  const openMenu = async () => {
+    const trigger = page.getByRole("button", { name: "Menu da conta" });
+    if (testInfo.project.name === "desktop") await trigger.hover();
+    else await trigger.click();
+    await expect(menu).toBeVisible();
+  };
+  await page.goto("/recorrencias");
+  await expect(page.locator('a[href="/minhas-assinaturas"]')).toHaveCount(0);
+  await openMenu();
+  await expect(menu.getByRole("link")).toHaveCount(2);
+  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: "Entrar", exact: true })).toHaveAttribute("href", "/entrar");
+  await menu.getByRole("link", { name: "Cadastrar-se", exact: true }).click();
+  await expect(page).toHaveURL("/cadastro");
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("");
+  await page.getByLabel("Nome", { exact: true }).fill("Ana");
+  await page.getByLabel("Sobrenome", { exact: true }).fill("Teste");
+  await page.getByLabel("E-mail", { exact: true }).fill("ana@example.com");
+  await page.getByLabel("CPF", { exact: true }).fill("12345678901");
+  await page.getByLabel("Telefone", { exact: true }).fill("11999999999");
+  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await expect(page).toHaveURL("/loja");
+  await page.reload();
+  await openMenu();
+  await expect(menu.getByText("Olá, Ana!", { exact: true })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Recorrências", exact: testInfo.project.name === "mobile" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Minhas listas", exact: true })).toBeVisible();
+  await menu.getByRole("button", { name: "Sair", exact: true }).click();
+  await expect(page).toHaveURL("/loja");
+  await openMenu();
+  await expect(menu.getByRole("link")).toHaveCount(2);
+  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await page.goto("/minhas-assinaturas");
+  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("E-mail", { exact: true })).toHaveValue("");
+});

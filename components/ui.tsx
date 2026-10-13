@@ -163,11 +163,15 @@ export function Summary({
   date,
   children,
   cart = false,
+  deliveryCost = 9.9,
+  totalLabel,
 }: {
   items: SubscriptionItem[];
   date?: string;
   children?: ReactNode;
   cart?: boolean;
+  deliveryCost?: number;
+  totalLabel?: string;
 }) {
   const subtotal = total(items);
   return (
@@ -183,12 +187,13 @@ export function Summary({
       </div>
       <div className="summary-row">
         <span>Entrega</span>
-        <strong>{money(9.9)}</strong>
+        <strong>{money(deliveryCost)}</strong>
       </div>
       <div className="summary-total">
         <span>
-          {cart ? "Total estimado" : "Estimativa da próxima cobrança"}
-          <b>{money(subtotal + 9.9)}</b>
+          {totalLabel ??
+            (cart ? "Total estimado" : "Estimativa da próxima cobrança")}
+          <b>{money(subtotal + deliveryCost)}</b>
         </span>
       </div>
       {date && (

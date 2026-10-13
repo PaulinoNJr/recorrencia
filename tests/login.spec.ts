@@ -1,0 +1,62 @@
+import { test, expect } from "@playwright/test";
+
+test("entrar aceita e-mail sem cadastro e senha de um caractere sem salvar a senha", async ({ page }, testInfo) => {
+  await page.goto("/loja");
+  const openMenu = async () => {
+    const trigger = page.getByRole("button", { name: "Menu da conta" });
+    if (testInfo.project.name === "desktop") await trigger.hover();
+    else await trigger.click();
+  };
+  const menu = page.locator(testInfo.project.name === "mobile" ? "#mobile-store-menu" : "#account-dropdown");
+  await openMenu();
+  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await menu.getByRole("link", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL("/entrar");
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);
+  await page.getByLabel("E-mail", { exact: true }).fill("sem-cadastro+teste@example.net");
+  await page.getByLabel("Senha", { exact: true }).fill("!");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL("/loja");
+  await page.reload();
+  await openMenu();
+  await expect(menu.getByText("Olá, Paulino!", { exact: true })).toBeVisible();
+  await expect(menu.getByText("sem-cadastro+teste@example.net", { exact: true })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Recorrências", exact: testInfo.project.name === "mobile" })).toBeVisible();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  expect(saved.customer.email).toBe("sem-cadastro+teste@example.net");
+  expect(saved.customer.firstName).toBe("Paulino");
+  expect(saved.password).toBeUndefined();
+  expect(saved.customer.password).toBeUndefined();
+  expect(saved.purchase.password).toBeUndefined();
+  await menu.getByRole("button", { name: "Sair", exact: true }).click();
+  await page.goto("/entrar");
+  await expect(page.getByLabel("Senha", { exact: true })).toHaveValue("");
+});
+
+test("login retoma o fluxo e pede os dados pessoais restantes antes da entrega", async ({ page }) => {
+  await page.goto("/minhas-assinaturas");
+  await page.getByRole("link", { name: "Entrar", exact: true }).last().click();
+  await expect(page).toHaveURL("/entrar?next=%2Fminhas-assinaturas");
+  await page.getByLabel("E-mail", { exact: true }).fill("outro@example.org");
+  await page.getByLabel("Senha", { exact: true }).fill("qualquer senha de teste");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page).toHaveURL("/minhas-assinaturas");
+  await expect(page.getByRole("heading", { name: "Minhas assinaturas", exact: true })).toBeVisible();
+  await page.goto("/loja");
+  await page.locator(".home-product").first().getByRole("button", { name: "Eu quero!", exact: true }).click();
+  await page.goto("/carrinho");
+  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+  await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }).check();
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
+  await page.getByRole("button", { name: "Continuar para entrega" }).click();
+  await expect(page).toHaveURL("/assinatura/entrega");
+  await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toBeVisible();
+  await expect(page.getByLabel("E-mail", { exact: true })).toHaveValue("outro@example.org");
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("Paulino");
+  await page.getByLabel("Nome", { exact: true }).fill("Bia");
+  await page.getByLabel("Sobrenome", { exact: true }).fill("Teste");
+  await page.getByLabel("CPF", { exact: true }).fill("12345678901");
+  await page.getByLabel("Telefone", { exact: true }).fill("11999999999");
+  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Adicionar endereço", exact: true })).toBeVisible();
+});

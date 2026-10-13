@@ -10,8 +10,9 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { initialState } from "@/data/subscriptions";
+import { guestState } from "@/data/subscriptions";
 import { PrototypeState, Subscription } from "@/types";
+import { addDays } from "@/lib/utils";
 interface Store {
   state: PrototypeState;
   setState: Dispatch<SetStateAction<PrototypeState>>;
@@ -23,10 +24,12 @@ interface Store {
     event?: string,
   ) => void;
   reset: () => void;
+  startNewExperience: () => Promise<void>;
+  signOut: () => void;
 }
 const Context = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, renderState] = useState(initialState);
+  const [state, renderState] = useState(guestState);
   const currentState = useRef(state);
   // Save before navigation so an immediate reload cannot lose the last action.
   const setState: Dispatch<SetStateAction<PrototypeState>> = useCallback(
@@ -88,6 +91,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         sub.id === id
           ? {
               ...sub,
+              ...(sub.cycleDeliveries && patch.date && !patch.cycleDeliveries
+                ? {
+                    cycleDeliveries: Object.fromEntries(
+                      Object.entries(sub.cycleDeliveries).map(
+                        ([frequency, delivery]) => [
+                          frequency,
+                          {
+                            date: addDays(
+                              delivery.date,
+                              Math.round(
+                                (Date.parse(patch.date! + "T12:00:00Z") -
+                                  Date.parse(sub.date + "T12:00:00Z")) /
+                                  86400000,
+                              ),
+                            ),
+                            period: patch.period ?? delivery.period,
+                          },
+                        ],
+                      ),
+                    ),
+                  }
+                : {}),
               ...patch,
               events: event ? [event, ...sub.events] : sub.events,
             }
@@ -102,8 +127,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ready,
         notify: setToast,
         updateSubscription,
+        signOut: () => {
+          setState((current) => ({ ...guestState(), cart: current.cart }));
+          setToast("Você saiu da sua conta.");
+        },
+        startNewExperience: async () => {
+          // Clear this prototype's origin before saving a clean test session.
+          localStorage.clear();
+          sessionStorage.clear();
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((key) => caches.delete(key)));
+          }
+          const fresh = guestState();
+          // Do not navigate if storage cannot be cleared and replaced reliably.
+          localStorage.setItem("covabra-prototype-v1", JSON.stringify(fresh));
+          setState(fresh);
+          setToast("");
+        },
         reset: () => {
-          setState(initialState());
+          setState(guestState());
           setToast("Dados do protótipo restaurados.");
         },
       }}

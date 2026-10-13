@@ -1,9 +1,9 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 test("navegacao mobile segue o Covabra e preserva acesso a recorrencia", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await page.goto("/loja");
   const bottom = page.getByRole("navigation", { name: "Navegação mobile" });
   await expect(bottom).toBeVisible();
   await expect(page.locator(".department-navigation")).toBeHidden();

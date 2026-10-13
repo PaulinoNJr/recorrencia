@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 test("criação, edição e gerenciamento persistem", async ({
   page,
 }, testInfo) => {
@@ -30,7 +30,7 @@ test("criação, edição e gerenciamento persistem", async ({
   });
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await page.getByRole("button", { name: /Trabalho/ }).click();
-  await page.getByRole("button", { name: /Tarde/ }).click();
+  await page.getByRole("button", { name: /Tarde/ }).first().click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await page.getByRole("button", { name: /Visa/ }).click();
   await page.getByRole("button", { name: "Revisar assinatura" }).click();
@@ -60,6 +60,7 @@ test("criação, edição e gerenciamento persistem", async ({
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption("A cada 2 meses");
   await page.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(page).toHaveURL("/minhas-assinaturas/00127");
   await page.reload();
   await expect(page.getByText("5 unidades")).toBeVisible();
   await page.getByRole("button", { name: "Pular próxima entrega" }).click();
@@ -129,7 +130,7 @@ test("rotas e layout sem overflow", async ({ page }, testInfo) => {
     "/operacao/assinaturas/00124",
   ]) {
     await page.goto(route);
-    await expect(page.locator("h1")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

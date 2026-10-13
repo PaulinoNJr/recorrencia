@@ -15,6 +15,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
       ...s,
       draft: {
         ...s.draft,
+        cycleDeliveries: undefined,
         source,
         frequencyPending:
           source === "cart"

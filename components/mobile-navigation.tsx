@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
   Home,
@@ -26,7 +27,8 @@ export function MobileNavigation({
   onChange: (mode: MobileMenu) => void;
 }) {
   const path = usePathname();
-  const { state } = useStore();
+  const { state, signOut } = useStore();
+  const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (!mode) return;
@@ -49,13 +51,13 @@ export function MobileNavigation({
   return (
     <>
       <nav className="mobile-bottom-nav" aria-label="Navegação mobile">
-        <Link href="/" aria-current={path === "/" ? "page" : undefined}>
+        <Link href="/loja" aria-current={path === "/loja" ? "page" : undefined}>
           <Home size={22} />
           <span>Início</span>
         </Link>
         <button
           type="button"
-          aria-label="Menu de Robson"
+          aria-label="Menu da conta"
           aria-expanded={mode === "account"}
           aria-controls="mobile-store-menu"
           onClick={() => onChange("account")}
@@ -103,7 +105,7 @@ export function MobileNavigation({
         >
           <div className="mobile-drawer-heading">
             <h2 id="mobile-menu-title">
-              {mode === "account" ? "Olá, Robson!" : "Menu"}
+              {mode === "account" ? (state.customer ? (state.customer.firstName ? `Olá, ${state.customer.firstName}!` : "Você está conectado") : "Minha conta") : "Menu"}
             </h2>
             <button type="button" aria-label="Fechar menu" onClick={close}>
               <X size={24} />
@@ -153,10 +155,10 @@ export function MobileNavigation({
                 >
                   Nossas lojas
                 </a>
-                <Link href="/listas" onClick={close}>
+                {state.customer && <Link href="/listas" onClick={close}>
                   <Heart size={20} />
                   Minhas listas
-                </Link>
+                </Link>}
                 <Link href="/comprar" onClick={close}>
                   <ShoppingBasket size={20} />
                   Montar compra
@@ -184,8 +186,12 @@ export function MobileNavigation({
               </>
             ) : (
               <>
-                <p className="mobile-account-intro">Seu espaço no Covabra</p>
-                <Link href="/listas" onClick={close}>
+                <p className="mobile-account-intro">{state.customer?.email || "Seu espaço no Covabra"}</p>
+                {!state.customer && <>
+                  <Link href="/entrar" onClick={close}>Entrar</Link>
+                  <Link href="/cadastro" onClick={close}>Cadastrar-se</Link>
+                </>}
+                {state.customer && <><Link href="/listas" onClick={close}>
                   <Heart size={20} />
                   Minhas listas
                 </Link>
@@ -202,6 +208,11 @@ export function MobileNavigation({
                   Conheça as recorrências Covabra
                   <ChevronRight size={18} />
                 </Link>
+                <button type="button" onClick={() => {
+                  signOut();
+                  close();
+                  router.push("/loja");
+                }}>Sair</button></>}
               </>
             )}
           </nav>

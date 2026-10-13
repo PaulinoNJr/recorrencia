@@ -11,7 +11,9 @@ npm install
 npm run dev
 ```
 
-Abra http://localhost:3000/. A primeira tela é a página inicial do Covabra; o carrinho é acessado pelo ícone no cabeçalho.
+Abra http://localhost:3000/. A primeira tela é a entrada do teste. **Iniciar uma nova experiência com a recorrência** limpa o armazenamento desta origem e abre `/loja` como visitante, sem cliente, compras, assinaturas, endereços ou cartões anteriores. Abrir a entrada sem iniciar novamente preserva o progresso. **Responder formulário** fica desabilitado até configurar `FORM_URL` em `components/experience-home.tsx`.
+
+A loja começa sem identificação. O menu oferece **Entrar** e **Cadastrar-se** separadamente. Entrar aceita qualquer e-mail válido e qualquer senha preenchida, sem exigir cadastro prévio; a senha não é persistida. O cadastro solicita os dados pessoais fictícios. Quem entra apenas com e-mail e senha completa os dados pessoais antes da entrega ou do pagamento. O participante pode escolher produtos antes de se identificar. Depois, adiciona seu endereço e um cartão fictício. Os dados informados são usados no cabeçalho, no titular do cartão e na visão de operação. Essa identificação existe apenas no navegador; não é autenticação real nem cria uma conta externa.
 
 Na demonstração local já iniciada neste computador, use http://localhost:3001/ como link de entrada do protótipo.
 
@@ -44,7 +46,11 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 
 | Rota | Experiência |
 | --- | --- |
-| `/` | Página inicial com categorias, banners e ofertas da referência Covabra |
+| `/` | Entrada do teste: nova experiência e formulário |
+| `/loja` | Página inicial com categorias, banners e ofertas da referência Covabra |
+| `/identificacao` | Identificação local do participante com dados fictícios |
+| `/entrar` | Entrada simulada com e-mail e senha livres |
+| `/cadastro` | Cadastro local com dados pessoais fictícios |
 | `/recorrencias` | Landing page educativa: 3 passos e criação de assinatura pelo carrinho ou catálogo |
 | `/carrinho` | Layout do checkout Covabra: substituição, produtos, CPF na nota e resumo; compra única ou assinatura |
 | `/checkout` | Identificação por e-mail |
@@ -73,7 +79,7 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 5. Visualize o histórico; reative ou cancele quando desejar.
 6. Recarregue a página para verificar a persistência. O rodapé oferece **Restaurar dados do protótipo**.
 
-Mocks iniciais: `00124` ativa com café indisponível e histórico; `00125` pausada; `00126` pagamento recusado. Ciclo pulado e cancelamento podem ser demonstrados pelas ações do detalhe e ficam registrados nos eventos.
+Os testes de gerenciamento usam explicitamente uma conta de demonstração em `tests/fixtures.ts`: `00124` ativa com café indisponível e histórico; `00125` pausada; `00126` pagamento recusado. Esses dados não são carregados na experiência do participante. `tests/guest-flow.spec.ts` verifica os fluxos desde a sessão vazia, incluindo identificação, entrega, pagamento, gerenciamento e reinício.
 
 ## Alterar conteúdo e identidade
 

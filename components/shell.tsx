@@ -23,7 +23,7 @@ import { useState, useRef, useEffect } from "react";
 import { useStore } from "./store";
 import { MobileNavigation, MobileMenu } from "./mobile-navigation";
 export function Header() {
-  const { state } = useStore();
+  const { state, signOut } = useStore();
   const path = usePathname();
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -96,7 +96,7 @@ export function Header() {
         >
           <Menu size={23} />
         </button>
-        <Link href="/" aria-label="Covabra início">
+        <Link href="/loja" aria-label="Covabra início">
           <img
             className="logo"
             src="/logo.webp"
@@ -159,29 +159,33 @@ export function Header() {
         >
           <button
             className="account"
-            aria-label="Menu de Robson"
+            aria-label="Menu da conta"
             aria-expanded={accountOpen}
-            aria-controls="robson-dropdown"
+            aria-controls="account-dropdown"
             onClick={(e) => setAccountOpen((v) => (e.detail === 0 ? !v : true))}
           >
             <UserRound size={25} />
             <span>
-              Olá,
+              {state.customer ? "Olá," : "Bem-vindo"}
               <strong>
-                Robson <ChevronDown size={13} />
+                {state.customer ? state.customer.firstName || "Minha conta" : "Entrar"} <ChevronDown size={13} />
               </strong>
             </span>
           </button>
           <div
-            id="robson-dropdown"
+            id="account-dropdown"
             className="account-dropdown"
             hidden={!accountOpen}
           >
             <div>
-              <strong>Olá, Robson!</strong>
-              <p>Seu espaço no Covabra</p>
+              <strong>{state.customer ? (state.customer.firstName ? `Olá, ${state.customer.firstName}!` : "Você está conectado") : "Bem-vindo ao Covabra!"}</strong>
+              <p>{state.customer?.email || "Seu espaço no Covabra"}</p>
             </div>
-            <Link href="/listas" onClick={() => setAccountOpen(false)}>
+            {!state.customer && <>
+              <Link href="/entrar" onClick={() => setAccountOpen(false)}>Entrar</Link>
+              <Link href="/cadastro" onClick={() => setAccountOpen(false)}>Cadastrar-se</Link>
+            </>}
+            {state.customer && <><Link href="/listas" onClick={() => setAccountOpen(false)}>
               <Heart size={18} />
               Minhas listas
             </Link>
@@ -193,6 +197,11 @@ export function Header() {
               <Repeat2 size={18} />
               Recorrências <small>NOVO</small>
             </Link>
+            <button type="button" className="text-action" onClick={() => {
+              signOut();
+              setAccountOpen(false);
+              router.push("/loja");
+            }}>Sair</button></>}
           </div>
         </div>
         <Link className="cart-link" href="/carrinho">
@@ -362,6 +371,7 @@ export function Footer() {
       <div className="container footer-bottom">
         <img src="/logo.webp" alt="Covabra" width="110" height="39" />
         <p>Protótipo de experiência · Nenhuma cobrança real é realizada.</p>
+        <Link href="/">Início do teste</Link>
         <Link href="/operacao">Área de operação</Link>
         <button onClick={reset}>Restaurar dados do protótipo</button>
       </div>
@@ -375,7 +385,7 @@ export function Breadcrumb({
 }) {
   return (
     <div className="breadcrumb">
-      <Link href="/">Início</Link>
+      <Link href="/loja">Início</Link>
       {items.map((item, i) => (
         <span key={i}>
           ›{" "}

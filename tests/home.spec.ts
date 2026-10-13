@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/loja");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -30,7 +30,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
     path: `test-results/${testInfo.project.name}-home.png`,
     fullPage: true,
   });
-  const trigger = page.getByRole("button", { name: "Menu de Robson" });
+  const trigger = page.getByRole("button", { name: "Menu da conta" });
   await expect(
     page.locator("header nav").getByRole("link", { name: "Minhas listas" }),
   ).toHaveCount(0);
@@ -49,7 +49,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   const managementLink = page
     .locator(
       testInfo.project.name === "desktop"
-        ? "#robson-dropdown"
+        ? "#account-dropdown"
         : "#mobile-store-menu",
     )
     .getByRole("link", {
@@ -64,7 +64,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
   await managementLink.click();
   await expect(page).toHaveURL(/minhas-assinaturas$/);
   await page.getByRole("link", { name: "Covabra início" }).click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/loja");
   if (testInfo.project.name === "desktop") {
     await trigger.focus();
     await trigger.press("ArrowDown");

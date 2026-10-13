@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { MapPin, Plus, CreditCard, Check } from "lucide-react";
 import { useStore } from "./store";
 import { Button, Modal } from "./ui";
+import { saoPauloToday, validFirstDelivery } from "@/lib/delivery-date";
+import { dateLabel } from "@/lib/utils";
 export function AddressChoices({
   value,
   onChange,
@@ -35,9 +37,10 @@ export function AddressChoices({
           </button>
         ))}
       </div>
+      {!state.addresses.length && <p className="muted">Você ainda não tem um endereço salvo. Adicione um endereço para continuar.</p>}
       <button className="text-action" onClick={() => setOpen(true)}>
         <Plus size={17} />
-        Adicionar outro endereço
+        {state.addresses.length ? "Adicionar outro endereço" : "Adicionar endereço"}
       </button>
       {open && (
         <Modal title="Adicionar endereço" onClose={() => setOpen(false)}>
@@ -139,6 +142,7 @@ export function PaymentChoices({
           </button>
         ))}
       </div>
+      {!state.payments.length && <p className="muted">Você ainda não tem um cartão salvo. Adicione um cartão fictício para continuar.</p>}
       <button className="text-action" onClick={() => setOpen(true)}>
         <Plus size={17} />
         Adicionar cartão fictício
@@ -159,7 +163,7 @@ export function PaymentChoices({
                     id,
                     brand: String(data.get("brand")),
                     last4: "1234",
-                    holder: "Robson Ferreira",
+                    holder: state.customer ? `${state.customer.firstName} ${state.customer.lastName}` : "Titular de teste",
                     expiry: "12/30",
                   },
                 ],
@@ -191,25 +195,47 @@ export function DeliveryOptions({
   date,
   period,
   onChange,
+  dateWindow,
+  labelPrefix,
 }: {
   date: string;
   period: string;
   onChange: (patch: { date?: string; period?: string }) => void;
+  dateWindow?: { min: string; max: string };
+  labelPrefix?: string;
 }) {
+  const rangeId = useId();
   return (
     <>
       <h3 className="section-label">Primeira entrega</h3>
       <label className="date-field">
         Selecione uma data
         <input
-          aria-label="Data de entrega"
+          aria-label={
+            labelPrefix ? `Data de entrega · ${labelPrefix}` : "Data de entrega"
+          }
           type="date"
-          min="2026-10-07"
-          value={date}
+          min={dateWindow?.min ?? saoPauloToday()}
+          max={dateWindow?.max}
+          value={
+            dateWindow && !validFirstDelivery(date, dateWindow) ? "" : date
+          }
+          aria-describedby={dateWindow ? rangeId : undefined}
+          aria-invalid={
+            dateWindow && !!date && !validFirstDelivery(date, dateWindow)
+              ? true
+              : undefined
+          }
           onChange={(e) => onChange({ date: e.target.value })}
           required
         />
       </label>
+      {dateWindow && (
+        <p id={rangeId}>
+          Escolha um dos próximos 3 dias: de {dateLabel(dateWindow.min)} a{" "}
+          {dateLabel(dateWindow.max)}.
+        </p>
+      )}
       <h3 className="section-label">Qual o melhor período?</h3>
       <div className="period-grid">
         {["08h às 12h", "12h às 18h", "18h às 21h"].map((p, i) => (

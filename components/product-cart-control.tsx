@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { Product } from "@/types";
 import { useStore } from "./store";
 
@@ -47,11 +47,11 @@ export function ProductCartControl({ product }: { product: Product }) {
       {quantity === 0 ? (
         <button
           type="button"
-          className="btn primary"
+          className="btn product-cart-add"
           disabled={!ready}
           onClick={() => changeQuantity(1)}
         >
-          <Plus size={17} /> Adicionar
+          <ShoppingCart size={17} /> Eu quero!
         </button>
       ) : (
         <div

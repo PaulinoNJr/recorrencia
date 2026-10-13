@@ -18,6 +18,7 @@ import {
   Check,
   Truck,
   Settings2,
+  Trash2,
 } from "lucide-react";
 import { useStore } from "./store";
 import { Breadcrumb } from "./shell";
@@ -26,10 +27,38 @@ import { ItemList, ProductEditor } from "./products";
 import { AddressChoices, DeliveryOptions, PaymentChoices } from "./choices";
 import { dateLabel, money, total, addDays, nextCycle } from "@/lib/utils";
 import { productById } from "@/data/products";
+import { saoPauloToday, firstDeliveryWindow } from "@/lib/delivery-date";
 import { SubscriptionItem } from "@/types";
+import {
+  subscriptionCycles,
+  firstCycle,
+  cycleEstimate,
+} from "@/lib/subscription-cycles";
 export function SubscriptionList() {
-  const { state, ready } = useStore();
+  const { state, ready, setState, notify } = useStore();
   const [filter, setFilter] = useState("Todas");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deleting = state.subscriptions.find(
+    (subscription) => subscription.id === deletingId,
+  );
+  const deleteSubscription = () => {
+    if (!deleting) return;
+    setState((current) => ({
+      ...current,
+      subscriptions: current.subscriptions.filter(
+        (subscription) => subscription.id !== deleting.id,
+      ),
+      lastCreated:
+        current.lastCreated === deleting.id ? null : current.lastCreated,
+    }));
+    setDeletingId(null);
+    notify(`Assinatura #${deleting.id} excluída.`);
+    requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]')
+        ?.focus(),
+    );
+  };
   const visible = state.subscriptions.filter(
     (s) =>
       filter === "Todas" ||
@@ -51,7 +80,19 @@ export function SubscriptionList() {
         title="Minhas assinaturas"
         description="Os essenciais da sua casa, sempre no seu tempo."
         action={
-          <Link className="btn primary" href="/carrinho">
+          <Link className="btn primary" href="/assinatura/configurar" onClick={() => {
+            setState((current) => ({
+              ...current,
+              draft: {
+                ...current.draft,
+                source: "catalog",
+                items: [],
+                frequencyPending: [],
+                cycleDeliveries: undefined,
+                date: firstDeliveryWindow().min,
+              },
+            }));
+          }}>
             <Plus size={17} />
             Nova assinatura
           </Link>
@@ -106,6 +147,15 @@ export function SubscriptionList() {
         <div className="subscription-grid">
           {visible.map((s) => (
             <article className="panel subscription-card" key={s.id}>
+              <button
+                type="button"
+                className="subscription-delete"
+                aria-label={`Excluir assinatura #${s.id}`}
+                title="Excluir assinatura"
+                onClick={() => setDeletingId(s.id)}
+              >
+                <Trash2 size={19} />
+              </button>
               <div className="section-title">
                 <span className="subscription-number">ASSINATURA #{s.id}</span>
                 <Badge status={s.status} />
@@ -141,7 +191,20 @@ export function SubscriptionList() {
                 </div>
                 <div>
                   <span>Valor estimado</span>
-                  <strong>{money(total(s.items) + 9.9)}</strong>
+                  <strong>
+                    {money(
+                      s.cycleDeliveries
+                        ? cycleEstimate(
+                            subscriptionCycles(
+                              s.items,
+                              s.date,
+                              s.period,
+                              s.cycleDeliveries,
+                            ),
+                          )
+                        : total(s.items) + 9.9,
+                    )}
+                  </strong>
                 </div>
               </div>
               <Link className="card-link" href={"/minhas-assinaturas/" + s.id}>
@@ -160,6 +223,26 @@ export function SubscriptionList() {
         <Settings2 size={17} /> Você pode editar, pausar ou cancelar sua
         assinatura quando precisar.
       </p>
+      {deleting && (
+        <Modal title="Excluir assinatura?" onClose={() => setDeletingId(null)}>
+          <p>
+            A assinatura{" "}
+            <strong>
+              #{deleting.id} · {deleting.name}
+            </strong>{" "}
+            será excluída, incluindo seu histórico. Essa ação não pode ser
+            desfeita.
+          </p>
+          <div className="modal-actions">
+            <Button variant="secondary" onClick={() => setDeletingId(null)}>
+              Manter assinatura
+            </Button>
+            <Button variant="danger" onClick={deleteSubscription}>
+              Excluir assinatura
+            </Button>
+          </div>
+        </Modal>
+      )}
     </main>
   );
 }
@@ -176,7 +259,7 @@ export function SubscriptionDetail({
   const s = state.subscriptions.find((s) => s.id === id);
   const [action, setAction] = useState<Action>(null);
   const [pauseDays, setPauseDays] = useState("30");
-  const [pauseDate, setPauseDate] = useState("2026-11-05");
+  const [pauseDate, setPauseDate] = useState(() => addDays(saoPauloToday(), 30));
   const [payment, setPayment] = useState("");
   const [delivery, setDelivery] = useState({
     addressId: "",
@@ -196,7 +279,19 @@ export function SubscriptionDetail({
     );
   const address = state.addresses.find((a) => a.id === s.addressId),
     card = state.payments.find((p) => p.id === s.paymentId);
-  const skippedDate = nextCycle(s.items, s.date);
+  const groupedCycles = subscriptionCycles(
+    s.items,
+    s.date,
+    s.period,
+    s.cycleDeliveries,
+  );
+  const nextCycles = groupedCycles.map((cycle) => ({
+    ...cycle,
+    date: nextCycle(cycle.items, cycle.date),
+  }));
+  const skippedDate = s.cycleDeliveries
+    ? firstCycle(nextCycles).date
+    : nextCycle(s.items, s.date);
   const unavailable = s.items.find(
     (i) =>
       productById(i.productId).stock === 0 && !i.substituteId && !i.skipOnce,
@@ -283,7 +378,14 @@ export function SubscriptionDetail({
         <div>
           <Repeat2 />
           <span>
-            Valor estimado<strong>{money(total(s.items) + 9.9)}</strong>
+            Valor estimado
+            <strong>
+              {money(
+                s.cycleDeliveries
+                  ? cycleEstimate(groupedCycles)
+                  : total(s.items) + 9.9,
+              )}
+            </strong>
           </span>
         </div>
         <div>
@@ -311,6 +413,16 @@ export function SubscriptionDetail({
                     : "Tudo no seu tempo"}
               </span>
             </div>
+            {s.cycleDeliveries && groupedCycles.length > 1 && (
+              <div className="saved-cycle-list">
+                {groupedCycles.map((cycle) => (
+                  <p key={cycle.frequency}>
+                    <strong>{cycle.frequency}</strong> · {dateLabel(cycle.date)}{" "}
+                    · {cycle.period} · {money(total(cycle.items) + 9.9)}
+                  </p>
+                ))}
+              </div>
+            )}
             <div className="cycle-steps">
               {[
                 [Check, "Revisão dos produtos", -5],
@@ -448,7 +560,7 @@ export function SubscriptionDetail({
           {operation && (
             <section className="panel section-panel">
               <h2>Cliente e eventos</h2>
-              <p>Robson Ferreira · robson@example.com</p>
+              <p>{state.customer ? `${state.customer.firstName} ${state.customer.lastName} · ${state.customer.email}` : "Cliente não identificado"}</p>
               {s.events.map((event, i) => (
                 <p key={i}>• {event}</p>
               ))}
@@ -563,7 +675,7 @@ export function SubscriptionDetail({
                   <input
                     aria-label="Data de retomada"
                     type="date"
-                    min="2026-10-07"
+                    min={addDays(saoPauloToday(), 1)}
                     value={pauseDate}
                     onChange={(e) => setPauseDate(e.target.value)}
                   />
@@ -574,12 +686,13 @@ export function SubscriptionDetail({
                   Cancelar
                 </Button>
                 <Button
-                  disabled={pauseDays === "date" && pauseDate < "2026-10-07"}
+                  disabled={pauseDays === "date" && pauseDate < addDays(saoPauloToday(), 1)}
                   onClick={() => {
+                    if (pauseDays === "date" && pauseDate < addDays(saoPauloToday(), 1)) return;
                     const date =
                       pauseDays === "date"
                         ? pauseDate
-                        : addDays("2026-10-06", Number(pauseDays));
+                        : addDays(saoPauloToday(), Number(pauseDays));
                     save(
                       {
                         status: "Pausada",
@@ -619,6 +732,16 @@ export function SubscriptionDetail({
                     save(
                       {
                         date: skippedDate,
+                        ...(s.cycleDeliveries
+                          ? {
+                              cycleDeliveries: Object.fromEntries(
+                                nextCycles.map((cycle) => [
+                                  cycle.frequency,
+                                  { date: cycle.date, period: cycle.period },
+                                ]),
+                              ),
+                            }
+                          : {}),
                         items: s.items.map((i) => ({ ...i, skipOnce: false })),
                       },
                       "Próxima entrega pulada com sucesso.",
@@ -790,7 +913,27 @@ export function EditSubscription({ id }: { id: string }) {
       />
       <div className="content-grid">
         <ProductEditor items={items} onChange={setLocal} />
-        <Summary items={items} date={sub.date}>
+        <Summary
+          items={items}
+          date={sub.date}
+          deliveryCost={
+            sub.cycleDeliveries
+              ? subscriptionCycles(
+                  items,
+                  sub.date,
+                  sub.period,
+                  sub.cycleDeliveries,
+                ).length * 9.9
+              : 9.9
+          }
+          totalLabel={
+            sub.cycleDeliveries &&
+            subscriptionCycles(items, sub.date, sub.period, sub.cycleDeliveries)
+              .length > 1
+              ? "Estimativa dos primeiros ciclos"
+              : undefined
+          }
+        >
           <div className="notice">
             {changed
               ? "Você tem alterações para salvar."

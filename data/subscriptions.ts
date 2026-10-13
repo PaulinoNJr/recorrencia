@@ -1,5 +1,6 @@
 import { PrototypeState, SubscriptionItem } from "@/types";
 import { products } from "./products";
+import { firstDeliveryWindow } from "@/lib/delivery-date";
 const items: SubscriptionItem[] = [
   { productId: "leite", quantity: 4, frequency: "Toda semana" },
   { productId: "cafe", quantity: 2, frequency: "Todo mês" },
@@ -7,6 +8,7 @@ const items: SubscriptionItem[] = [
 ];
 export function initialState(): PrototypeState {
   return {
+    customer: { firstName: "Robson", lastName: "Ferreira", email: "robson@example.com", phone: "11999999999", cpf: "12345678901" },
     cart: products
       .filter((p) => p.id !== "substituto")
       .map((p) => ({
@@ -16,7 +18,7 @@ export function initialState(): PrototypeState {
       })),
     draft: {
       items: [],
-      date: "2026-10-15",
+      date: firstDeliveryWindow().min,
       period: "08h às 12h",
       addressId: "casa",
       paymentId: "master",
@@ -119,5 +121,17 @@ export function initialState(): PrototypeState {
         ],
       },
     ],
+  };
+}
+
+export function guestState(): PrototypeState {
+  return {
+    customer: null,
+    cart: [],
+    subscriptions: [],
+    addresses: [],
+    payments: [],
+    lastCreated: null,
+    draft: { items: [], date: firstDeliveryWindow().min, period: "08h às 12h", addressId: "", paymentId: "" },
   };
 }

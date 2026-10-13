@@ -290,10 +290,4 @@
   .storefront .home-price strong {
     font-size: 19px;
   }
-  .product-cart-control > .btn {
-    border-radius: 999px;
-    border: 1px solid #dce1db;
-    color: #008530;
-    background: #fff;
-  }
 }

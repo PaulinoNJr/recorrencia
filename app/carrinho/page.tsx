@@ -108,6 +108,7 @@ export default function Cart() {
                       ...s,
                       draft: {
                         ...s.draft,
+                        cycleDeliveries: undefined,
                         source: "cart",
                         items: [],
                         frequencyPending: [],

@@ -111,17 +111,17 @@ export function Auxiliary({ kind }: { kind: "cupons" | "listas" }) {
         <h2>
           {kind === "cupons"
             ? "Nenhum cupom disponível no momento"
-            : "Essenciais de casa"}
+            : "Nenhuma lista criada"}
         </h2>
         <p>
           {kind === "cupons"
             ? "Continue explorando os produtos para a sua rotina."
-            : "Leite integral, café, papel higiênico e feijão. Uma seleção para facilitar sua próxima compra."}
+            : "Explore o catálogo para escolher os produtos da sua próxima compra."}
         </p>
         <Link className="btn primary" href="/comprar">
           {kind === "cupons"
             ? "Continuar comprando"
-            : "Ver produtos da minha lista"}
+            : "Escolher produtos"}
         </Link>
       </div>
     </main>

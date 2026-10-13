@@ -12,6 +12,7 @@ import {
 import { Breadcrumb } from "@/components/shell";
 import "./recorrencias.css";
 import { SubscriptionStart } from "@/components/subscription-start";
+import { SignedInOnly } from "@/components/customer-identification";
 export const metadata: Metadata = {
   title: "Recorrências | Sua rotina mais prática | Covabra",
   description:
@@ -90,12 +91,12 @@ export default function Recurrences() {
             </span>
             <strong>Monte sua assinatura</strong>
           </a>
-          <Link href="/minhas-assinaturas">
+          <SignedInOnly><Link href="/minhas-assinaturas">
             <span className="recurrence-shortcut-icon yellow">
               <SlidersHorizontal />
             </span>
             <strong>Minhas assinaturas</strong>
-          </Link>
+          </Link></SignedInOnly>
         </nav>
         <section id="como-funciona" className="recurrence-steps">
           <div className="recurrence-section-heading">
@@ -120,7 +121,7 @@ export default function Recurrences() {
           </div>
           <p className="recurrence-menu-tip">
             <SlidersHorizontal size={17} />
-            Para gerenciar, abra o menu de <strong>Robson</strong>, escolha{" "}
+            Para gerenciar, abra o menu da <strong>sua conta</strong>, escolha{" "}
             <strong>Recorrências</strong> e acesse sua assinatura.
           </p>
         </section>

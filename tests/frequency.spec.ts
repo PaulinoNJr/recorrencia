@@ -1,4 +1,4 @@
-﻿import { test, expect } from "@playwright/test";
+﻿import { test, expect } from "./fixtures";
 test("frequencia exige escolha explicita e remover pendencia libera continuar", async ({
   page,
 }) => {

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Check, LockKeyhole } from "lucide-react";
 import { Header, Footer } from "./shell";
 import { useStore } from "./store";
+import { CustomerGate } from "./customer-identification";
 const paymentMarks = [
   "amex",
   "master",
@@ -16,14 +17,19 @@ const paymentMarks = [
 export function SiteFrame({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const { reset } = useStore();
+  if (path === "/") return <>{children}</>;
   const recurring = path.startsWith("/assinatura/");
   const checkout =
     recurring || path === "/carrinho" || path.startsWith("/checkout");
+  const protectedPage = path === "/listas" || path.startsWith("/minhas-assinaturas") ||
+    (recurring && path !== "/assinatura/configurar") ||
+    (path.startsWith("/checkout/") && path !== "/checkout/dados");
+  const content = protectedPage ? <CustomerGate requireDetails={recurring || path.startsWith("/checkout/")}>{children}</CustomerGate> : children;
   if (!checkout)
     return (
       <>
         <Header />
-        {children}
+        {content}
         <Footer />
       </>
     );
@@ -56,7 +62,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
     <div className="official-checkout">
       <header className="checkout-header">
         <div className="checkout-width checkout-header-inner">
-          <Link href="/" aria-label="Covabra início">
+          <Link href="/loja" aria-label="Covabra início">
             <img src="/logo.webp" alt="Covabra" width="112" height="40" />
           </Link>
           <nav className="checkout-progress" aria-label="Etapas do checkout">
@@ -88,7 +94,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
           </span>
         </div>
       </header>
-      {children}
+      {content}
       <footer className="checkout-footer">
         <div className="checkout-width">
           <p>
@@ -114,6 +120,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
             <span>Protótipo · Nenhuma cobrança real é realizada.</span>
           </div>
           <div className="checkout-prototype-links">
+            <Link href="/">Início do teste</Link>
             <Link href="/operacao">Área de operação</Link>
             <button onClick={reset}>Restaurar dados do protótipo</button>
           </div>

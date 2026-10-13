@@ -40,7 +40,11 @@ export interface SubscriptionCycle {
   status: string;
   amount: number;
 }
+export type CycleDeliveries = Partial<
+  Record<Frequency, { date: string; period: string }>
+>;
 export interface Subscription {
+  cycleDeliveries?: CycleDeliveries;
   id: string;
   name: string;
   status: Status;
@@ -54,8 +58,9 @@ export interface Subscription {
   history: SubscriptionCycle[];
 }
 export interface Draft {
+  cycleDeliveries?: CycleDeliveries;
   frequencyPending?: string[];
-  source?: "cart" | "catalog";
+  source?: "cart" | "catalog" | "purchase";
   items: SubscriptionItem[];
   date: string;
   period: string;
@@ -63,7 +68,15 @@ export interface Draft {
   paymentId: string;
 }
 export interface PrototypeState {
+  customer?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    cpf: string;
+  } | null;
   purchase?: {
+    completedItems?: SubscriptionItem[];
     substitute?: string;
     invoice?: string;
     cpf?: string;

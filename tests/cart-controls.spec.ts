@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 test("quantidade dos cards acompanha o carrinho e persiste entre telas", async ({
   page,
@@ -19,20 +19,20 @@ test("quantidade dos cards acompanha o carrinho e persiste entre telas", async (
     localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
   });
   await page.reload();
-  await milk.getByRole("button", { name: "Adicionar", exact: true }).click();
+  await milk.getByRole("button", { name: "Eu quero!", exact: true }).click();
   await expect(milk.locator("output")).toHaveText("1");
   await milk.getByRole("button", { name: "Aumentar quantidade" }).click();
   await expect(milk.locator("output")).toHaveText("2");
   await page.reload();
   await expect(milk.locator("output")).toHaveText("2");
-  await page.goto("/");
+  await page.goto("/loja");
   const homeMilk = page.locator(".home-product").first();
   await expect(homeMilk.locator("output")).toHaveText("2");
   await homeMilk.getByRole("button", { name: "Diminuir quantidade" }).click();
   await expect(homeMilk.locator("output")).toHaveText("1");
   await homeMilk.getByRole("button", { name: "Diminuir quantidade" }).click();
   await expect(
-    homeMilk.getByRole("button", { name: "Adicionar", exact: true }),
+    homeMilk.getByRole("button", { name: "Eu quero!", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -41,7 +41,7 @@ test("quantidade dos cards acompanha o carrinho e persiste entre telas", async (
   ).toEqual([]);
   await page.goto("/comprar");
   await expect(
-    milk.getByRole("button", { name: "Adicionar", exact: true }),
+    milk.getByRole("button", { name: "Eu quero!", exact: true }),
   ).toBeVisible();
 });
 

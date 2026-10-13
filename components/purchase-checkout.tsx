@@ -5,24 +5,53 @@ import { useStore } from "./store";
 import { AddressChoices, DeliveryOptions, PaymentChoices } from "./choices";
 import { ItemList } from "./products";
 import { money, total, dateLabel } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, Repeat2, ArrowRight } from "lucide-react";
+import { productById } from "@/data/products";
+import { CustomerForm } from "./customer-identification";
+import { firstDeliveryWindow } from "@/lib/delivery-date";
 export function PurchaseCheckout({ step }: { step: string }) {
   const { state, setState, ready } = useStore();
   const router = useRouter();
   const data = state.purchase || {};
   const patch = (change: Partial<typeof data>) =>
     setState((s) => ({ ...s, purchase: { ...s.purchase, ...change } }));
-  const addressId = data.addressId || state.addresses[0]?.id;
-  const paymentId = data.paymentId || state.payments[0]?.id;
+  const addressId = state.addresses.find((address) => address.id === data.addressId)?.id || state.addresses[0]?.id || "";
+  const paymentId = state.payments.find((payment) => payment.id === data.paymentId)?.id || state.payments[0]?.id || "";
   const date = data.date || state.draft.date;
   const period = data.period || state.draft.period;
+  const purchasedItems = data.completedItems ?? state.cart;
+  const recurringItems = purchasedItems.filter(
+    (item) => productById(item.productId).eligible,
+  );
+  const startRecurrence = () => {
+    if (!recurringItems.length) return;
+    setState((s) => ({
+      ...s,
+      purchase: {
+        ...s.purchase,
+        completedItems: purchasedItems.map((item) => ({ ...item })),
+      },
+      draft: {
+        ...s.draft,
+        cycleDeliveries: undefined,
+        source: "purchase",
+        items: recurringItems.map((item) => ({ ...item })),
+        frequencyPending: recurringItems.map((item) => item.productId),
+        date: firstDeliveryWindow().min,
+        period,
+        addressId: addressId || s.draft.addressId,
+        paymentId: paymentId || s.draft.paymentId,
+      },
+    }));
+    router.push("/assinatura/configurar");
+  };
   if (!ready)
     return (
       <main className="checkout-width checkout-main loading">
         Carregando compra…
       </main>
     );
-  if (!state.cart.length)
+  if (!state.cart.length && !(step === "sucesso" && purchasedItems.length))
     return (
       <main className="checkout-width checkout-main">
         <h1>Seu carrinho está vazio.</h1>
@@ -31,6 +60,8 @@ export function PurchaseCheckout({ step }: { step: string }) {
         </Link>
       </main>
     );
+  if (step === "sucesso" && !data.completedItems?.length)
+    return <main className="checkout-width checkout-main"><h1>Nenhuma compra concluída</h1><Link className="btn primary" href="/carrinho">Voltar para o carrinho</Link></main>;
   if (step === "sucesso")
     return (
       <main className="checkout-width checkout-main checkout-purchase-success">
@@ -42,9 +73,38 @@ export function PurchaseCheckout({ step }: { step: string }) {
           Pedido de demonstração #09281 recebido. Nenhuma cobrança real foi
           realizada.
         </p>
-        <Link className="btn primary" href="/">
-          Continuar comprando
-        </Link>
+        <section
+          className="purchase-recurrence-invite"
+          aria-labelledby="purchase-recurrence-title"
+        >
+          <div className="purchase-recurrence-label">
+            <Repeat2 size={18} />
+            RECORRÊNCIAS COVABRA
+          </div>
+          <h2 id="purchase-recurrence-title">
+            Gostaria de tornar essa compra recorrente?
+          </h2>
+          <p>
+            Use os mesmos produtos e quantidades desta compra. Na próxima tela,
+            escolha a frequência de cada item disponível para assinatura.
+          </p>
+          {!recurringItems.length && (
+            <p>Nenhum produto desta compra está disponível para assinatura.</p>
+          )}
+          <div className="purchase-recurrence-actions">
+            <button
+              type="button"
+              className="btn primary"
+              disabled={!recurringItems.length}
+              onClick={startRecurrence}
+            >
+              Sim, tornar recorrente <ArrowRight size={18} />
+            </button>
+            <Link className="btn secondary" href="/loja">
+              Não, continuar comprando
+            </Link>
+          </div>
+        </section>
       </main>
     );
   if (step === "email")
@@ -94,65 +154,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
               {step !== "dados" && <Link href="/checkout/dados">Editar</Link>}
             </h2>
             {step === "dados" ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  router.push("/checkout/entrega");
-                }}
-              >
-                <div className="checkout-form-grid">
-                  <label className="checkout-field">
-                    E-mail
-                    <input
-                      required
-                      type="email"
-                      value={data.email || ""}
-                      onChange={(e) => patch({ email: e.target.value })}
-                    />
-                  </label>
-                  <label className="checkout-field">
-                    Nome
-                    <input
-                      required
-                      autoComplete="given-name"
-                      value={data.firstName || ""}
-                      onChange={(e) => patch({ firstName: e.target.value })}
-                    />
-                  </label>
-                  <label className="checkout-field">
-                    Sobrenome
-                    <input
-                      required
-                      autoComplete="family-name"
-                      value={data.lastName || ""}
-                      onChange={(e) => patch({ lastName: e.target.value })}
-                    />
-                  </label>
-                  <label className="checkout-field">
-                    CPF
-                    <input
-                      required
-                      inputMode="numeric"
-                      pattern="[0-9.\-]{11,14}"
-                      value={data.cpf || ""}
-                      onChange={(e) => patch({ cpf: e.target.value })}
-                    />
-                  </label>
-                  <label className="checkout-field">
-                    Telefone
-                    <input
-                      required
-                      type="tel"
-                      autoComplete="tel"
-                      value={data.phone || ""}
-                      onChange={(e) => patch({ phone: e.target.value })}
-                    />
-                  </label>
-                </div>
-                <button className="btn primary checkout-full-button">
-                  Ir para entrega
-                </button>
-              </form>
+              <CustomerForm submitLabel="Ir para entrega" onComplete={() => router.push("/checkout/entrega")} />
             ) : (
               <div className="checkout-saved-info">
                 <strong>
@@ -255,9 +257,15 @@ export function PurchaseCheckout({ step }: { step: string }) {
           {step === "pagamento" && (
             <button
               className="btn primary checkout-full-button"
-              disabled={!paymentId}
+              disabled={!state.customer || !addressId || !paymentId || !date || !period}
               onClick={() => {
-                patch({ paymentId });
+                if (!state.customer || !addressId || !paymentId || !date || !period) return;
+                setState((current) => ({
+                  ...current,
+                  cart: [],
+                  purchase: { ...current.purchase, addressId, paymentId, date, period,
+                    completedItems: current.cart.map((item) => ({ ...item })) },
+                }));
                 router.push("/checkout/sucesso");
               }}
             >

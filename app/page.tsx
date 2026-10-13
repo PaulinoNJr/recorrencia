@@ -1,4 +1,4 @@
-import { Storefront } from "@/components/storefront";
+import { ExperienceHome } from "@/components/experience-home";
 export default function Home() {
-  return <Storefront />;
+  return <ExperienceHome />;
 }

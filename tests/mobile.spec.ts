@@ -1,6 +1,7 @@
-﻿import { test, expect } from "@playwright/test";
+﻿import { test, expect } from "./fixtures";
 const routes = [
   "/",
+  "/loja",
   "/recorrencias",
   "/comprar",
   "/cupons",
@@ -103,8 +104,8 @@ test("menu e modais funcionam em telas pequenas e na horizontal", async ({
   test.skip(testInfo.project.name !== "mobile");
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
-    await page.goto("/");
-    await page.getByRole("button", { name: "Menu de Robson" }).tap();
+    await page.goto("/loja");
+    await page.getByRole("button", { name: "Menu da conta" }).tap();
     const bounds = await page.locator("#mobile-store-menu").boundingBox();
     expect(bounds!.x).toBeGreaterThanOrEqual(0);
     expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
