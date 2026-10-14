@@ -18,7 +18,7 @@ test("nova experiência limpa os dados anteriores e permanece limpa após recarr
   await expect(page).toHaveURL("/home");
   const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" });
   await expect(start).toBeEnabled();
-  await expect(page.getByRole("button", { name: "Responder pesquisa" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Responder pesquisa" })).toHaveCount(0);
   // Visiting the entry page must preserve the current participant's progress.
   expect(await page.evaluate(() => localStorage.getItem("old-test"))).not.toBeNull();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();

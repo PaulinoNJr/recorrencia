@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ClipboardList, Repeat2 } from "lucide-react";
+import { ArrowRight, Repeat2 } from "lucide-react";
 import { useStore } from "./store";
 import styles from "./experience-home.module.css";
-
-// Add the Google Forms URL here when the questionnaire is available.
-const FORM_URL = "";
 
 export function ExperienceHome() {
   const router = useRouter();
@@ -43,16 +40,6 @@ export function ExperienceHome() {
             <ArrowRight size={22} aria-hidden="true" />
           </button>
           <p className={styles.note}>Cada nova experiência começa do zero, sem compras ou assinaturas de testes anteriores.</p>
-          {FORM_URL ? (
-            <a className={styles.secondary} href={FORM_URL} target="_blank" rel="noreferrer">
-              <ClipboardList size={23} aria-hidden="true" />Responder pesquisa<ArrowRight size={22} aria-hidden="true" />
-            </a>
-          ) : (
-            <button className={styles.secondary} disabled aria-describedby="form-status">
-              <ClipboardList size={23} aria-hidden="true" />Responder pesquisa<ArrowRight size={22} aria-hidden="true" />
-            </button>
-          )}
-          {!FORM_URL && <p className={styles.note} id="form-status">O formulário estará disponível em breve.</p>}
           {error && <p className={styles.error} role="alert">{error}</p>}
         </div>
         <p className={styles.footer}>Protótipo para avaliação · Nenhuma cobrança real é realizada.</p>
