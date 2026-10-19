@@ -23,7 +23,7 @@ test("criação, edição e gerenciamento persistem", async ({
     .selectOption("Todo mês");
   await page
     .getByLabel("Frequência de Papel higiênico folha dupla")
-    .selectOption("A cada 15 dias");
+    .selectOption("A cada 2 semanas");
   for (let count = 0; count < 4; count++)
     await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();

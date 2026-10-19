@@ -23,7 +23,7 @@ test("primeira entrega e calculada pela frequencia e preserva ajustes manuais", 
   await page.clock.install({ time: new Date("2027-01-31T15:00:00Z") });
   for (const [frequency, expected] of [
     ["Toda semana", "2027-02-07"],
-    ["A cada 15 dias", "2027-02-15"],
+    ["A cada 2 semanas", "2027-02-14"],
     ["Todo mês", "2027-02-28"],
     ["A cada 2 meses", "2027-03-31"],
   ]) {

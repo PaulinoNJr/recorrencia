@@ -1,5 +1,5 @@
 export type Frequency =
-  "Toda semana" | "A cada 15 dias" | "Todo mês" | "A cada 2 meses";
+  "Toda semana" | "A cada 2 semanas" | "Todo mês" | "A cada 2 meses";
 export type Status = "Ativa" | "Pausada" | "Pagamento recusado" | "Cancelada";
 export interface Product {
   id: string;

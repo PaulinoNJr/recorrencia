@@ -17,6 +17,7 @@ import { withFakePayments } from "@/data/payments";
 import { withIndependentSubscriptions } from "@/lib/independent-subscriptions";
 import { PrototypeState, Subscription } from "@/types";
 import { addDays } from "@/lib/utils";
+import { migrateLegacyFrequency } from "@/lib/legacy-frequency";
 interface Store {
   state: PrototypeState;
   setState: Dispatch<SetStateAction<PrototypeState>>;
@@ -61,7 +62,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         const saved = localStorage.getItem("covabra-prototype-v1");
         if (saved) {
-          const parsed: PrototypeState = JSON.parse(saved);
+          const parsed: PrototypeState = JSON.parse(saved, migrateLegacyFrequency);
           if (
             parsed.cart &&
             parsed.draft &&

@@ -1,5 +1,35 @@
 import { test, expect } from "./fixtures";
 import { cycleSchedule } from "../lib/cycle-schedule";
+import { monthlyCycle } from "../lib/monthly-cycle";
+import { migrateLegacyFrequency } from "../lib/legacy-frequency";
+import { firstSubscriptionDelivery } from "../lib/delivery-date";
+import { nextCycle } from "../lib/utils";
+
+test("ciclo de duas semanas mantém o dia escolhido e recupera sessões antigas", () => {
+  expect(cycleSchedule("A cada 2 semanas", "2026-10-23")).toBe("Você receberá a sua primeira compra em 23/10/2026. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (Sexta-Feira). Próximo ciclo: 06/11/2026 (2 semanas).");
+  expect(firstSubscriptionDelivery("A cada 2 semanas", "2026-10-23")).toBe("2026-11-06");
+  expect(firstSubscriptionDelivery("A cada 2 semanas", "2028-02-23")).toBe("2028-03-08");
+  expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "A cada 2 semanas" }], "2026-12-25")).toBe("2027-01-08");
+  const legacy = { items: [{ frequency: "A cada 15 dias", quantity: 2 }], cycleDeliveries: { "A cada 15 dias": { date: "2026-10-23", period: "08h às 12h" } } };
+  expect(JSON.parse(JSON.stringify(legacy), migrateLegacyFrequency)).toEqual({ items: [{ frequency: "A cada 2 semanas", quantity: 2 }], cycleDeliveries: { "A cada 2 semanas": { date: "2026-10-23", period: "08h às 12h" } } });
+});
+
+test("mensal calcula a semana e o próximo ciclo com quatro ou cinco semanas", () => {
+  for (const [date, occurrence, nextDate, weeks, usesLastOccurrence] of [
+    ["2026-10-01", 1, "2026-11-05", 5, false],
+    ["2026-10-08", 2, "2026-11-12", 5, false],
+    ["2026-10-21", 3, "2026-11-18", 4, false],
+    ["2026-10-28", 4, "2026-11-25", 4, false],
+    ["2026-10-30", 5, "2026-11-27", 4, true],
+    ["2026-12-07", 1, "2027-01-04", 4, false],
+    ["2028-01-31", 5, "2028-02-28", 4, true],
+    ["2028-02-29", 5, "2028-03-28", 4, true],
+  ] as const) {
+    expect(monthlyCycle(date)).toEqual({ occurrence, nextDate, weeks, usesLastOccurrence });
+  }
+  expect(cycleSchedule("Todo mês", "2026-10-21")).toBe("Você receberá a sua primeira compra em 21/10/2026. E as próximas toda terceira semana do mês (Quarta-Feira). Próximo ciclo: 18/11/2026 (4 semanas).");
+  expect(cycleSchedule("Todo mês", "2026-10-30")).toContain("Nos meses sem a quinta ocorrência");
+});
 
 test("dia semanal corresponde à data escolhida, incluindo fins de semana", () => {
   const days = ["todo Domingo", "toda Segunda-Feira", "toda Terça-Feira", "toda Quarta-Feira", "toda Quinta-Feira", "toda Sexta-Feira", "todo Sábado"];
@@ -13,7 +43,7 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
   await page.goto("/loja");
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
-    const frequencies = ["Toda semana", "A cada 15 dias", "Todo mês", "A cada 2 meses"];
+    const frequencies = ["Toda semana", "A cada 2 semanas", "Todo mês", "A cada 2 meses"];
     state.draft = {
       ...state.draft,
       items: ["leite", "papel", "cafe", "feijao"].map((productId, i) => ({ productId, quantity: 1, frequency: frequencies[i] })),
@@ -23,7 +53,7 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
     localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
   });
   await page.goto("/assinatura/entrega");
-  const frequencies = ["Toda semana", "A cada 15 dias", "Todo mês", "A cada 2 meses"] as const;
+  const frequencies = ["Toda semana", "A cada 2 semanas", "Todo mês", "A cada 2 meses"] as const;
   for (const [index, frequency] of frequencies.entries()) {
     const group = page.getByRole("group", { name: `Entrega · ${frequency}`, exact: true });
     const dateInput = group.getByLabel(`Data de entrega · ${frequency}`);
@@ -55,8 +85,8 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
   await page.goto("/assinatura/revisao");
   const messages = [
     "Você receberá a sua compra toda Segunda-Feira.",
-    "Você receberá a sua compra a cada 15 dias, a partir de Terça-Feira (20/10/2026).",
-    "Você receberá a sua compra todo mês, a partir de Quarta-Feira (21/10/2026).",
+    "Você receberá a sua primeira compra em 20/10/2026. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (Terça-Feira). Próximo ciclo: 03/11/2026 (2 semanas).",
+    "Você receberá a sua primeira compra em 21/10/2026. E as próximas toda terceira semana do mês (Quarta-Feira). Próximo ciclo: 18/11/2026 (4 semanas).",
     "Você receberá a sua compra a cada 2 meses, a partir de Quinta-Feira (22/10/2026).",
   ];
   await expect(page.locator(".cycle-schedule")).toHaveText(messages);

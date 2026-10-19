@@ -1,7 +1,7 @@
 import { Frequency, Product } from "@/types";
 export const frequencies: Frequency[] = [
   "Toda semana",
-  "A cada 15 dias",
+  "A cada 2 semanas",
   "Todo mês",
   "A cada 2 meses",
 ];
@@ -38,7 +38,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 35,
     quantity: 1,
-    frequency: "A cada 15 dias",
+    frequency: "A cada 2 semanas",
   },
   {
     id: "feijao",
@@ -83,7 +83,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 45,
     quantity: 1,
-    frequency: "A cada 15 dias",
+    frequency: "A cada 2 semanas",
   },
   {
     id: "abacaxi",

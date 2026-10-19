@@ -1,5 +1,6 @@
 import type { Frequency } from "@/types";
-import { dateLabel } from "./utils";
+import { addDays, dateLabel } from "./utils";
+import { monthlyCycle } from "./monthly-cycle";
 
 const weekdays = [
   "Domingo", "Segunda-Feira", "Terça-Feira", "Quarta-Feira",
@@ -13,9 +14,18 @@ export function cycleSchedule(frequency: Frequency, date: string) {
     const every = day === 0 || day === 6 ? "todo" : "toda";
     return `Você receberá a sua compra ${every} ${weekday}.`;
   }
-  const cadence: Record<Exclude<Frequency, "Toda semana">, string> = {
-    "A cada 15 dias": "a cada 15 dias",
-    "Todo mês": "todo mês",
+  if (frequency === "A cada 2 semanas") {
+    return `Você receberá a sua primeira compra em ${dateLabel(date)}. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (${weekday}). Próximo ciclo: ${dateLabel(addDays(date, 14))} (2 semanas).`;
+  }
+  if (frequency === "Todo mês") {
+    const cycle = monthlyCycle(date);
+    const ordinal = ["primeira", "segunda", "terceira", "quarta", "quinta"][cycle.occurrence - 1];
+    const fallback = cycle.occurrence === 5
+      ? " Nos meses sem a quinta ocorrência, você receberá na última ocorrência desse dia da semana."
+      : "";
+    return `Você receberá a sua primeira compra em ${dateLabel(date)}. E as próximas toda ${ordinal} semana do mês (${weekday}). Próximo ciclo: ${dateLabel(cycle.nextDate)} (${cycle.weeks} semanas).${fallback}`;
+  }
+  const cadence: Record<Exclude<Frequency, "Toda semana" | "Todo mês" | "A cada 2 semanas">, string> = {
     "A cada 2 meses": "a cada 2 meses",
   };
   return `Você receberá a sua compra ${cadence[frequency]}, a partir de ${weekday} (${dateLabel(date)}).`;

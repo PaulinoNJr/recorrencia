@@ -6,7 +6,7 @@ import { fakePayments, DEFAULT_PAYMENT_ID } from "./payments";
 const items: SubscriptionItem[] = [
   { productId: "leite", quantity: 4, frequency: "Toda semana" },
   { productId: "cafe", quantity: 2, frequency: "Todo mês" },
-  { productId: "papel", quantity: 1, frequency: "A cada 15 dias" },
+  { productId: "papel", quantity: 1, frequency: "A cada 2 semanas" },
 ];
 export function initialState(): PrototypeState {
   return {

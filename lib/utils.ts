@@ -33,7 +33,7 @@ export const nextCycle = (items: SubscriptionItem[], date: string) =>
         (i) =>
           ({
             "Toda semana": 7,
-            "A cada 15 dias": 15,
+            "A cada 2 semanas": 14,
             "Todo mês": 30,
             "A cada 2 meses": 60,
           })[i.frequency],

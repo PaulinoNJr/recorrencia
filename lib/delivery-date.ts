@@ -32,7 +32,7 @@ export function validSubscriptionDelivery(date: string, today = saoPauloToday())
 
 export function firstSubscriptionDelivery(frequency: Frequency, today = saoPauloToday()) {
   if (frequency === "Toda semana") return addDays(today, 7);
-  if (frequency === "A cada 15 dias") return addDays(today, 15);
+  if (frequency === "A cada 2 semanas") return addDays(today, 14);
   const months = frequency === "Todo mês" ? 1 : 2;
   const date = new Date(`${today}T12:00:00Z`);
   const day = date.getUTCDate();
