@@ -22,6 +22,36 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
     };
     localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
   });
+  await page.goto("/assinatura/entrega");
+  const frequencies = ["Toda semana", "A cada 15 dias", "Todo mês", "A cada 2 meses"] as const;
+  for (const [index, frequency] of frequencies.entries()) {
+    const group = page.getByRole("group", { name: `Entrega · ${frequency}`, exact: true });
+    const dateInput = group.getByLabel(`Data de entrega · ${frequency}`);
+    const message = group.getByRole("status");
+    await expect(message).toHaveText(cycleSchedule(frequency, `2026-10-${19 + index}`));
+    await dateInput.fill("2026-10-23");
+    await expect(message).toHaveText(cycleSchedule(frequency, "2026-10-23"));
+    await dateInput.fill("");
+    await expect(message).toHaveText("Selecione uma data para ver quando você receberá a sua compra.");
+    await dateInput.fill(`2026-10-${19 + index}`);
+  }
+  if (testInfo.project.name === "mobile") {
+    for (const width of [320, 390, 430, 768]) {
+      await page.setViewportSize({ width, height: 844 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+      const row = page.locator(".delivery-first-row").first();
+      const inputBox = await row.locator("input").boundingBox();
+      const messageBox = await row.getByRole("status").boundingBox();
+      expect(messageBox!.y).toBeGreaterThanOrEqual(inputBox!.y + inputBox!.height);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+  } else {
+    const row = page.locator(".delivery-first-row").first();
+    const inputBox = await row.locator("input").boundingBox();
+    const messageBox = await row.getByRole("status").boundingBox();
+    expect(messageBox!.x).toBeGreaterThanOrEqual(inputBox!.x + inputBox!.width);
+  }
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-delivery-schedule.png`, fullPage: true });
   await page.goto("/assinatura/revisao");
   const messages = [
     "Você receberá a sua compra toda Segunda-Feira.",

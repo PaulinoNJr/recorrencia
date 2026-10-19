@@ -4,6 +4,8 @@ import { MapPin, Plus, CreditCard, Check } from "lucide-react";
 import { useStore } from "./store";
 import { Button, Modal } from "./ui";
 import { saoPauloToday, validFirstDelivery, validSubscriptionDelivery } from "@/lib/delivery-date";
+import { cycleSchedule } from "@/lib/cycle-schedule";
+import type { Frequency } from "@/types";
 import { dateLabel } from "@/lib/utils";
 export function AddressChoices({
   value,
@@ -198,6 +200,7 @@ export function DeliveryOptions({
   dateWindow,
   minDate,
   labelPrefix,
+  cycleFrequency,
 }: {
   date: string;
   period: string;
@@ -205,13 +208,17 @@ export function DeliveryOptions({
   dateWindow?: { min: string; max: string };
   minDate?: string;
   labelPrefix?: string;
+  cycleFrequency?: Frequency;
 }) {
   const rangeId = useId();
+  const scheduleId = useId();
   const invalidDate = dateWindow
     ? !validFirstDelivery(date, dateWindow)
     : minDate ? !validSubscriptionDelivery(date, minDate) : false;
   return (
     <>
+      <div className={cycleFrequency ? "delivery-first-row" : undefined}>
+      <div>
       <h3 className="section-label">Primeira entrega</h3>
       <label className="date-field">
         Selecione uma data
@@ -223,7 +230,7 @@ export function DeliveryOptions({
           min={dateWindow?.min ?? minDate ?? saoPauloToday()}
           max={dateWindow?.max}
           value={invalidDate ? "" : date}
-          aria-describedby={dateWindow || minDate ? rangeId : undefined}
+          aria-describedby={[dateWindow ? rangeId : "", cycleFrequency ? scheduleId : ""].filter(Boolean).join(" ") || undefined}
           aria-invalid={
             !!date && invalidDate
               ? true
@@ -233,6 +240,15 @@ export function DeliveryOptions({
           required
         />
       </label>
+      </div>
+      {cycleFrequency && (
+        <p className="delivery-cycle-schedule" id={scheduleId} role="status" aria-live="polite" aria-atomic="true">
+          {validSubscriptionDelivery(date, minDate ?? saoPauloToday())
+            ? cycleSchedule(cycleFrequency, date)
+            : "Selecione uma data para ver quando você receberá a sua compra."}
+        </p>
+      )}
+      </div>
       {dateWindow && (
         <p id={rangeId}>
           Escolha um dos próximos 3 dias: de {dateLabel(dateWindow.min)} a{" "}

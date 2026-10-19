@@ -217,7 +217,7 @@ export function Checkout({ step }: { step: number }) {
     router.push("/assinatura/sucesso");
   };
   return (
-    <main className={`container${step === 3 ? " subscription-review" : ""}`}>
+    <main className={`container${step === 3 ? " subscription-review" : step === 1 ? " subscription-delivery" : ""}`}>
       <Breadcrumb
         items={[
           { label: "Meu carrinho", href: "/carrinho" },
@@ -352,6 +352,7 @@ export function Checkout({ step }: { step: number }) {
                     </ul>
                     <DeliveryOptions
                       date={cycle.date}
+                      cycleFrequency={cycle.frequency}
                       minDate={today}
                       period={cycle.period}
                       labelPrefix={

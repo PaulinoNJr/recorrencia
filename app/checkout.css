@@ -586,6 +586,59 @@
   margin: 12px 0;
 }
 .review-delivery-period::before { content: " · "; }
+.delivery-first-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
+  gap: 24px;
+  align-items: center;
+}
+.delivery-first-row > div { min-width: 0; }
+.delivery-first-row .section-label {
+  color: var(--brand-primary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.delivery-first-row .date-field { width: 100%; max-width: none; }
+.delivery-cycle-schedule {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-height: 88px;
+  margin: 22px 0 0;
+  padding: 20px 24px;
+  border: 1px solid #e0ebd9;
+  border-radius: 12px;
+  background: #f1f7ed;
+  color: var(--brand-primary);
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 800px) {
+  .delivery-first-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .delivery-cycle-schedule { min-height: 72px; margin: 0; padding: 16px; font-size: 14px; }
+}
+@media (max-width: 580px) {
+  .subscription-delivery .section-panel { padding: 20px 14px; }
+  .subscription-delivery .content-grid > * { min-width: 0; }
+  .delivery-first-row { gap: 10px; }
+  .delivery-first-row .section-label { margin: 16px 0 10px; font-size: 18px; }
+  .delivery-first-row .date-field { gap: 8px; font-size: 14px; }
+  .delivery-first-row input[type="date"] { width: 100%; min-width: 0; min-height: 48px; font-size: 16px; padding: 12px; }
+  .delivery-cycle-schedule { min-height: 64px; padding: 14px 12px; border-radius: 10px; line-height: 1.6; overflow-wrap: normal; }
+  .subscription-delivery .period-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .subscription-delivery .period { min-width: 0; min-height: 76px; padding: 10px 4px; }
+  .subscription-delivery .period span { font-size: 13px; }
+  .subscription-delivery .period strong { font-size: 13px; white-space: nowrap; }
+}
+@media (max-width: 359px) {
+  .subscription-delivery .period-grid { grid-template-columns: minmax(0, 1fr); }
+  .subscription-delivery .period { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 10px 12px; }
+  .subscription-delivery .period strong { margin: 0; }
+}
 @media (max-width: 800px) {
   .subscription-review .content-grid > *,
   .subscription-review .review-grid > * { min-width: 0; }
