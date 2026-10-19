@@ -575,6 +575,44 @@
   color: var(--text-secondary);
   line-height: 1.6;
 }
+.review-cycle .cycle-schedule {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f1f7ed;
+  color: var(--brand-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+.review-delivery-period::before { content: " · "; }
+@media (max-width: 800px) {
+  .subscription-review .content-grid > *,
+  .subscription-review .review-grid > * { min-width: 0; }
+  .subscription-review .review-grid { grid-template-columns: 1fr; gap: 12px; }
+  .subscription-review .section-title { align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .subscription-review .section-title h2 { display: block; min-width: 0; font-size: 18px; line-height: 1.35; }
+  .subscription-review .section-title > button,
+  .subscription-review .section-title > a { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 48px; min-height: 48px; padding: 10px 6px; font-size: 14px; }
+  .subscription-review .review-cycle h2 small { font-size: 14px; margin-top: 4px; }
+  .subscription-review .cycle-schedule { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+  .subscription-review .terms { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: start; gap: 10px; }
+  .subscription-review .terms input { width: 22px; height: 22px; margin-top: 8px; }
+  .subscription-review .terms > span { min-width: 0; line-height: 1.6; }
+  .subscription-review .terms button { display: inline; min-height: 44px; font-size: 14px; padding: 10px 0; }
+}
+@media (max-width: 580px) {
+  .subscription-review .section-panel { padding: 16px 14px; margin-bottom: 14px; }
+  .subscription-review .cycle-delivery-products { margin: 8px 0 14px; }
+  .subscription-review .cycle-delivery-product { gap: 6px 10px; padding: 10px; }
+  .subscription-review .cycle-delivery-product-info strong { font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+  .subscription-review .cycle-delivery-quantity { font-size: 13px; padding: 4px 8px; }
+  .subscription-review .review-delivery-date { display: grid; gap: 2px; }
+  .subscription-review .review-delivery-period::before { content: none; }
+  .subscription-review .section-panel > p { line-height: 1.5; overflow-wrap: anywhere; }
+  .subscription-review .notice { align-items: flex-start; font-size: 13px; line-height: 1.5; }
+  .subscription-review .notice > svg { flex-shrink: 0; margin-top: 2px; }
+}
 .review-cycle .section-title {
   align-items: flex-start;
   gap: 12px;

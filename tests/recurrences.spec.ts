@@ -5,29 +5,23 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/recorrencias");
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Recorrências Covabra" }),
-  ).toBeVisible();
-  const shortcuts = page.getByRole("navigation", {
-    name: "Explore as recorrências Covabra",
-  });
-  await expect(
-    shortcuts.getByRole("link", { name: "Minhas assinaturas" }),
-  ).toHaveAttribute("href", "/minhas-assinaturas");
-  await shortcuts.getByRole("link", { name: "Como funciona" }).click();
-  await expect(page).toHaveURL(/#como-funciona$/);
-  await shortcuts.getByRole("link", { name: "Monte sua assinatura" }).click();
-  await expect(page).toHaveURL(/#monte-sua-assinatura$/);
-  await page.goto("/recorrencias");
+  await expect(page.getByRole("heading", { level: 1, name: "Seus essenciais em dia. Mais tempo para você." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Minhas assinaturas", exact: true }).last()).toHaveAttribute("href", "/minhas-assinaturas");
+  await expect(page.getByRole("heading", { name: "Como funciona", exact: true })).toBeVisible();
+  const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+  await expect(createButton).toBeInViewport();
+  if (testInfo.project.name === "desktop") {
+    await expect(page.locator(".recurrence-guide li").last()).toBeInViewport();
+  }
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-recurrence-identity.png`,
     fullPage: true,
   });
   await expect(
-    page.getByRole("heading", { name: "Sua assinatura em 4 passos" }),
+    page.getByRole("heading", { name: "Como funciona" }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Quero criar minha assinatura" })
+    .getByRole("button", { name: "Criar minha assinatura" })
     .click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.screenshot({
@@ -44,7 +38,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   ).toBeVisible();
   await page.goto("/recorrencias");
   await page
-    .getByRole("button", { name: "Quero criar minha assinatura", exact: true })
+    .getByRole("button", { name: "Criar minha assinatura", exact: true })
     .click();
   await page.getByRole("button", { name: /Do catálogo de produtos/ }).click();
   await expect(page.getByRole("checkbox").first()).not.toBeChecked();
@@ -85,4 +79,31 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
   expect(errors).toEqual([]);
+});
+
+test("recorrências se adapta a celulares e tablet sem cortes", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "Validação das larguras móveis");
+  for (const width of [320, 360, 390, 430, 768]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/recorrencias");
+    const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+    await expect(createButton).toBeEnabled();
+    const box = await createButton.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(48);
+    expect(box!.y + box!.height).toBeLessThan(844 - 72);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    for (const step of await page.locator(".recurrence-guide li").all()) {
+      const stepBox = await step.boundingBox();
+      expect(stepBox!.x).toBeGreaterThanOrEqual(0);
+      expect(stepBox!.x + stepBox!.width).toBeLessThanOrEqual(width);
+    }
+    await page.screenshot({ path: `test-results/recorrencias-${width}.png`, fullPage: true });
+  }
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto("/recorrencias");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+  await createButton.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
 });

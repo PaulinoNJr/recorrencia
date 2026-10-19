@@ -25,6 +25,7 @@ import {
 import { ProductEditor, ItemList } from "./products";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
+import { cycleSchedule } from "@/lib/cycle-schedule";
 import { products, productById } from "@/data/products";
 import { validSubscriptionDelivery, saoPauloToday } from "@/lib/delivery-date";
 import {
@@ -216,7 +217,7 @@ export function Checkout({ step }: { step: number }) {
     router.push("/assinatura/sucesso");
   };
   return (
-    <main className="container">
+    <main className={`container${step === 3 ? " subscription-review" : ""}`}>
       <Breadcrumb
         items={[
           { label: "Meu carrinho", href: "/carrinho" },
@@ -433,9 +434,12 @@ export function Checkout({ step }: { step: number }) {
                       );
                     })}
                   </ul>
-                  <p>
-                    Primeira entrega: <strong>{dateLabel(cycle.date)}</strong> ·{" "}
-                    {cycle.period}
+                  <p className="cycle-schedule">
+                    {cycleSchedule(cycle.frequency, cycle.date)}
+                  </p>
+                  <p className="review-delivery-date">
+                    <span>Primeira entrega: <strong>{dateLabel(cycle.date)}</strong></span>
+                    <span className="review-delivery-period">{cycle.period}</span>
                   </p>
                   <p>
                     Valor estimado do primeiro ciclo:{" "}
@@ -499,11 +503,11 @@ export function Checkout({ step }: { step: number }) {
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
                 />
-                Li e concordo com os{" "}
+                <span>Li e concordo com os{" "}
                 <button onClick={() => setTerms(true)}>
                   termos da assinatura
                 </button>
-                .
+                .</span>
               </label>
             </>
           )}
