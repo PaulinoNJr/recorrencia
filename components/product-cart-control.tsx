@@ -18,6 +18,9 @@ export function ProductCartControl({ product }: { product: Product }) {
       );
       return {
         ...current,
+        draft: nextQuantity > 0 && current.draft.removedProductIds?.includes(product.id)
+          ? { ...current.draft, removedProductIds: current.draft.removedProductIds.filter((id) => id !== product.id) }
+          : current.draft,
         cart:
           nextQuantity === 0
             ? current.cart.filter((entry) => entry.productId !== product.id)

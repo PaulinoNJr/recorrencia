@@ -17,6 +17,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
         ...s.draft,
         cycleDeliveries: undefined,
         source,
+        removedProductIds: [],
         frequencyPending:
           source === "cart"
             ? s.cart

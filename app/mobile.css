@@ -928,3 +928,67 @@
     max-width: none;
   }
 }
+@media (max-width: 800px) {
+  .subscription-config .subscription-discovery {
+    padding: 18px 16px;
+    margin-bottom: 18px;
+  }
+  .subscription-config .subscription-discovery h2,
+  .subscription-config .subscription-recommendations h2 {
+    font-size: 20px;
+    line-height: 1.3;
+    align-items: flex-start;
+  }
+  .subscription-config .subscription-discovery h2 svg,
+  .subscription-config .subscription-recommendations h2 svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .subscription-config .subscription-discovery > p,
+  .subscription-config .subscription-recommendations > p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .subscription-config .subscription-product .product-price {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .subscription-config .product-price strong,
+  .subscription-config .product-price small {
+    grid-column: 1;
+  }
+  .subscription-config .product-remove {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    min-height: 44px;
+    padding: 8px;
+    margin: 0;
+    font-size: 13px;
+  }
+  .subscription-config .subscription-recommendations {
+    margin-top: 24px;
+  }
+  .subscription-config .subscription-recommendations .subscription-discovery-grid {
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+  .subscription-config .subscription-recommendations .catalog-product {
+    scroll-snap-align: start;
+  }
+}
+@media (min-width: 390px) and (max-width: 800px) {
+  .subscription-config .product-controls:has(> label) {
+    grid-template-columns: 128px minmax(0, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .subscription-config .subscription-discovery > div > .subscription-discovery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

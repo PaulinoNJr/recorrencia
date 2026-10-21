@@ -23,6 +23,7 @@ import {
   Modal,
 } from "./ui";
 import { ProductEditor, ItemList } from "./products";
+import { SubscriptionDiscovery, SubscriptionRecommendations } from "./subscription-discovery";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
 import { cycleSchedule } from "@/lib/cycle-schedule";
@@ -36,7 +37,7 @@ import {
 } from "@/lib/subscription-cycles";
 import { Frequency } from "@/types";
 export function Checkout({ step }: { step: number }) {
-  const { state, setState, ready } = useStore();
+  const { state, setState, ready, notify } = useStore();
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
   const [terms, setTerms] = useState(false);
@@ -93,16 +94,14 @@ export function Checkout({ step }: { step: number }) {
   const fromCatalog = draft.source === "catalog";
   const fromPurchase = draft.source === "purchase";
   const availableItems = fromPurchase
-    ? (state.purchase?.completedItems ?? state.cart)
+    ? [...new Map([...(state.purchase?.completedItems ?? []), ...state.cart, ...draft.items].map((item) => [item.productId, item])).values()]
     : state.cart;
   const catalogIds = products
     .filter(
       (p) =>
         p.id !== "substituto" &&
         p.eligible &&
-        `${p.name} ${p.category}`
-          .toLocaleLowerCase("pt-BR")
-          .includes(search.toLocaleLowerCase("pt-BR")),
+        `${p.name} ${p.category}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").includes(search.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR")),
     )
     .map((p) => p.id);
   const patch = (change: Partial<typeof draft>) =>
@@ -217,7 +216,7 @@ export function Checkout({ step }: { step: number }) {
     router.push("/assinatura/sucesso");
   };
   return (
-    <main className={`container${step === 3 ? " subscription-review" : step === 1 ? " subscription-delivery" : ""}`}>
+    <main className={`container${step === 0 ? " subscription-config" : step === 3 ? " subscription-review" : step === 1 ? " subscription-delivery" : ""}`}>
       <Breadcrumb
         items={[
           { label: "Meu carrinho", href: "/carrinho" },
@@ -248,34 +247,31 @@ export function Checkout({ step }: { step: number }) {
                   )}
                 </span>
               </div>
-              {fromCatalog && (
-                <div className="subscription-catalog-search">
-                  <label htmlFor="subscription-search">
-                    Buscar no catálogo de produtos
-                  </label>
-                  <input
-                    id="subscription-search"
-                    type="search"
-                    placeholder="Busque por produto ou categoria"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  <p>
-                    {catalogIds.length} produtos encontrados ·{" "}
-                    {draft.items.length} selecionados para assinatura
-                  </p>
-                </div>
-              )}
+              <SubscriptionDiscovery search={search} onSearch={setSearch} />
               <ProductEditor
                 ids={
-                  fromCatalog
+                  (fromCatalog
                     ? catalogIds
                     : availableItems
                         .filter((i) => !fromPurchase || productById(i.productId).eligible)
-                        .map((i) => i.productId)
+                        .map((i) => i.productId))
+                    .filter((id) => !draft.removedProductIds?.includes(id))
                 }
                 allowAllProducts={!fromCatalog && !fromPurchase}
                 items={draft.items}
+                onRemove={(id) => {
+                  setState((current) => ({
+                    ...current,
+                    cart: current.cart.filter((item) => item.productId !== id),
+                    draft: {
+                      ...current.draft,
+                      items: current.draft.items.filter((item) => item.productId !== id),
+                      frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((pendingId) => pendingId !== id),
+                      removedProductIds: [...new Set([...(current.draft.removedProductIds ?? []), id])],
+                    },
+                  }));
+                  notify(productById(id).name + " removido da lista.");
+                }}
                 pendingFrequencyIds={pendingFrequencyIds}
                 onFrequencyChange={(id, frequency) =>
                   patch({
@@ -302,15 +298,7 @@ export function Checkout({ step }: { step: number }) {
                   })
                 }
               />
-              {fromCatalog && !catalogIds.length && (
-                <div className="panel empty">
-                  <h2>Nenhum produto encontrado</h2>
-                  <p>Tente outro nome ou categoria.</p>
-                  <Button variant="secondary" onClick={() => setSearch("")}>
-                    Ver todos os produtos
-                  </Button>
-                </div>
-              )}
+              <SubscriptionRecommendations />
             </>
           )}
           {step === 1 && (

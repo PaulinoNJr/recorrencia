@@ -59,6 +59,7 @@ export interface Subscription {
   history: SubscriptionCycle[];
 }
 export interface Draft {
+  removedProductIds?: string[];
   cycleDeliveries?: CycleDeliveries;
   frequencyPending?: string[];
   source?: "cart" | "catalog" | "purchase";

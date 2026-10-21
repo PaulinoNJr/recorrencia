@@ -815,6 +815,15 @@ footer {
   font-size: 9px;
   margin-top: 3px;
 }
+.product-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 12px;
+}
 .muted {
   color: var(--text-secondary);
 }
@@ -2600,6 +2609,70 @@ hr {
   display: block;
   color: var(--text-secondary);
   line-height: 1.6;
+}
+.subscription-discovery {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.subscription-discovery h2,
+.subscription-recommendations h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 21px;
+}
+.subscription-discovery > p,
+.subscription-recommendations > p {
+  color: var(--text-secondary);
+  margin: 8px 0 18px;
+}
+.subscription-discovery > label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.subscription-discovery > input {
+  width: 100%;
+  min-width: 0;
+  font-size: 16px;
+}
+.subscription-discovery > button {
+  margin-top: 12px;
+}
+.subscription-discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.subscription-discovery-grid .catalog-product {
+  min-width: 0;
+  padding: 16px;
+}
+.subscription-discovery-grid img {
+  height: 110px;
+  object-fit: contain;
+}
+.subscription-recommendations {
+  margin-top: 32px;
+}
+.subscription-recommendations .subscription-discovery-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 600px) {
+  .subscription-recommendations .subscription-discovery-grid {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+}
+@media (max-width: 400px) {
+  .subscription-discovery {
+    padding: 16px;
+  }
+  .subscription-discovery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .subscription-catalog-search {
   margin: 22px 0;

@@ -9,11 +9,13 @@ export function ProductEditor({
   onChange,
   pendingFrequencyIds = [],
   onFrequencyChange,
+  onRemove,
   allowAllProducts = false,
   ids = products.filter((p) => p.id !== "substituto").map((p) => p.id),
 }: {
   items: SubscriptionItem[];
   onChange: (items: SubscriptionItem[]) => void;
+  onRemove?: (id: string) => void;
   ids?: string[];
   allowAllProducts?: boolean;
   pendingFrequencyIds?: string[];
@@ -131,6 +133,11 @@ export function ProductEditor({
             <div className="product-price">
               <strong>{money(p.price * (item?.quantity ?? p.quantity))}</strong>
               <small>{money(p.price)} / un.</small>
+              {onRemove && (
+                <button type="button" className="product-remove" aria-label={`Remover ${p.name} da lista`} onClick={() => onRemove(id)}>
+                  <Trash2 size={15} /> Remover
+                </button>
+              )}
             </div>
           </div>
         );
