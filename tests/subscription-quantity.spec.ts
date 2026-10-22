@@ -6,17 +6,16 @@ test("selecionar começa em zero e todos os produtos precisam de quantidade posi
   await expect(page).toHaveURL("/assinatura/configurar");
   const milk = page.locator(".subscription-product").filter({ has: page.getByRole("heading", { name: "Leite integral Shefa", exact: true }) });
   const coffee = page.locator(".subscription-product").filter({ has: page.getByRole("heading", { name: "Café torrado e moído", exact: true }) });
-  const next = page.getByRole("button", { name: "Continuar para entrega" });
+  const next = page.getByRole("button", { name: "Continuar para frequência" });
   await milk.getByRole("checkbox").check();
   await expect(milk.locator("output")).toHaveText("0");
   await expect(milk.locator(".product-price strong")).toHaveText("R$ 0,00");
   await expect(milk.getByRole("button", { name: "Diminuir quantidade" })).toBeDisabled();
-  await milk.getByRole("combobox").selectOption("Toda semana");
+  await expect(milk.getByRole("combobox")).toHaveCount(0);
   await expect(next).toBeDisabled();
   await milk.getByRole("button", { name: "Aumentar quantidade" }).click();
   await expect(next).toBeEnabled();
   await coffee.getByRole("checkbox").check();
-  await coffee.getByRole("combobox").selectOption("Todo mês");
   await expect(coffee.locator("output")).toHaveText("0");
   await expect(next).toBeDisabled();
   await coffee.getByRole("checkbox").uncheck();
@@ -34,9 +33,11 @@ test("selecionar começa em zero e todos os produtos precisam de quantidade posi
   await milk.getByRole("checkbox").uncheck();
   await milk.getByRole("checkbox").check();
   await expect(milk.locator("output")).toHaveText("0");
-  await milk.getByRole("combobox").selectOption("Toda semana");
   await milk.getByRole("button", { name: "Aumentar quantidade" }).click();
   await next.click();
+  await page.getByLabel("Receber os produtos selecionados").selectOption("Toda semana");
+  await page.getByRole("button", { name: "Aplicar a 1 produto", exact: true }).click();
+  await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
 });
 

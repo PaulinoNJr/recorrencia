@@ -35,7 +35,6 @@ for (const source of ["cart", "catalog", "purchase"] as const) {
     await results.getByRole("button", { name: "Ver todos os produtos" }).click();
     await bread.getByRole("checkbox").check();
     await bread.getByRole("button", { name: "Aumentar quantidade", exact: true }).click();
-    await bread.getByRole("combobox").selectOption("Toda semana");
     await page.reload();
     await expect(bread.getByRole("checkbox")).toBeChecked();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
@@ -56,6 +55,7 @@ for (const source of ["cart", "catalog", "purchase"] as const) {
     await search.fill("pao");
     await results.getByRole("button", { name: "Eu quero!" }).click();
     await expect(bread.getByRole("checkbox")).not.toBeChecked();
+    await page.getByRole("button", { name: "Continuar para frequência" }).click();
     await page.getByRole("button", { name: "Continuar para entrega" }).click();
     await expect(page).toHaveURL("/assinatura/entrega");
     expect(errors).toEqual([]);

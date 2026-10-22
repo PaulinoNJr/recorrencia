@@ -65,7 +65,8 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 | `/checkout/sucesso` | Confirmação de compra de demonstração |
 | `/comprar` | Catálogo, busca e produtos para adicionar |
 | `/cupons`, `/listas` | Páginas auxiliares da navegação |
-| `/assinatura/configurar` | Seleção explícita e frequência por produto |
+| `/assinatura/configurar` | Seleção explícita de produtos e quantidades obrigatórias |
+| `/assinatura/frequencia` | Frequência em massa para todos ou grupos de produtos, com ajuste individual |
 | `/assinatura/entrega` | Endereço, data e período |
 | `/assinatura/pagamento` | Cartões salvos e inclusão de cartão fictício |
 | `/assinatura/revisao` | Revisão, edição e aceite dos termos |
@@ -80,7 +81,7 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 ## Demonstração
 
 1. No carrinho, clique em **Criar assinatura**. Nenhum produto é selecionado automaticamente.
-2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade e a frequência de cada produto selecionado para avançar por entrega e pagamento. A edição de assinaturas também bloqueia o salvamento de produtos com quantidade 0.
+2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade de cada item para continuar para a etapa de frequência. Nela, todos começam selecionados para aplicar uma frequência em massa; também é possível selecionar grupos ou ajustar cada produto individualmente. A entrega só fica disponível depois de definir todas as frequências. A edição de assinaturas também bloqueia o salvamento de produtos com quantidade 0.
 3. Revise, aceite os termos e confirme. A assinatura aparece na conta e na operação.
 4. No detalhe, edite produtos, altere cartão/entrega, pule um ciclo ou pause.
 5. Visualize o histórico; reative ou cancele quando desejar.

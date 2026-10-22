@@ -97,10 +97,10 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
   await expect(page.getByRole("checkbox", { name: /Abacaxi/ })).toHaveCount(0);
   await expect(
     page.getByLabel("Frequência de Leite integral Shefa"),
-  ).toHaveValue("");
+  ).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Continuar para entrega" }),
-  ).toBeDisabled();
+    page.getByRole("button", { name: "Continuar para frequência" }),
+  ).toBeEnabled();
   await page.reload();
   await expect(
     page.getByRole("checkbox", {

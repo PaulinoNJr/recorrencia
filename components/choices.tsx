@@ -1,5 +1,5 @@
 "use client";
-import { useId, useState } from "react";
+import { Fragment, useId, useState } from "react";
 import { MapPin, Plus, CreditCard, Check } from "lucide-react";
 import { useStore } from "./store";
 import { Button, Modal } from "./ui";
@@ -7,6 +7,20 @@ import { saoPauloToday, validFirstDelivery, validSubscriptionDelivery } from "@/
 import { cycleSchedule } from "@/lib/cycle-schedule";
 import type { Frequency } from "@/types";
 import { dateLabel } from "@/lib/utils";
+
+function MonthlyScheduleParagraphs({ frequency, date }: { frequency: Frequency; date: string }) {
+  const emphasis = /(\d{2}\/\d{2}\/\d{4})/;
+  return cycleSchedule(frequency, date).split("\n\n").map((paragraph, index) => (
+    <Fragment key={index}>
+      {index > 0 && "\n\n"}
+      <p>
+        {paragraph.split(emphasis).map((part, partIndex) =>
+          partIndex % 2 ? <strong key={partIndex}>{part}</strong> : part,
+        )}
+      </p>
+    </Fragment>
+  ));
+}
 export function AddressChoices({
   value,
   onChange,
@@ -242,11 +256,13 @@ export function DeliveryOptions({
       </label>
       </div>
       {cycleFrequency && (
-        <p className="delivery-cycle-schedule" id={scheduleId} role="status" aria-live="polite" aria-atomic="true">
+        <div className={`delivery-cycle-schedule${cycleFrequency === "Todo mês" || cycleFrequency === "A cada 2 meses" ? " monthly-schedule" : ""}`} id={scheduleId} role="status" aria-live="polite" aria-atomic="true">
           {validSubscriptionDelivery(date, minDate ?? saoPauloToday())
-            ? cycleSchedule(cycleFrequency, date)
+            ? cycleFrequency === "Todo mês" || cycleFrequency === "A cada 2 meses"
+              ? <MonthlyScheduleParagraphs frequency={cycleFrequency} date={date} />
+              : cycleSchedule(cycleFrequency, date)
             : "Selecione uma data para ver quando você receberá a sua compra."}
-        </p>
+        </div>
       )}
       </div>
       {dateWindow && (

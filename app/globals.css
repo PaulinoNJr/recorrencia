@@ -2656,6 +2656,27 @@ hr {
 .subscription-recommendations {
   margin-top: 32px;
 }
+.frequency-bulk {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.subscription-checkout .checkout-progress > a { width: 20%; }
+.frequency-bulk h2 { font-size: 21px; }
+.frequency-bulk > p { margin: 10px 0 18px; color: var(--text-secondary); line-height: 1.5; }
+.frequency-select-all { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; }
+.subscription-frequency input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--brand-primary); flex-shrink: 0; }
+.frequency-bulk-controls { display: flex; align-items: end; gap: 16px; margin-top: 14px; }
+.frequency-bulk-controls label { flex: 1; }
+.frequency-bulk-controls label, .frequency-item-select { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.frequency-bulk-controls select, .frequency-item select { width: 100%; min-height: 48px; }
+.frequency-bulk .frequency-progress { margin-bottom: 0; color: var(--brand-primary-dark); }
+.frequency-items { display: grid; gap: 12px; }
+.frequency-item { display: grid; grid-template-columns: 44px 48px minmax(0, 1fr) 190px; align-items: center; gap: 14px; padding: 18px; }
+.frequency-item-check { display: flex; align-items: center; justify-content: center; min-height: 44px; }
+.frequency-item > img { object-fit: contain; }
+.frequency-item h3 { font-size: 15px; }
+.frequency-item-info p { margin-top: 6px; color: var(--text-secondary); font-size: 13px; }
+.subscription-config .product-controls:has(> label:only-child) { min-width: 128px; grid-template-columns: 128px; }
 .subscription-recommendations .subscription-discovery-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

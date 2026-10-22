@@ -576,6 +576,7 @@
   line-height: 1.6;
 }
 .review-cycle .cycle-schedule {
+  white-space: pre-line;
   padding: 10px 12px;
   border-radius: 8px;
   background: #f1f7ed;
@@ -601,6 +602,7 @@
 }
 .delivery-first-row .date-field { width: 100%; max-width: none; }
 .delivery-cycle-schedule {
+  white-space: pre-line;
   display: grid;
   place-items: center;
   align-self: stretch;
@@ -617,6 +619,15 @@
   font-weight: 600;
   overflow-wrap: anywhere;
 }
+.delivery-cycle-schedule.monthly-schedule {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  white-space: normal;
+}
+.monthly-schedule > p { margin: 0; width: 100%; color: inherit; }
+.monthly-schedule strong { font-weight: 700; }
 @media (max-width: 800px) {
   .delivery-first-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .delivery-cycle-schedule { min-height: 72px; margin: 0; padding: 16px; font-size: 14px; }

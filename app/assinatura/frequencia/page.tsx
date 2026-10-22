@@ -1,0 +1,5 @@
+import { Checkout } from "@/components/checkout";
+
+export default function Page() {
+  return <Checkout step={0} frequencyStep />;
+}

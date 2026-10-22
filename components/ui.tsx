@@ -129,6 +129,7 @@ export function Modal({
 }
 const steps = [
   ["Produtos", "configurar"],
+  ["Frequência", "frequencia"],
   ["Entrega", "entrega"],
   ["Pagamento", "pagamento"],
   ["Revisão", "revisao"],
@@ -154,7 +155,7 @@ export function CheckoutStepper({ active }: { active: number }) {
               <strong>{label}</strong>
             </>
           )}
-          {i < 3 && <i />}
+          {i < steps.length - 1 && <i />}
         </div>
       ))}
     </div>

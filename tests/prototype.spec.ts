@@ -18,15 +18,16 @@ test("criação, edição e gerenciamento persistem", async ({
       name: "Incluir Papel higiênico folha dupla na assinatura",
     })
     .check();
+  for (let count = 0; count < 4; count++)
+    await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption("Todo mês");
   await page
     .getByLabel("Frequência de Papel higiênico folha dupla")
     .selectOption("A cada 2 semanas");
-  for (let count = 0; count < 4; count++)
-    await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
-  await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-configurar.png`,
     fullPage: true,

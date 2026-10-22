@@ -6,18 +6,20 @@ async function selectProducts(page: Page, mixed = true) {
   await page
     .getByRole("button", { name: "Criar assinatura", exact: true })
     .click();
-  for (const [name, frequency] of [
-    ["Leite integral Shefa", "Toda semana"],
-    ["Café torrado e moído", mixed ? "Todo mês" : "Toda semana"],
+  for (const name of [
+    "Leite integral Shefa",
+    "Café torrado e moído",
   ]) {
     await page
       .getByRole("checkbox", { name: `Incluir ${name} na assinatura` })
       .check();
-    await page.getByLabel(`Frequência de ${name}`).selectOption(frequency);
     const row = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: `Incluir ${name} na assinatura` }) });
     for (let count = 0; count < (name === "Leite integral Shefa" ? 4 : 2); count++)
       await row.getByRole("button", { name: "Aumentar quantidade" }).click();
   }
+  await page.getByRole("button", { name: "Continuar para frequência" }).click();
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
+  await page.getByLabel("Frequência de Café torrado e moído").selectOption(mixed ? "Todo mês" : "Toda semana");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
 }
 

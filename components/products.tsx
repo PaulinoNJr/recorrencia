@@ -10,12 +10,14 @@ export function ProductEditor({
   pendingFrequencyIds = [],
   onFrequencyChange,
   onRemove,
+  showFrequency = true,
   allowAllProducts = false,
   ids = products.filter((p) => p.id !== "substituto").map((p) => p.id),
 }: {
   items: SubscriptionItem[];
   onChange: (items: SubscriptionItem[]) => void;
   onRemove?: (id: string) => void;
+  showFrequency?: boolean;
   ids?: string[];
   allowAllProducts?: boolean;
   pendingFrequencyIds?: string[];
@@ -91,7 +93,7 @@ export function ProductEditor({
                       onChange={(quantity) => change(id, { quantity })}
                     />
                   </label>
-                  <label>
+                  {showFrequency && <label>
                     Receber
                     <select
                       aria-label={"Frequência de " + p.name}
@@ -122,7 +124,7 @@ export function ProductEditor({
                         <option key={f}>{f}</option>
                       ))}
                     </select>
-                  </label>
+                  </label>}
                 </>
               ) : (
                 <span className="muted">

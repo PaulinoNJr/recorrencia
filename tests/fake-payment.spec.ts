@@ -22,6 +22,7 @@ test("cartão fictício já selecionado permite compra e recorrência sem adicio
   await page.getByRole("button", { name: "Confirmar compra", exact: true }).click();
   await page.getByRole("button", { name: "Sim, tornar recorrente" }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
+  await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();

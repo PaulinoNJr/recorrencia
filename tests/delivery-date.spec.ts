@@ -12,10 +12,11 @@ async function openDelivery(page: Page, frequency = "Toda semana") {
       name: "Incluir Leite integral Shefa na assinatura",
     })
     .check();
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption(frequency);
-  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
 }
 
@@ -24,8 +25,8 @@ test("primeira entrega e calculada pela frequencia e preserva ajustes manuais", 
   for (const [frequency, expected] of [
     ["Toda semana", "2027-02-07"],
     ["A cada 2 semanas", "2027-02-14"],
-    ["Todo mês", "2027-02-28"],
-    ["A cada 2 meses", "2027-03-31"],
+    ["Todo mês", "2027-03-02"],
+    ["A cada 2 meses", "2027-04-01"],
   ]) {
     await openDelivery(page, frequency);
     const date = page.getByLabel("Data de entrega");

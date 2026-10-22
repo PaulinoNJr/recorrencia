@@ -24,6 +24,7 @@ import {
 } from "./ui";
 import { ProductEditor, ItemList } from "./products";
 import { SubscriptionDiscovery, SubscriptionRecommendations } from "./subscription-discovery";
+import { SubscriptionFrequency } from "./subscription-frequency";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
 import { cycleSchedule } from "@/lib/cycle-schedule";
@@ -36,7 +37,7 @@ import {
   cycleEstimate,
 } from "@/lib/subscription-cycles";
 import { Frequency } from "@/types";
-export function Checkout({ step }: { step: number }) {
+export function Checkout({ step, frequencyStep = false }: { step: number; frequencyStep?: boolean }) {
   const { state, setState, ready, notify } = useStore();
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
@@ -114,7 +115,7 @@ export function Checkout({ step }: { step: number }) {
         Carregando sua assinatura…
       </main>
     );
-  if (step > 0 && !draft.items.length)
+  if ((step > 0 || frequencyStep) && !draft.items.length)
     return (
       <main className="container">
         <EmptyState
@@ -126,6 +127,14 @@ export function Checkout({ step }: { step: number }) {
         </Link>
       </main>
     );
+  if ((step > 0 || frequencyStep) && hasInvalidQuantity)
+    return (
+      <main className="container">
+        <h1>Defina a quantidade dos produtos</h1>
+        <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura.</p>
+        <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
+      </main>
+    );
   if (step > 0 && hasMissingFrequency)
     return (
       <main className="container">
@@ -134,8 +143,8 @@ export function Checkout({ step }: { step: number }) {
           Defina a frequência de cada item selecionado ou remova-o da assinatura
           para continuar.
         </p>
-        <Link className="btn primary" href="/assinatura/configurar">
-          Voltar aos produtos
+        <Link className="btn primary" href="/assinatura/frequencia">
+          Escolher frequências
         </Link>
       </main>
     );
@@ -147,14 +156,6 @@ export function Checkout({ step }: { step: number }) {
         <Link className="btn primary" href="/assinatura/entrega">
           Voltar à entrega
         </Link>
-      </main>
-    );
-  if (step > 0 && hasInvalidQuantity)
-    return (
-      <main className="container">
-        <h1>Defina a quantidade dos produtos</h1>
-        <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura.</p>
-        <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
       </main>
     );
   if ((step > 1 && !address) || (step > 2 && !payment))
@@ -174,7 +175,7 @@ export function Checkout({ step }: { step: number }) {
     "Revise sua assinatura",
   ];
   const descriptions = [
-    "Escolha o que deseja receber automaticamente e com qual frequência.",
+    "Selecione os produtos e defina pelo menos 1 unidade de cada item. Na próxima etapa, você escolherá as frequências.",
     "Sua rotina, seu endereço, seu melhor horário.",
     "Escolha o cartão para os próximos recebimentos.",
     "Confira os detalhes. Está tudo do seu jeito?",
@@ -223,21 +224,21 @@ export function Checkout({ step }: { step: number }) {
           { label: "Criar assinatura" },
         ]}
       />
-      <CheckoutStepper active={step} />
+      <CheckoutStepper active={frequencyStep ? 1 : step > 0 ? step + 1 : 0} />
       <PageHeading
-        title={titles[step]}
-        description={descriptions[step]}
+        title={frequencyStep ? "Com que frequência você quer receber?" : titles[step]}
+        description={frequencyStep ? "Aplique a mesma frequência a vários produtos de uma vez ou ajuste cada item como preferir." : descriptions[step]}
         eyebrow="COMPRAS QUE ACOMPANHAM SUA ROTINA"
       />
       <div className="content-grid">
         <div>
-          {step === 0 && (
+          {step === 0 && !frequencyStep && (
             <>
               <div className="notice">
                 <Repeat2 size={20} />
                 <span>
-                  Você está no controle. Cada produto pode ter uma frequência
-                  diferente.
+                  Primeiro, escolha os produtos e suas quantidades. Depois,
+                  defina a frequência de todos juntos ou em grupos.
                   <br />
                   {!fromCatalog && !fromPurchase && (
                     <strong>
@@ -259,6 +260,7 @@ export function Checkout({ step }: { step: number }) {
                 }
                 allowAllProducts={!fromCatalog && !fromPurchase}
                 items={draft.items}
+                showFrequency={false}
                 onRemove={(id) => {
                   setState((current) => ({
                     ...current,
@@ -300,6 +302,20 @@ export function Checkout({ step }: { step: number }) {
               />
               <SubscriptionRecommendations />
             </>
+          )}
+          {frequencyStep && (
+            <SubscriptionFrequency items={draft.items} pendingIds={pendingFrequencyIds} onApply={(ids, frequency) => {
+              setState((current) => ({
+                ...current,
+                draft: {
+                  ...current.draft,
+                  items: current.draft.items.map((item) => ids.includes(item.productId) ? { ...item, frequency } : item),
+                  frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((id) => !ids.includes(id)),
+                  cycleDeliveries: undefined,
+                },
+              }));
+              notify(`Frequência aplicada a ${ids.length} ${ids.length === 1 ? "produto" : "produtos"}.`);
+            }} />
           )}
           {step === 1 && (
             <>
@@ -504,13 +520,13 @@ export function Checkout({ step }: { step: number }) {
         <Summary
           items={step > 0 ? nextCycles.flatMap((cycle) => cycle.items) : draft.items}
           date={step > 0 && hasValidDeliveryDate ? earliestCycle?.date : undefined}
-          deliveryCost={Math.max(1, step > 0 ? nextCycles.length : cycles.length) * 9.9}
+          deliveryCost={Math.max(1, step > 0 ? nextCycles.length : frequencyStep && !hasMissingFrequency ? cycles.length : 1) * 9.9}
           totalLabel={
             step > 0 ? "Valor estimado do próximo ciclo" :
-              cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
+              frequencyStep && !hasMissingFrequency && cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
           }
         >
-          {hasMissingFrequency && (
+          {(step > 0 || frequencyStep) && hasMissingFrequency && (
             <p className="frequency-required-message" role="status">
               Escolha a frequência de cada produto selecionado ou remova o item
               da assinatura para continuar.
@@ -520,7 +536,7 @@ export function Checkout({ step }: { step: number }) {
           <Button
             disabled={
               !draft.items.length ||
-              hasMissingFrequency ||
+              ((step > 0 || frequencyStep) && hasMissingFrequency) ||
               hasInvalidQuantity ||
               (step > 0 && !hasValidDeliveryDate) ||
               (step >= 1 && !address) ||
@@ -530,6 +546,11 @@ export function Checkout({ step }: { step: number }) {
             }
             onClick={() => {
               if (hasInvalidQuantity) return;
+              if (step === 0 && !frequencyStep) {
+                router.push("/assinatura/frequencia");
+                return;
+              }
+              if (hasMissingFrequency) return;
               if (
                 step > 0 &&
                 !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
@@ -554,7 +575,7 @@ export function Checkout({ step }: { step: number }) {
           >
             {submitting
               ? "Criando assinatura…"
-              : [
+              : step === 0 && !frequencyStep ? "Continuar para frequência" : [
                   "Continuar para entrega",
                   "Continuar para pagamento",
                   "Revisar assinatura",
@@ -566,9 +587,9 @@ export function Checkout({ step }: { step: number }) {
             className="back-link"
             href={
               step === 0
-                ? "/carrinho"
+                ? frequencyStep ? "/assinatura/configurar" : "/carrinho"
                 : "/assinatura/" +
-                  ["configurar", "entrega", "pagamento"][step - 1]
+                  ["frequencia", "entrega", "pagamento"][step - 1]
             }
           >
             <ArrowLeft size={15} />

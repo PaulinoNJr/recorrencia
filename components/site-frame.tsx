@@ -22,7 +22,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
   const checkout =
     recurring || path === "/carrinho" || path.startsWith("/checkout");
   const protectedPage = path === "/listas" || path.startsWith("/minhas-assinaturas") ||
-    (recurring && path !== "/assinatura/configurar") ||
+    (recurring && path !== "/assinatura/configurar" && path !== "/assinatura/frequencia") ||
     (path.startsWith("/checkout/") && path !== "/checkout/dados");
   const content = protectedPage ? <CustomerGate>{children}</CustomerGate> : children;
   if (!checkout)
@@ -34,11 +34,12 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
       </>
     );
   const labels = recurring
-    ? ["Produtos", "Entrega", "Pagamento", "Revisão"]
+    ? ["Produtos", "Frequência", "Entrega", "Pagamento", "Revisão"]
     : ["Carrinho", "Dados pessoais", "Entrega", "Pagamento"];
   const routes = recurring
     ? [
         "/assinatura/configurar",
+        "/assinatura/frequencia",
         "/assinatura/entrega",
         "/assinatura/pagamento",
         "/assinatura/revisao",
@@ -47,7 +48,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
   const active = recurring
     ? Math.max(
         0,
-        ["configurar", "entrega", "pagamento", "revisao", "sucesso"].indexOf(
+        ["configurar", "frequencia", "entrega", "pagamento", "revisao", "sucesso"].indexOf(
           path.split("/").pop()!,
         ),
       )
@@ -59,7 +60,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
           ? 3
           : 1;
   return (
-    <div className="official-checkout">
+    <div className={`official-checkout${recurring ? " subscription-checkout" : ""}`}>
       <header className="checkout-header">
         <div className="checkout-width checkout-header-inner">
           <Link href="/loja" aria-label="Covabra início">

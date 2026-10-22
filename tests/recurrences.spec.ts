@@ -73,6 +73,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
+  await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page
     .getByLabel("Frequência de Leite integral Shefa")
     .selectOption("Toda semana");

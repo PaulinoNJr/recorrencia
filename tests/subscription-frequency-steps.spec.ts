@@ -1,0 +1,68 @@
+import { test, expect } from "./fixtures";
+
+test("produtos exigem quantidade antes de escolher frequência em massa", async ({ page }, testInfo) => {
+  await page.goto("/carrinho");
+  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+  const next = page.getByRole("button", { name: "Continuar para frequência" });
+  await expect(next).toBeDisabled();
+  const milk = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }) });
+  const paper = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Papel higiênico folha dupla na assinatura" }) });
+  await milk.getByRole("checkbox").check();
+  await paper.getByRole("checkbox").check();
+  await expect(page.getByRole("combobox")).toHaveCount(0);
+  await expect(next).toBeDisabled();
+  await milk.getByRole("button", { name: "Aumentar quantidade" }).click();
+  await expect(next).toBeDisabled();
+  await paper.getByRole("button", { name: "Aumentar quantidade" }).click();
+  await expect(next).toBeEnabled();
+  await next.click();
+  await expect(page).toHaveURL("/assinatura/frequencia");
+  const delivery = page.getByRole("button", { name: "Continuar para entrega" });
+  await expect(delivery).toBeDisabled();
+  await expect(page.getByRole("checkbox", { name: "Selecionar todos os produtos", exact: true })).toBeChecked();
+  await page.getByLabel("Receber os produtos selecionados").selectOption("Toda semana");
+  await page.getByRole("button", { name: "Aplicar a 2 produtos" }).click();
+  await expect(delivery).toBeEnabled();
+  await expect(page.getByLabel("Frequência de Leite integral Shefa")).toHaveValue("Toda semana");
+  await expect(page.getByLabel("Frequência de Papel higiênico folha dupla")).toHaveValue("Toda semana");
+  await page.getByRole("checkbox", { name: "Selecionar Leite integral Shefa para aplicar frequência" }).uncheck();
+  await page.getByLabel("Receber os produtos selecionados").selectOption("Todo mês");
+  await page.getByRole("button", { name: "Aplicar a 1 produto", exact: true }).click();
+  await expect(page.getByLabel("Frequência de Leite integral Shefa")).toHaveValue("Toda semana");
+  await expect(page.getByLabel("Frequência de Papel higiênico folha dupla")).toHaveValue("Todo mês");
+  await page.reload();
+  await expect(page.getByLabel("Frequência de Papel higiênico folha dupla")).toHaveValue("Todo mês");
+  await page.getByRole("link", { name: "Voltar", exact: true }).click();
+  await expect(page).toHaveURL("/assinatura/configurar");
+  await expect(milk.locator("output")).toHaveText("1");
+  await next.click();
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("A cada 2 semanas");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-frequency-bulk.png`, fullPage: true });
+  await delivery.click();
+  await expect(page).toHaveURL("/assinatura/entrega");
+  await expect(page.getByRole("list", { name: "Produtos · A cada 2 semanas" })).toContainText("Leite integral Shefa");
+  await expect(page.getByRole("list", { name: "Produtos · Todo mês" })).toContainText("Papel higiênico folha dupla");
+});
+
+test("etapa de frequência bloqueia quantidade zero e entrega bloqueia frequência pendente", async ({ page }) => {
+  await page.goto("/assinatura/configurar");
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
+    state.draft.items = [{ productId: "leite", quantity: 0, frequency: "Toda semana" }];
+    state.draft.frequencyPending = ["leite"];
+    localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
+  });
+  await page.goto("/assinatura/frequencia");
+  await expect(page.getByRole("heading", { name: "Defina a quantidade dos produtos" })).toBeVisible();
+  await page.getByRole("link", { name: "Voltar aos produtos" }).click();
+  await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
+  await page.goto("/assinatura/entrega");
+  await expect(page.getByRole("heading", { name: "Escolha a frequência dos produtos" })).toBeVisible();
+  await page.getByRole("link", { name: "Escolher frequências" }).click();
+  await expect(page).toHaveURL("/assinatura/frequencia");
+  await page.getByRole("checkbox", { name: "Selecionar todos os produtos", exact: true }).uncheck();
+  await page.getByLabel("Receber os produtos selecionados").selectOption("Todo mês");
+  await expect(page.getByRole("button", { name: "Aplicar a 0 produtos" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Continuar para entrega" })).toBeDisabled();
+});

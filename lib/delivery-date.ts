@@ -33,12 +33,5 @@ export function validSubscriptionDelivery(date: string, today = saoPauloToday())
 export function firstSubscriptionDelivery(frequency: Frequency, today = saoPauloToday()) {
   if (frequency === "Toda semana") return addDays(today, 7);
   if (frequency === "A cada 2 semanas") return addDays(today, 14);
-  const months = frequency === "Todo mês" ? 1 : 2;
-  const date = new Date(`${today}T12:00:00Z`);
-  const day = date.getUTCDate();
-  date.setUTCDate(1);
-  date.setUTCMonth(date.getUTCMonth() + months);
-  const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
-  date.setUTCDate(Math.min(day, lastDay));
-  return date.toISOString().slice(0, 10);
+  return addDays(today, frequency === "Todo mês" ? 30 : 60);
 }
