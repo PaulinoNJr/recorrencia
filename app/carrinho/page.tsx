@@ -111,6 +111,8 @@ export default function Cart() {
                         ...s.draft,
                         cycleDeliveries: undefined,
                         source: "cart",
+                        removedProductIds: [],
+                        discoveredProductIds: s.cart.map((item) => item.productId),
                         items: [],
                         frequencyPending: [],
                       },

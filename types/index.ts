@@ -59,6 +59,7 @@ export interface Subscription {
   history: SubscriptionCycle[];
 }
 export interface Draft {
+  discoveredProductIds?: string[];
   removedProductIds?: string[];
   cycleDeliveries?: CycleDeliveries;
   frequencyPending?: string[];

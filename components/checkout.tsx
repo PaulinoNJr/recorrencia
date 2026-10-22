@@ -92,11 +92,12 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     pendingFrequencyIds.includes(item.productId),
   );
   const hasInvalidQuantity = draft.items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1);
-  const fromCatalog = draft.source === "catalog";
+  const fromCatalog = draft.source !== "cart" && draft.source !== "purchase";
   const fromPurchase = draft.source === "purchase";
-  const availableItems = fromPurchase
-    ? [...new Map([...(state.purchase?.completedItems ?? []), ...state.cart, ...draft.items].map((item) => [item.productId, item])).values()]
-    : state.cart;
+  const availableProductIds = [...new Set([
+    ...(draft.discoveredProductIds ?? []),
+    ...draft.items.map((item) => item.productId),
+  ])];
   const catalogIds = products
     .filter(
       (p) =>
@@ -220,7 +221,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     <main className={`container${step === 0 ? " subscription-config" : step === 3 ? " subscription-review" : step === 1 ? " subscription-delivery" : ""}`}>
       <Breadcrumb
         items={[
-          { label: "Meu carrinho", href: "/carrinho" },
+          fromCatalog ? { label: "Recorrências", href: "/recorrencias" } : { label: "Meu carrinho", href: "/carrinho" },
           { label: "Criar assinatura" },
         ]}
       />
@@ -252,10 +253,11 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
               <ProductEditor
                 ids={
                   (fromCatalog
-                    ? catalogIds
-                    : availableItems
-                        .filter((i) => !fromPurchase || productById(i.productId).eligible)
-                        .map((i) => i.productId))
+                    ? search.trim()
+                      ? catalogIds
+                      : availableProductIds
+                    : availableProductIds
+                        .filter((id) => !fromPurchase || productById(id).eligible))
                     .filter((id) => !draft.removedProductIds?.includes(id))
                 }
                 allowAllProducts={!fromCatalog && !fromPurchase}
@@ -264,7 +266,6 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
                 onRemove={(id) => {
                   setState((current) => ({
                     ...current,
-                    cart: current.cart.filter((item) => item.productId !== id),
                     draft: {
                       ...current.draft,
                       items: current.draft.items.filter((item) => item.productId !== id),
@@ -587,7 +588,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
             className="back-link"
             href={
               step === 0
-                ? frequencyStep ? "/assinatura/configurar" : "/carrinho"
+                ? frequencyStep ? "/assinatura/configurar" : fromCatalog ? "/recorrencias" : "/carrinho"
                 : "/assinatura/" +
                   ["frequencia", "entrega", "pagamento"][step - 1]
             }

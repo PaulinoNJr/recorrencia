@@ -5,7 +5,7 @@ import { Search, ShoppingBag } from "lucide-react";
 import { products } from "@/data/products";
 import { Product } from "@/types";
 import { money } from "@/lib/utils";
-import { ProductCartControl } from "./product-cart-control";
+import { SubscriptionProductControl } from "./subscription-product-control";
 import { useStore } from "./store";
 
 const catalog = products.filter((product) => product.id !== "substituto" && product.eligible);
@@ -28,7 +28,7 @@ function ProductCards({ items }: { items: Product[] }) {
           <h3>{product.name}</h3>
           <p>{product.category}</p>
           <strong>{money(product.price)}</strong>
-          <ProductCartControl product={product} />
+          <SubscriptionProductControl product={product} />
         </article>
       ))}
     </div>
@@ -42,7 +42,7 @@ export function SubscriptionDiscovery({ search, onSearch }: { search: string; on
   return (
     <section className="panel subscription-discovery" aria-labelledby="discover-products-title">
       <h2 id="discover-products-title"><Search size={21} /> Encontre novos produtos</h2>
-      <p>Adicione ao carrinho sem sair desta etapa. Depois, selecione os itens que deseja incluir na assinatura.</p>
+      <p>Escolha os produtos para sua recorrência e ajuste as quantidades sem sair desta etapa.</p>
       <label htmlFor="subscription-product-search">Buscar no catálogo de produtos</label>
       <input id="subscription-product-search" type="search" placeholder="Ex.: leite, pão ou mercearia" value={search} onChange={(event) => onSearch(event.target.value)} />
       {expanded && (
@@ -63,8 +63,9 @@ export function SubscriptionDiscovery({ search, onSearch }: { search: string; on
 
 export function SubscriptionRecommendations() {
   const { state } = useStore();
-  const selected = new Set([...state.cart, ...state.draft.items].map((item) => item.productId));
-  const score = (product: Product) => [...selected].reduce((value, id) => value + (complements[id]?.includes(product.id) ? 2 : 0), 0);
+  if (!state.draft.items.length) return null;
+  const selected = new Set(state.draft.items.map((item) => item.productId));
+  const score = (product: Product) => state.draft.items.reduce((value, item) => value + (complements[item.productId]?.includes(product.id) ? 2 : 0), 0);
   const suggestions = catalog.filter((product) => !selected.has(product.id)).sort((a, b) => score(b) - score(a)).slice(0, 3);
   if (!suggestions.length) return null;
   return (

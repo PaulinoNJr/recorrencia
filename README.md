@@ -80,6 +80,8 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 
 ## Demonstração
 
+Carrinho e recorrência têm produtos e quantidades independentes. Ao iniciar pelo carrinho, seus produtos são disponibilizados para montar a assinatura. Ao iniciar pelo catálogo, a recorrência começa vazia. A busca e o “Compre também” adicionam diretamente à recorrência; adicionar, alterar quantidades ou remover itens nessa etapa não modifica o carrinho. Alterar o carrinho também não modifica uma recorrência em montagem.
+
 1. No carrinho, clique em **Criar assinatura**. Nenhum produto é selecionado automaticamente.
 2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade de cada item para continuar para a etapa de frequência. Nela, todos começam selecionados para aplicar uma frequência em massa; também é possível selecionar grupos ou ajustar cada produto individualmente. A entrega só fica disponível depois de definir todas as frequências. A edição de assinaturas também bloqueia o salvamento de produtos com quantidade 0.
 3. Revise, aceite os termos e confirme. A assinatura aparece na conta e na operação.

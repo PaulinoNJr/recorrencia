@@ -4,6 +4,8 @@ test("selecionar começa em zero e todos os produtos precisam de quantidade posi
   await page.goto("/minhas-assinaturas");
   await page.getByRole("link", { name: "Nova assinatura", exact: true }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
+  const search = page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" });
+  await search.fill("leite");
   const milk = page.locator(".subscription-product").filter({ has: page.getByRole("heading", { name: "Leite integral Shefa", exact: true }) });
   const coffee = page.locator(".subscription-product").filter({ has: page.getByRole("heading", { name: "Café torrado e moído", exact: true }) });
   const next = page.getByRole("button", { name: "Continuar para frequência" });
@@ -15,11 +17,13 @@ test("selecionar começa em zero e todos os produtos precisam de quantidade posi
   await expect(next).toBeDisabled();
   await milk.getByRole("button", { name: "Aumentar quantidade" }).click();
   await expect(next).toBeEnabled();
+  await search.fill("café");
   await coffee.getByRole("checkbox").check();
   await expect(coffee.locator("output")).toHaveText("0");
   await expect(next).toBeDisabled();
   await coffee.getByRole("checkbox").uncheck();
   await expect(next).toBeEnabled();
+  await search.fill("leite");
   await milk.getByRole("button", { name: "Diminuir quantidade" }).click();
   await expect(next).toBeDisabled();
   await page.reload();
@@ -30,6 +34,7 @@ test("selecionar começa em zero e todos os produtos precisam de quantidade posi
   await expect(page.getByRole("heading", { name: "Defina a quantidade dos produtos" })).toBeVisible();
   await page.getByRole("link", { name: "Voltar aos produtos" }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
+  await search.fill("leite");
   await milk.getByRole("checkbox").uncheck();
   await milk.getByRole("checkbox").check();
   await expect(milk.locator("output")).toHaveText("0");

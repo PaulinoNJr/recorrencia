@@ -56,6 +56,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
         cycleDeliveries: undefined,
         source: "purchase",
         removedProductIds: [],
+        discoveredProductIds: recurringItems.map((item) => item.productId),
         items: recurringItems.map((item) => ({ ...item })),
         frequencyPending: recurringItems.map((item) => item.productId),
         date: firstDeliveryWindow().min,

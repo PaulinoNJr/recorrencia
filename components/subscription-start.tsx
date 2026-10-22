@@ -18,6 +18,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
         cycleDeliveries: undefined,
         source,
         removedProductIds: [],
+        discoveredProductIds: source === "cart" ? s.cart.map((item) => item.productId) : [],
         frequencyPending:
           source === "cart"
             ? s.cart

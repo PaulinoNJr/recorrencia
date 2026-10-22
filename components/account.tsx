@@ -90,6 +90,7 @@ export function SubscriptionList() {
                 ...current.draft,
                 source: "catalog",
                 removedProductIds: [],
+                discoveredProductIds: [],
                 items: [],
                 frequencyPending: [],
                 cycleDeliveries: undefined,

@@ -41,7 +41,8 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
     .getByRole("button", { name: "Criar minha assinatura", exact: true })
     .click();
   await page.getByRole("button", { name: /Do catálogo de produtos/ }).click();
-  await expect(page.getByRole("checkbox").first()).not.toBeChecked();
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Compre também" })).toHaveCount(0);
   await page
     .getByRole("searchbox", { name: "Buscar no catálogo de produtos" })
     .fill("leite");
