@@ -65,8 +65,8 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 | `/checkout/sucesso` | Confirmação de compra de demonstração |
 | `/comprar` | Catálogo, busca e produtos para adicionar |
 | `/cupons`, `/listas` | Páginas auxiliares da navegação |
-| `/assinatura/configurar` | Seleção explícita de produtos e quantidades obrigatórias |
-| `/assinatura/frequencia` | Frequência em massa para todos ou grupos de produtos, com ajuste individual |
+| `/assinatura/configurar` | Produtos, quantidades e frequências no mesmo card; aplicação de frequência a todos |
+| `/assinatura/frequencia` | Redireciona para a configuração unificada de produtos e frequências |
 | `/assinatura/entrega` | Endereço, data e período |
 | `/assinatura/pagamento` | Cartões salvos e inclusão de cartão fictício |
 | `/assinatura/revisao` | Revisão, edição e aceite dos termos |
@@ -83,13 +83,13 @@ tests/               Fluxos funcionais e layout em desktop/mobile
 Carrinho e recorrência têm produtos e quantidades independentes. Ao iniciar pelo carrinho, seus produtos são disponibilizados para montar a assinatura. Ao iniciar pelo catálogo, a recorrência começa vazia. A busca e o “Compre também” adicionam diretamente à recorrência; adicionar, alterar quantidades ou remover itens nessa etapa não modifica o carrinho. Alterar o carrinho também não modifica uma recorrência em montagem.
 
 1. No carrinho, clique em **Criar assinatura**. Nenhum produto é selecionado automaticamente.
-2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade de cada item para continuar para a etapa de frequência. Nela, todos começam selecionados para aplicar uma frequência em massa; também é possível selecionar grupos ou ajustar cada produto individualmente. A entrega só fica disponível depois de definir todas as frequências. A edição de assinaturas também bloqueia o salvamento de produtos com quantidade 0.
+2. Ao marcar um produto, a quantidade começa em 0. Defina pelo menos 1 unidade e a frequência no mesmo card. Use **Aplicar frequência a todos** para os produtos incluídos e ajuste exceções individualmente. Depois, siga direto para a entrega. A edição também bloqueia o salvamento de produtos com quantidade 0.
 3. Revise, aceite os termos e confirme. A assinatura aparece na conta e na operação.
 4. No detalhe, edite produtos, altere cartão/entrega, pule um ciclo ou pause.
 5. Visualize o histórico; reative ou cancele quando desejar.
 6. Recarregue a página para verificar a persistência. O rodapé oferece **Restaurar dados do protótipo**.
 
-Os testes de gerenciamento usam explicitamente uma conta de demonstração em `tests/fixtures.ts`: `00124` ativa com café indisponível e histórico; `00125` pausada; `00126` pagamento recusado. Esses dados não são carregados na experiência do participante. `tests/guest-flow.spec.ts` verifica os fluxos desde a sessão vazia, incluindo identificação, entrega, pagamento, gerenciamento e reinício.
+Os testes de gerenciamento usam explicitamente uma conta de demonstração em `tests/fixtures.ts`: `00124` ativa com café indisponível e histórico; `00125` pausada; `00126` ativa com aviso de pagamento recusado. Esses dados não são carregados na experiência do participante. `tests/guest-flow.spec.ts` verifica os fluxos desde a sessão vazia, incluindo identificação, entrega, pagamento, gerenciamento e reinício.
 
 ## Alterar conteúdo e identidade
 
@@ -108,9 +108,9 @@ Referência consultada: https://www.covabra.com.br/ em 06/10/2026. O HTML do sit
 
 Preços, disponibilidade, cliente, endereços e cartões são fictícios. Café e papel possuem ilustrações locais de embalagem, fáceis de substituir. O catálogo utiliza oito produtos e um substituto; feijão, óleo, pão, ovos e abacaxi complementam o conjunto para aproveitar fotografias disponíveis. Abacaxi demonstra inelegibilidade. Café demonstra indisponibilidade no próximo ciclo, mantendo a possibilidade de assinatura futura.
 
-Frete de R$ 9,90 é uma hipótese demonstrativa fixa, exibida no resumo, sem promessa de gratuidade ou desconto. Datas da demonstração se baseiam em outubro de 2026. Semanas e ciclos de duas semanas usam 7 e 14 dias; mês e dois meses usam 30 e 60 dias. Ao pular uma entrega, a próxima data geral usa a menor frequência entre os itens e os ciclos reiniciam a partir dela. Isso simplifica o agendamento de frequências diferentes e não representa um calendário de logística de produção.
+Frete de R$ 9,90 é uma hipótese demonstrativa fixa, exibida no resumo, sem promessa de gratuidade ou desconto. Datas da demonstração se baseiam em outubro de 2026. As frequências disponíveis são Semanal (7 dias), Quinzenal (14 dias) e Mensal (30 dias). Ao pular uma entrega, a próxima data geral usa a menor frequência entre os itens e os ciclos reiniciam a partir dela. Isso simplifica o agendamento de frequências diferentes e não representa um calendário de logística de produção.
 
-Itens não incluídos permanecem no carrinho para compra única; criar uma assinatura não os compra. Atualizar um cartão em uma assinatura recusada simula uma nova aprovação. Pausar por 15/30/60 dias usa 06/10/2026 como referência e impede que a próxima entrega fique antes da retomada. O histórico preserva os valores registrados sem recalculá-los quando os produtos atuais mudam. Alterações do próximo ciclo não geram cronogramas ou cobranças reais.
+A compra de hoje e a próxima recorrência têm resumos separados. Todos os produtos e quantidades do carrinho original permanecem intactos, inclusive os selecionados para compra recorrente. Ajustar ou confirmar a recorrência não altera nem finaliza a compra de hoje. Atualizar um cartão em uma assinatura recusada simula uma nova aprovação. Pausar por 15/30/60 dias usa 06/10/2026 como referência e impede que a próxima entrega fique antes da retomada. O histórico preserva os valores registrados sem recalculá-los quando os produtos atuais mudam. Alterações do próximo ciclo não geram cronogramas ou cobranças reais.
 
 Somente bandeira e dados fixos de demonstração podem ser adicionados no cartão fictício. Não existe campo para número completo ou CVV. Dados ficam apenas no navegador; restaurar o protótipo remove alterações locais.
 
@@ -135,3 +135,29 @@ A página inicial foi atualizada em 07/10/2026 com a composição e as imagens p
 Instalação limpa, servidor de desenvolvimento (HTTP 200 em `/carrinho`), lint sem avisos, build de produção e os seis testes Playwright passaram em desktop e mobile. Carrinho, lista, detalhe, configuração, revisão e sucesso também foram revisados por capturas de tela.
 
 Neste computador, a validação utilizou a cópia local em `C:\Users\paulino.rodrigues\AppData\Local\covabra-validation`, porque a unidade Google Drive apresentou erros de escrita de dependências. A tentativa incompleta foi preservada em `.install-failed/`, ignorada pelo Git e pelo lint. Ela não faz parte da aplicação. O código entregue permanece na pasta original.
+
+## Estados da compra recorrente
+
+- **Ativa:** recebimentos programados. Falhas de pagamento são avisos separados do estado.
+- **Pausada:** interrupção temporária, com retomada prevista e reativação antecipada.
+- **Cancelada:** sem novas cobranças ou entregas; permite reativar confirmando uma nova entrega.
+
+Ao reativar uma compra pausada ou cancelada, a próxima entrega é calculada a partir da data da reativação e da frequência salva: Semanal em 7 dias, Quinzenal em 14 dias e Mensal em 30 dias. O período, os produtos e o histórico são preservados. Na confirmação de reativação de uma cancelada, a data calculada e o período continuam disponíveis para ajuste.
+
+Pausar e cancelar preservam produtos, preferências e histórico. A listagem não tem exclusão como ação principal. A exclusão de histórico fica em **Opções avançadas** de compras canceladas, exige confirmação explícita e mantém o cadastro para reativação futura. Sessões antigas com estado Pagamento recusado são migradas para Ativa com aviso de pagamento, preservando os dados.
+
+## Financeiro
+
+Em **Minhas compras recorrentes → Financeiro** (`/minhas-assinaturas/financeiro`), os quadros mostram o mês atual e os dois seguintes do calendário (por exemplo, novembro, dezembro e janeiro), somando as entregas previstas entre o primeiro e o último dia de cada mês. Cada quadro separa produtos e fretes estimados. Selecionar um mês atualiza as próximas cobranças e o detalhamento por recorrência. A lista de próximas cobranças mostra apenas datas a partir de hoje no mês selecionado. As datas são referências de entrega, com cobrança antes do ciclo e data exata a confirmar.
+
+Somente recorrências ativas entram na projeção. Pausadas e canceladas ficam fora, e falhas de pagamento aparecem como avisos. Cada entrega inclui um único frete estimado de R$ 9,90; itens do mesmo ciclo compartilham esse frete. Entregas puladas não geram produtos ou frete naquela ocorrência. Os intervalos são de 7, 14 ou 30 dias. O cálculo parte da data salva, sem criar entregas anteriores a ela. O total do mês atual inclui as ocorrências previstas em datas já transcorridas, sem comprovar entregas ou pagamentos realizados e sem modificar a agenda salva. A compra de hoje não entra nesses valores.
+
+Todos os valores são estimados, com preços e fretes sujeitos a variação a cada ciclo. O painel é somente de consulta e não efetua cobranças.
+
+## Nomes das recorrências
+
+A configuração e a revisão preenchem o nome automaticamente pelos produtos selecionados, como Café da manhã, Cuidados da casa ou Despensa em dia. O campo permite escrever um nome de até 60 caracteres, sem botões de sugestões. Um nome personalizado é preservado ao alterar os produtos e ao recarregar. Limpar o campo recupera o nome automático. Cada nova configuração começa com uma sugestão nova.
+
+Quando a configuração cria recorrências com frequências diferentes, cada nome recebe a frequência como complemento. Em **Editar nome**, nos detalhes, qualquer recorrência pode ser renomeada, inclusive pausadas ou canceladas, sem alterar produtos, agenda ou histórico. O nome aparece na confirmação, na listagem, no Financeiro, na operação e nos avisos do aplicativo. As alterações de nome ficam registradas no histórico de atividades.
+
+As únicas frequências disponíveis são **Semanal / Quinzenal / Mensal**, com intervalos de 7, 14 e 30 dias. Sessões de versões anteriores são recuperadas com os novos nomes. A opção descontinuada é convertida para Mensal, mantendo os produtos, o histórico e a próxima entrega salva. Links antigos com o parâmetro de ciclo também continuam funcionando.

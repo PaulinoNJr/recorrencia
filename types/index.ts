@@ -1,6 +1,6 @@
 export type Frequency =
-  "Toda semana" | "A cada 2 semanas" | "Todo mês" | "A cada 2 meses";
-export type Status = "Ativa" | "Pausada" | "Pagamento recusado" | "Cancelada";
+  "Semanal" | "Quinzenal" | "Mensal";
+export type Status = "Ativa" | "Pausada" | "Cancelada";
 export interface Product {
   id: string;
   name: string;
@@ -43,12 +43,18 @@ export interface SubscriptionCycle {
 export type CycleDeliveries = Partial<
   Record<Frequency, { date: string; period: string }>
 >;
-export interface Subscription {
+export interface RecurringPurchaseOptions {
+  substitute?: string;
+  invoice?: "Sim" | "Não";
+  cpf?: string;
+}
+export interface Subscription extends RecurringPurchaseOptions {
   originId?: string;
   cycleDeliveries?: CycleDeliveries;
   id: string;
   name: string;
   status: Status;
+  paymentStatus?: "Recusado";
   items: SubscriptionItem[];
   date: string;
   period: string;
@@ -58,7 +64,8 @@ export interface Subscription {
   events: string[];
   history: SubscriptionCycle[];
 }
-export interface Draft {
+export interface Draft extends RecurringPurchaseOptions {
+  name?: string;
   discoveredProductIds?: string[];
   removedProductIds?: string[];
   cycleDeliveries?: CycleDeliveries;

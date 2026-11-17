@@ -17,9 +17,9 @@ async function selectProducts(page: Page, mixed = true) {
     for (let count = 0; count < (name === "Leite integral Shefa" ? 4 : 2); count++)
       await row.getByRole("button", { name: "Aumentar quantidade" }).click();
   }
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
-  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
-  await page.getByLabel("Frequência de Café torrado e moído").selectOption(mixed ? "Todo mês" : "Toda semana");
+
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Semanal");
+  await page.getByLabel("Frequência de Café torrado e moído").selectOption(mixed ? "Mensal" : "Semanal");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
 }
 
@@ -29,34 +29,34 @@ test("frequencias distintas possuem entregas independentes na revisao e na compr
   await page.clock.install({ time: new Date("2026-10-13T15:00:00Z") });
   await selectProducts(page);
   const weekly = page.getByRole("group", {
-    name: "Entrega · Toda semana",
+    name: "Entrega · Semanal",
     exact: true,
   });
   const monthly = page.getByRole("group", {
-    name: "Entrega · Todo mês",
+    name: "Entrega · Mensal",
     exact: true,
   });
-  await expect(weekly.getByLabel("Data de entrega · Toda semana")).toHaveValue("2026-10-20");
-  await expect(monthly.getByLabel("Data de entrega · Todo mês")).toHaveValue("2026-11-13");
+  await expect(weekly.getByLabel("Data de entrega · Semanal")).toHaveValue("2026-10-20");
+  await expect(monthly.getByLabel("Data de entrega · Mensal")).toHaveValue("2026-11-12");
   const min = (await weekly
-    .getByLabel("Data de entrega · Toda semana")
+    .getByLabel("Data de entrega · Semanal")
     .getAttribute("min"))!;
   const future = new Date(min + "T12:00:00Z");
   future.setUTCDate(future.getUTCDate() + 30);
   const max = future.toISOString().slice(0, 10);
-  await weekly.getByLabel("Data de entrega · Toda semana").fill(min);
-  await monthly.getByLabel("Data de entrega · Todo mês").fill(max);
+  await weekly.getByLabel("Data de entrega · Semanal").fill(min);
+  await monthly.getByLabel("Data de entrega · Mensal").fill(max);
   await monthly.getByRole("button", { name: /Tarde/ }).click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   const cards = page.locator(".review-cycle");
   await expect(cards).toHaveCount(2);
   const reviewWeekly = page.getByRole("region", {
-    name: "Ciclo · Toda semana",
+    name: "Ciclo · Semanal",
     exact: true,
   });
   const reviewMonthly = page.getByRole("region", {
-    name: "Ciclo · Todo mês",
+    name: "Ciclo · Mensal",
     exact: true,
   });
   await expect(reviewWeekly).toContainText("Leite integral Shefa");
@@ -69,13 +69,13 @@ test("frequencias distintas possuem entregas independentes na revisao e na compr
   await expect(page.locator(".summary-total")).toContainText("R$ 31,86");
   await page.getByRole("checkbox").check();
   await reviewWeekly
-    .getByRole("button", { name: "Editar ciclo · Toda semana" })
+    .getByRole("button", { name: "Editar ciclo · Semanal" })
     .click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Data de entrega").fill("2099-01-01");
   await dialog.getByRole("button", { name: "Salvar ciclo" }).click();
   await expect(page.locator(".summary-total")).toContainText("R$ 65,70");
-  await reviewWeekly.getByRole("button", { name: "Editar ciclo · Toda semana" }).click();
+  await reviewWeekly.getByRole("button", { name: "Editar ciclo · Semanal" }).click();
   await dialog.getByLabel("Data de entrega").fill("2000-01-01");
   await expect(
     dialog.getByRole("button", { name: "Salvar ciclo" }),
@@ -108,17 +108,17 @@ test("frequencias distintas possuem entregas independentes na revisao e na compr
   const sub = created.find((subscription: { items: { productId: string }[] }) => subscription.items.some((item) => item.productId === "leite"));
   const monthlySub = created.find((subscription: { items: { productId: string }[] }) => subscription.items.some((item) => item.productId === "cafe"));
   expect(sub.id).not.toBe(monthlySub.id);
-  expect(sub.cycleDeliveries["Toda semana"]).toEqual({
+  expect(sub.cycleDeliveries["Semanal"]).toEqual({
     date: middleDate,
     period: "18h às 21h",
   });
-  expect(monthlySub.cycleDeliveries["Todo mês"]).toEqual({
+  expect(monthlySub.cycleDeliveries["Mensal"]).toEqual({
     date: max,
     period: "12h às 18h",
   });
   expect(sub.date).toBe(middleDate);
-  const successWeekly = page.getByRole("region", { name: "Resumo do ciclo · Toda semana" });
-  const successMonthly = page.getByRole("region", { name: "Resumo do ciclo · Todo mês" });
+  const successWeekly = page.getByRole("region", { name: "Resumo do ciclo · Semanal" });
+  const successMonthly = page.getByRole("region", { name: "Resumo do ciclo · Mensal" });
   await expect(successWeekly).toContainText("Leite integral Shefa");
   await expect(successWeekly).toContainText("4 unidades");
   await expect(successWeekly.locator(".summary-total")).toContainText("R$ 31,86");
@@ -132,8 +132,8 @@ test("frequencias distintas possuem entregas independentes na revisao e na compr
   await expect(page.locator(".detail-product")).toContainText("Leite integral Shefa");
   await expect(page.locator(".detail-product")).not.toContainText("Café torrado e moído");
   await page.goto("/minhas-assinaturas");
-  const weeklyCard = page.getByRole("article", { name: `Compra recorrente #${sub.id} · Toda semana` });
-  const monthlyCard = page.getByRole("article", { name: `Compra recorrente #${monthlySub.id} · Todo mês` });
+  const weeklyCard = page.getByRole("article", { name: `Compra recorrente #${sub.id} · Semanal` });
+  const monthlyCard = page.getByRole("article", { name: `Compra recorrente #${monthlySub.id} · Mensal` });
   await expect(weeklyCard).toContainText("Leite integral Shefa");
   await expect(weeklyCard).not.toContainText("Café torrado e moído");
   await expect(weeklyCard.locator(".card-stats")).toContainText("R$ 31,86");

@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures";
 
 test("detalhes e edicao mostram somente os produtos do ciclo selecionado", async ({ page }) => {
   await page.goto("/minhas-assinaturas");
-  const monthly = page.getByRole("article").filter({ hasText: "Essenciais de casa" }).filter({ hasText: "Todo mês" });
+  const monthly = page.getByRole("article").filter({ hasText: "Essenciais de casa" }).filter({ hasText: "Mensal" });
   await monthly.getByRole("link", { name: "Ver detalhes" }).click();
   await expect(page).toHaveURL(/minhas-assinaturas\/\d+$/);
   await expect(page.locator(".detail-product")).toHaveCount(1);

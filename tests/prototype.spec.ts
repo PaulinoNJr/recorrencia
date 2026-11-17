@@ -8,6 +8,13 @@ test("criação, edição e gerenciamento persistem", async ({
   await page
     .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
+  await expect(page).toHaveURL("/assinatura/configurar");
+  await expect(page.locator(".subscription-config")).toBeVisible();
+  const originalCart = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!).cart);
+  await page.getByRole("radio", { name: "Reembolso do valor" }).check();
+  await page.getByRole("radio", { name: "Sim", exact: true }).check();
+  await expect(page.getByLabel("CPF", { exact: true })).toHaveValue("123.456.789-99");
+  await expect(page.getByLabel("CPF", { exact: true })).toHaveAttribute("readonly", "");
   await page
     .getByRole("checkbox", {
       name: "Incluir Leite integral Shefa na compra recorrente",
@@ -21,13 +28,13 @@ test("criação, edição e gerenciamento persistem", async ({
   for (let count = 0; count < 4; count++)
     await page.locator(".subscription-product.selected").first().getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.locator(".subscription-product.selected").last().getByRole("button", { name: "Aumentar quantidade" }).click();
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
+
   await page
     .getByLabel("Frequência de Leite integral Shefa")
-    .selectOption("Todo mês");
+    .selectOption("Mensal");
   await page
     .getByLabel("Frequência de Papel higiênico folha dupla")
-    .selectOption("A cada 2 semanas");
+    .selectOption("Quinzenal");
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-configurar.png`,
     fullPage: true,
@@ -55,7 +62,18 @@ test("criação, edição e gerenciamento persistem", async ({
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
     return state.subscriptions.find((subscription: { originId: string; items: { productId: string }[] }) => subscription.originId === state.lastCreated && subscription.items.some((item) => item.productId === "leite")).id;
   });
-  await page.getByRole("region", { name: "Resumo do ciclo · Todo mês" }).getByRole("link", { name: "Ver detalhes desta compra recorrente" }).click();
+  const createdOptions = await page.evaluate((subscriptionId) => {
+    const saved = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
+    return saved.subscriptions.find((subscription: { id: string }) => subscription.id === subscriptionId);
+  }, id);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!).cart)).toEqual(originalCart);
+  expect(createdOptions).toMatchObject({ substitute: "Reembolso do valor", invoice: "Sim", cpf: "123.456.789-99" });
+  const createdNames = await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
+    return state.subscriptions.filter((subscription: { originId?: string }) => subscription.originId === state.lastCreated).map((subscription: { name: string }) => subscription.name);
+  });
+  expect(createdNames.sort()).toEqual(["Essenciais da casa · Mensal", "Essenciais da casa · Quinzenal"]);
+  await page.getByRole("region", { name: "Resumo do ciclo · Mensal" }).getByRole("link", { name: "Ver detalhes desta compra recorrente" }).click();
   await expect(
     page.getByRole("heading", { name: `Compra recorrente #${id}` }),
   ).toBeVisible();
@@ -66,7 +84,7 @@ test("criação, edição e gerenciamento persistem", async ({
     .click();
   await page
     .getByLabel("Frequência de Leite integral Shefa")
-    .selectOption("A cada 2 meses");
+    .selectOption("Semanal");
   await page.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(page).toHaveURL(`/minhas-assinaturas/${id}`);
   await page.reload();
@@ -103,7 +121,7 @@ test("criação, edição e gerenciamento persistem", async ({
 });
 test("substituição, histórico e pagamento recusado", async ({ page }) => {
   await page.goto("/minhas-assinaturas");
-  await page.getByRole("article").filter({ hasText: "Essenciais de casa" }).filter({ hasText: "Todo mês" }).getByRole("link", { name: "Ver detalhes" }).click();
+  await page.getByRole("article").filter({ hasText: "Essenciais de casa" }).filter({ hasText: "Mensal" }).getByRole("link", { name: "Ver detalhes" }).click();
   await page.getByRole("button", { name: "Escolher substituto" }).click();
   await page.getByRole("button", { name: "Confirmar substituição" }).click();
   await page.reload();

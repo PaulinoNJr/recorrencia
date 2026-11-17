@@ -1,9 +1,8 @@
 import { Frequency, Product } from "@/types";
 export const frequencies: Frequency[] = [
-  "Toda semana",
-  "A cada 2 semanas",
-  "Todo mês",
-  "A cada 2 meses",
+  "Semanal",
+  "Quinzenal",
+  "Mensal",
 ];
 export const products: Product[] = [
   {
@@ -16,7 +15,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 80,
     quantity: 4,
-    frequency: "Toda semana",
+    frequency: "Semanal",
   },
   {
     id: "cafe",
@@ -27,7 +26,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 0,
     quantity: 2,
-    frequency: "Todo mês",
+    frequency: "Mensal",
   },
   {
     id: "papel",
@@ -38,7 +37,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 35,
     quantity: 1,
-    frequency: "A cada 2 semanas",
+    frequency: "Quinzenal",
   },
   {
     id: "feijao",
@@ -50,7 +49,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 60,
     quantity: 2,
-    frequency: "Todo mês",
+    frequency: "Mensal",
   },
   {
     id: "oleo",
@@ -61,7 +60,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 90,
     quantity: 2,
-    frequency: "Todo mês",
+    frequency: "Mensal",
   },
   {
     id: "pao",
@@ -72,7 +71,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 30,
     quantity: 1,
-    frequency: "Toda semana",
+    frequency: "Semanal",
   },
   {
     id: "ovos",
@@ -83,7 +82,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 45,
     quantity: 1,
-    frequency: "A cada 2 semanas",
+    frequency: "Quinzenal",
   },
   {
     id: "abacaxi",
@@ -94,7 +93,7 @@ export const products: Product[] = [
     eligible: false,
     stock: 20,
     quantity: 1,
-    frequency: "Toda semana",
+    frequency: "Semanal",
   },
   {
     id: "substituto",
@@ -105,7 +104,7 @@ export const products: Product[] = [
     eligible: true,
     stock: 20,
     quantity: 1,
-    frequency: "Todo mês",
+    frequency: "Mensal",
   },
 ];
 export const productById = (id: string) => products.find((p) => p.id === id)!;

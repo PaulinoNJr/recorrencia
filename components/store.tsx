@@ -70,8 +70,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             parsed.payments &&
             parsed.addresses
           ) {
-            parsed.subscriptions = parsed.subscriptions.map((subscription) => ({
+            parsed.subscriptions = parsed.subscriptions.map((subscription): Subscription => ({
               ...subscription,
+              status: (subscription.status as string) === "Pagamento recusado" ? "Ativa" : subscription.status,
+              paymentStatus: (subscription.status as string) === "Pagamento recusado" ? "Recusado" : subscription.paymentStatus,
               name: subscription.name === "Minha nova assinatura"
                 ? "Minha nova compra recorrente"
                 : subscription.name,
@@ -132,7 +134,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                   }
                 : {}),
               ...patch,
-              events: event ? [event, ...sub.events] : sub.events,
+              events: event ? [event, ...(patch.events ?? sub.events)] : patch.events ?? sub.events,
             }
           : sub,
       ),

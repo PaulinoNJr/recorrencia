@@ -34,12 +34,11 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
       </>
     );
   const labels = recurring
-    ? ["Produtos", "Frequência", "Entrega", "Pagamento", "Revisão"]
+    ? ["Produtos e frequência", "Entrega", "Pagamento", "Revisão"]
     : ["Carrinho", "Dados pessoais", "Entrega", "Pagamento"];
   const routes = recurring
     ? [
         "/assinatura/configurar",
-        "/assinatura/frequencia",
         "/assinatura/entrega",
         "/assinatura/pagamento",
         "/assinatura/revisao",
@@ -48,7 +47,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
   const active = recurring
     ? Math.max(
         0,
-        ["configurar", "frequencia", "entrega", "pagamento", "revisao", "sucesso"].indexOf(
+        ["configurar", "entrega", "pagamento", "revisao", "sucesso"].indexOf(
           path.split("/").pop()!,
         ),
       )

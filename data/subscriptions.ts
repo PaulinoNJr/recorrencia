@@ -4,9 +4,9 @@ import { firstDeliveryWindow } from "@/lib/delivery-date";
 import { fakeAddresses } from "./addresses";
 import { fakePayments, DEFAULT_PAYMENT_ID } from "./payments";
 const items: SubscriptionItem[] = [
-  { productId: "leite", quantity: 4, frequency: "Toda semana" },
-  { productId: "cafe", quantity: 2, frequency: "Todo mês" },
-  { productId: "papel", quantity: 1, frequency: "A cada 2 semanas" },
+  { productId: "leite", quantity: 4, frequency: "Semanal" },
+  { productId: "cafe", quantity: 2, frequency: "Mensal" },
+  { productId: "papel", quantity: 1, frequency: "Quinzenal" },
 ];
 export function initialState(): PrototypeState {
   return {
@@ -85,7 +85,8 @@ export function initialState(): PrototypeState {
       {
         id: "00126",
         name: "Minha compra do mês",
-        status: "Pagamento recusado",
+        status: "Ativa",
+        paymentStatus: "Recusado",
         items: items.filter((i) => i.productId !== "cafe"),
         date: "2026-10-12",
         period: "18h às 21h",

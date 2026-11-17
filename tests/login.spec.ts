@@ -49,8 +49,8 @@ test("login retoma o fluxo e avança para entrega sem repetir identificação", 
   await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
   await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }).check();
   await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
-  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
+
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Semanal");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
   await expect(page.getByRole("heading", { name: "Identifique-se para continuar" })).toHaveCount(0);

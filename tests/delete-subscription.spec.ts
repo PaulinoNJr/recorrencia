@@ -1,58 +1,43 @@
 import { test, expect } from "./fixtures";
 
-test("lixeira confirma exclusao, preserva outras compras recorrentes e persiste", async ({
-  page,
-}, testInfo) => {
+test("excluir historico e excepcional, exige confirmacao e mantem a recorrencia reativavel", async ({ page }, testInfo) => {
   await page.goto("/minhas-assinaturas");
-  const cards = page.locator(".subscription-card");
-  await expect(cards).toHaveCount(7);
-  const trash = page.getByRole("button", {
-    name: "Excluir compra recorrente #00124",
-    exact: true,
-  }).first();
-  const buttonBounds = await trash.boundingBox();
-  const cardBounds = await cards.first().boundingBox();
-  expect(buttonBounds!.x + buttonBounds!.width).toBeGreaterThan(
-    cardBounds!.x + cardBounds!.width - 25,
-  );
-  expect(buttonBounds!.height).toBeGreaterThanOrEqual(44);
-  await trash.click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toContainText("#00124");
-  await dialog.getByRole("button", { name: "Manter compra recorrente" }).click();
-  await expect(cards).toHaveCount(7);
-  await trash.click();
-  await page.screenshot({
-    path: `test-results/${testInfo.project.name}-delete-subscription.png`,
-  });
-  await dialog
-    .getByRole("button", { name: "Excluir compra recorrente", exact: true })
-    .click();
-  await expect(trash).toHaveCount(0);
-  await expect(cards).toHaveCount(6);
-  await expect(page.getByRole("tab", { name: "Todas 6" })).toBeVisible();
-  await page.reload();
-  await expect(cards).toHaveCount(6);
+  await expect(page.locator(".subscription-card").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Excluir/ })).toHaveCount(0);
   await page.goto("/minhas-assinaturas/00124");
-  await expect(
-    page.getByRole("heading", { name: "Compra recorrente não encontrada" }),
-  ).toBeVisible();
-  await page.goto("/minhas-assinaturas");
-  await expect(cards).toHaveCount(6);
-  while (await cards.count()) {
-    await page
-      .getByRole("button", { name: /Excluir compra recorrente #/ })
-      .first()
-      .click();
-    await dialog
-      .getByRole("button", { name: "Excluir compra recorrente", exact: true })
-      .click();
-  }
-  await expect(
-    page.getByRole("heading", { name: "Nenhuma compra recorrente por aqui" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Compra recorrente #00124" })).toBeVisible();
+  await expect(page.getByText("Opções avançadas", { exact: true })).toHaveCount(0);
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  await page.getByRole("button", { name: "Cancelar compra recorrente", exact: true }).click();
+  await page.getByRole("button", { name: "Confirmar cancelamento" }).click();
+  await expect(page.getByText("Cancelada", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Excluir histórico", exact: true })).toHaveCount(0);
+  await page.getByText("Opções avançadas", { exact: true }).click();
+  await page.getByRole("button", { name: "Excluir histórico", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  const confirm = dialog.getByRole("button", { name: "Excluir histórico permanentemente" });
+  await expect(confirm).toBeDisabled();
+  await dialog.getByRole("button", { name: "Manter histórico" }).click();
+  let saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  const original = before.subscriptions.find((sub: { id: string }) => sub.id === "00124");
+  expect(saved.subscriptions.find((sub: { id: string }) => sub.id === "00124").history).toEqual(original.history);
+  await page.getByRole("button", { name: "Excluir histórico", exact: true }).click();
+  await dialog.getByRole("checkbox").check();
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-exceptional-history.png` });
+  await confirm.click();
   await page.reload();
-  await expect(
-    page.getByRole("heading", { name: "Nenhuma compra recorrente por aqui" }),
-  ).toBeVisible();
+  saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  const canceled = saved.subscriptions.find((sub: { id: string }) => sub.id === "00124");
+  expect(canceled.status).toBe("Cancelada");
+  expect(canceled.history).toEqual([]);
+  expect(canceled.events).toHaveLength(1);
+  expect(canceled.events[0]).toContain("Histórico excluído");
+  expect(canceled.items).toEqual(original.items);
+  expect(saved.subscriptions.filter((sub: { id: string }) => sub.id !== "00124")).toEqual(before.subscriptions.filter((sub: { id: string }) => sub.id !== "00124"));
+  expect(saved.cart).toEqual(before.cart);
+  await page.getByRole("button", { name: "Reativar compra recorrente" }).click();
+  await page.getByRole("button", { name: "Confirmar reativação" }).click();
+  await expect(page.getByText("Ativa", { exact: true })).toBeVisible();
+  saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  expect(saved.subscriptions.find((sub: { id: string }) => sub.id === "00124").history).toEqual([]);
 });

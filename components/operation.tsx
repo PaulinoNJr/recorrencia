@@ -16,12 +16,12 @@ export function Operation() {
     [
       "Próximos ciclos",
       subscriptions.filter(
-        (s) => s.status === "Ativa" || s.status === "Pagamento recusado",
+        (s) => s.status === "Ativa",
       ).length,
     ],
     [
       "Cobranças com falha",
-      subscriptions.filter((s) => s.status === "Pagamento recusado").length,
+      subscriptions.filter((s) => s.paymentStatus === "Recusado").length,
     ],
     [
       "Compras recorrentes pausadas",
@@ -63,7 +63,7 @@ export function Operation() {
             href={"/operacao/assinaturas/" + s.id}
           >
             <span>{state.customer ? `${state.customer.firstName} ${state.customer.lastName}` : "Cliente não identificado"}</span>
-            <span>#{s.id}</span>
+            <span>#{s.id}<small className="ops-subscription-name">{s.name}</small></span>
             <span>{s.status === "Cancelada" ? "—" : dateLabel(s.date)}</span>
             <span>
               {money(
@@ -79,7 +79,7 @@ export function Operation() {
                   : total(s.items) + 9.9,
               )}
             </span>
-            <Badge status={s.status} />
+            <div><Badge status={s.status} />{s.paymentStatus === "Recusado" && <small className="ops-payment-warning">Pagamento recusado</small>}</div>
           </Link>
         ))}
       </section>

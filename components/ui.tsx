@@ -44,7 +44,6 @@ export function Badge({ status }: { status: Status }) {
         {
           Ativa: "active",
           Pausada: "paused",
-          "Pagamento recusado": "failed",
           Cancelada: "canceled",
         }[status]
       }
@@ -128,8 +127,7 @@ export function Modal({
   );
 }
 const steps = [
-  ["Produtos", "configurar"],
-  ["Frequência", "frequencia"],
+  ["Produtos e frequência", "configurar"],
   ["Entrega", "entrega"],
   ["Pagamento", "pagamento"],
   ["Revisão", "revisao"],
@@ -168,6 +166,8 @@ export function Summary({
   cart = false,
   deliveryCost = 9.9,
   totalLabel,
+  title,
+  description,
 }: {
   items: SubscriptionItem[];
   date?: string;
@@ -175,11 +175,14 @@ export function Summary({
   cart?: boolean;
   deliveryCost?: number;
   totalLabel?: string;
+  title?: string;
+  description?: string;
 }) {
   const subtotal = total(items);
   return (
     <aside className="summary panel">
-      <h2>{cart ? "Resumo do pedido" : "Sua compra recorrente"}</h2>
+      <h2>{title ?? (cart ? "Resumo do pedido" : "Sua compra recorrente")}</h2>
+      {description && <p className="summary-description">{description}</p>}
       <div className="summary-row">
         <span>{cart ? "Produtos" : "Produtos recorrentes"}</span>
         <strong>{items.length}</strong>

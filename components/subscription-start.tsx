@@ -15,6 +15,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
       ...s,
       draft: {
         ...s.draft,
+        name: undefined,
         cycleDeliveries: undefined,
         source,
         removedProductIds: [],
@@ -67,7 +68,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
                 <strong>Do meu carrinho atual</strong>
                 <small>
                   {state.cart.length
-                    ? "Traga os itens disponíveis para compra recorrente, com as quantidades do seu carrinho."
+                    ? "Use uma cópia dos produtos e quantidades do carrinho. Os ajustes da recorrência são independentes."
                     : "Seu carrinho está vazio. Escolha produtos no catálogo."}
                 </small>
               </span>

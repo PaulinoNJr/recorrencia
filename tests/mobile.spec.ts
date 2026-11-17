@@ -116,13 +116,13 @@ test("menu e modais funcionam em telas pequenas e na horizontal", async ({
     await expect(page).toHaveURL("/listas");
     await page.goto("/recorrencias");
     await page
-      .getByRole("button", { name: "Quero criar minha compra recorrente" })
+      .getByRole("button", { name: "Criar minha compra recorrente" })
       .click();
     await expect(page.getByRole("dialog")).toBeVisible();
     const modal = await page.getByRole("dialog").boundingBox();
     expect(modal!.width).toBeLessThanOrEqual(width - 24);
     await page.getByRole("button", { name: /Do catálogo de produtos/ }).click();
-    await expect(page.locator("#subscription-search")).toBeVisible();
+    await expect(page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" })).toBeVisible();
     await page.goto("/minhas-assinaturas/00124");
     await page
       .getByRole("button", { name: "Pausar compra recorrente", exact: true })

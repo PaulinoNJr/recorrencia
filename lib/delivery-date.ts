@@ -1,5 +1,6 @@
 import { addDays } from "./utils";
 import type { Frequency } from "@/types";
+import { FREQUENCY_DAYS } from "./frequency";
 
 export function saoPauloToday(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -31,7 +32,5 @@ export function validSubscriptionDelivery(date: string, today = saoPauloToday())
 }
 
 export function firstSubscriptionDelivery(frequency: Frequency, today = saoPauloToday()) {
-  if (frequency === "Toda semana") return addDays(today, 7);
-  if (frequency === "A cada 2 semanas") return addDays(today, 14);
-  return addDays(today, frequency === "Todo mês" ? 30 : 60);
+  return addDays(today, FREQUENCY_DAYS[frequency]);
 }

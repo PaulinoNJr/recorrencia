@@ -5,45 +5,32 @@ import { firstSubscriptionDelivery } from "../lib/delivery-date";
 import { nextCycle } from "../lib/utils";
 
 test("ciclo de duas semanas mantém o dia escolhido e recupera sessões antigas", () => {
-  expect(cycleSchedule("A cada 2 semanas", "2026-11-05")).toBe("Você receberá a sua primeira compra em 05/11/2026. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (Quinta-Feira).");
-  expect(firstSubscriptionDelivery("A cada 2 semanas", "2026-10-23")).toBe("2026-11-06");
-  expect(firstSubscriptionDelivery("A cada 2 semanas", "2028-02-23")).toBe("2028-03-08");
-  expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "A cada 2 semanas" }], "2026-12-25")).toBe("2027-01-08");
+  expect(cycleSchedule("Quinzenal", "2026-11-05")).toBe("Você receberá a sua primeira compra em 05/11/2026. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (Quinta-Feira).");
+  expect(firstSubscriptionDelivery("Quinzenal", "2026-10-23")).toBe("2026-11-06");
+  expect(firstSubscriptionDelivery("Quinzenal", "2028-02-23")).toBe("2028-03-08");
+  expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "Quinzenal" }], "2026-12-25")).toBe("2027-01-08");
   const legacy = { items: [{ frequency: "A cada 15 dias", quantity: 2 }], cycleDeliveries: { "A cada 15 dias": { date: "2026-10-23", period: "08h às 12h" } } };
-  expect(JSON.parse(JSON.stringify(legacy), migrateLegacyFrequency)).toEqual({ items: [{ frequency: "A cada 2 semanas", quantity: 2 }], cycleDeliveries: { "A cada 2 semanas": { date: "2026-10-23", period: "08h às 12h" } } });
+  expect(JSON.parse(JSON.stringify(legacy), migrateLegacyFrequency)).toEqual({ items: [{ frequency: "Quinzenal", quantity: 2 }], cycleDeliveries: { "Quinzenal": { date: "2026-10-23", period: "08h às 12h" } } });
 });
 
 test("mensal usa 30 dias para a primeira entrega e o próximo ciclo", () => {
-  expect(firstSubscriptionDelivery("Todo mês", "2026-10-21")).toBe("2026-11-20");
-  expect(cycleSchedule("Todo mês", "2026-11-20")).toBe("Você receberá a sua primeira compra em 20/11/2026.\n\nO próximo ciclo está pré-agendado para 20/12/2026.");
+  expect(firstSubscriptionDelivery("Mensal", "2026-10-21")).toBe("2026-11-20");
+  expect(cycleSchedule("Mensal", "2026-11-20")).toBe("Você receberá a sua primeira compra em 20/11/2026.\n\nO próximo ciclo está pré-agendado para 20/12/2026.");
   for (const [date, nextDate] of [
     ["2026-01-31", "2026-03-02"],
     ["2028-01-31", "2028-03-01"],
     ["2026-12-20", "2027-01-19"],
     ["2028-02-29", "2028-03-30"],
   ]) {
-    expect(firstSubscriptionDelivery("Todo mês", date)).toBe(nextDate);
-    expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "Todo mês" }], date)).toBe(nextDate);
-  }
-});
-
-test("bimestral usa 60 dias para a primeira entrega e o próximo ciclo", () => {
-  expect(firstSubscriptionDelivery("A cada 2 meses", "2026-10-21")).toBe("2026-12-20");
-  expect(cycleSchedule("A cada 2 meses", "2026-12-20")).toBe("Você receberá a sua primeira compra em 20/12/2026.\n\nO próximo ciclo está pré-agendado para 18/02/2027.");
-  for (const [date, nextDate] of [
-    ["2026-11-20", "2027-01-19"],
-    ["2026-12-20", "2027-02-18"],
-    ["2028-01-31", "2028-03-31"],
-  ]) {
-    expect(firstSubscriptionDelivery("A cada 2 meses", date)).toBe(nextDate);
-    expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "A cada 2 meses" }], date)).toBe(nextDate);
+    expect(firstSubscriptionDelivery("Mensal", date)).toBe(nextDate);
+    expect(nextCycle([{ productId: "leite", quantity: 1, frequency: "Mensal" }], date)).toBe(nextDate);
   }
 });
 
 test("dia semanal corresponde à data escolhida, incluindo fins de semana", () => {
   const days = ["todo Domingo", "toda Segunda-Feira", "toda Terça-Feira", "toda Quarta-Feira", "toda Quinta-Feira", "toda Sexta-Feira", "todo Sábado"];
   days.forEach((day, index) => {
-    expect(cycleSchedule("Toda semana", `2026-10-${18 + index}`)).toBe(`Você receberá a sua compra ${day}.`);
+    expect(cycleSchedule("Semanal", `2026-10-${18 + index}`)).toBe(`Você receberá a sua compra ${day}.`);
   });
 });
 
@@ -52,17 +39,17 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
   await page.goto("/loja");
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
-    const frequencies = ["Toda semana", "A cada 2 semanas", "Todo mês", "A cada 2 meses"];
+    const frequencies = ["Semanal", "Quinzenal", "Mensal"];
     state.draft = {
       ...state.draft,
-      items: ["leite", "papel", "cafe", "feijao"].map((productId, i) => ({ productId, quantity: 1, frequency: frequencies[i] })),
+      items: ["leite", "papel", "cafe"].map((productId, i) => ({ productId, quantity: 1, frequency: frequencies[i] })),
       frequencyPending: [],
       cycleDeliveries: Object.fromEntries(frequencies.map((frequency, i) => [frequency, { date: `2026-10-${19 + i}`, period: "08h às 12h" }])),
     };
     localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
   });
   await page.goto("/assinatura/entrega");
-  const frequencies = ["Toda semana", "A cada 2 semanas", "Todo mês", "A cada 2 meses"] as const;
+  const frequencies = ["Semanal", "Quinzenal", "Mensal"] as const;
   for (const [index, frequency] of frequencies.entries()) {
     const group = page.getByRole("group", { name: `Entrega · ${frequency}`, exact: true });
     const dateInput = group.getByLabel(`Data de entrega · ${frequency}`);
@@ -96,10 +83,9 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
     "Você receberá a sua compra toda Segunda-Feira.",
     "Você receberá a sua primeira compra em 20/10/2026. E as próximas a cada 2 semanas, sempre no mesmo dia da semana (Terça-Feira).",
     "Você receberá a sua primeira compra em 21/10/2026.\n\nO próximo ciclo está pré-agendado para 20/11/2026.",
-    "Você receberá a sua primeira compra em 22/10/2026.\n\nO próximo ciclo está pré-agendado para 21/12/2026.",
   ];
   await expect(page.locator(".cycle-schedule")).toHaveText(messages);
-  await page.getByRole("button", { name: "Editar ciclo · Toda semana", exact: true }).click();
+  await page.getByRole("button", { name: "Editar ciclo · Semanal", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Data de entrega").fill("2026-10-23");
   await dialog.getByRole("button", { name: "Salvar ciclo" }).click();

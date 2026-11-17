@@ -3,7 +3,7 @@ import { initialState } from "../data/subscriptions";
 
 test("nova compra recorrente começa vazia e recomenda apenas após selecionar produtos", async ({ page }) => {
   const seed = initialState();
-  seed.cart = [{ productId: "leite", quantity: 2, frequency: "Toda semana" }];
+  seed.cart = [{ productId: "leite", quantity: 2, frequency: "Semanal" }];
   await page.addInitScript((state) => {
     if (!localStorage.getItem("covabra-prototype-v1")) localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
   }, seed);
@@ -35,7 +35,7 @@ test("nova compra recorrente começa vazia e recomenda apenas após selecionar p
 for (const source of ["cart", "catalog", "purchase"] as const) {
   test(`busca e compre também adicionam produtos durante configuração via ${source}`, async ({ page }, testInfo) => {
     const seed = initialState();
-    seed.cart = [{ productId: "leite", quantity: 2, frequency: "Toda semana" }];
+    seed.cart = [{ productId: "leite", quantity: 2, frequency: "Semanal" }];
     seed.draft.source = source;
     seed.draft.items = [{ ...seed.cart[0] }];
     seed.draft.frequencyPending = [];
@@ -87,9 +87,9 @@ for (const source of ["cart", "catalog", "purchase"] as const) {
     await search.fill("pao");
     await results.getByRole("button", { name: "Eu quero!" }).click();
     await expect(bread.getByRole("checkbox")).toBeChecked();
-    await page.getByRole("button", { name: "Continuar para frequência" }).click();
-    await page.getByLabel("Receber os produtos selecionados").selectOption("Toda semana");
-    await page.getByRole("button", { name: "Aplicar a 3 produtos", exact: true }).click();
+
+    await page.getByRole("combobox", { name: /Frequência para todos/ }).selectOption("Semanal");
+    await page.getByRole("button", { name: "Aplicar frequência a todos", exact: true }).click();
     await page.getByRole("button", { name: "Continuar para entrega" }).click();
     await expect(page).toHaveURL("/assinatura/entrega");
     expect(errors).toEqual([]);

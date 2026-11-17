@@ -14,6 +14,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
   const { state, setState, ready } = useStore();
   const router = useRouter();
   const [dateWindow, setDateWindow] = useState(firstDeliveryWindow);
+  const [defaultPurchaseDate] = useState(dateWindow.min);
   useEffect(() => {
     const refresh = () => setDateWindow((previous) => {
       const next = firstDeliveryWindow();
@@ -36,9 +37,9 @@ export function PurchaseCheckout({ step }: { step: string }) {
     setState((s) => ({ ...s, purchase: { ...s.purchase, ...change } }));
   const addressId = state.addresses.find((address) => address.id === data.addressId)?.id || state.addresses[0]?.id || "";
   const paymentId = state.payments.find((payment) => payment.id === data.paymentId)?.id || state.payments[0]?.id || "";
-  const date = data.date ?? state.draft.date;
+  const date = data.date ?? defaultPurchaseDate;
   const hasValidDeliveryDate = validFirstDelivery(date, dateWindow);
-  const period = data.period || state.draft.period;
+  const period = data.period || "08h às 12h";
   const purchasedItems = data.completedItems ?? state.cart;
   const recurringItems = purchasedItems.filter(
     (item) => productById(item.productId).eligible,
@@ -53,6 +54,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
       },
       draft: {
         ...s.draft,
+        name: undefined,
         cycleDeliveries: undefined,
         source: "purchase",
         removedProductIds: [],

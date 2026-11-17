@@ -1,5 +1,6 @@
 import { SubscriptionItem } from "@/types";
 import { productById } from "@/data/products";
+import { FREQUENCY_DAYS } from "./frequency";
 export const money = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
     n,
@@ -29,14 +30,6 @@ export const nextCycle = (items: SubscriptionItem[], date: string) =>
   addDays(
     date,
     Math.min(
-      ...items.map(
-        (i) =>
-          ({
-            "Toda semana": 7,
-            "A cada 2 semanas": 14,
-            "Todo mês": 30,
-            "A cada 2 meses": 60,
-          })[i.frequency],
-      ),
+      ...items.map((i) => FREQUENCY_DAYS[i.frequency]),
     ),
   );

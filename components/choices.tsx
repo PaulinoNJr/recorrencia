@@ -256,9 +256,9 @@ export function DeliveryOptions({
       </label>
       </div>
       {cycleFrequency && (
-        <div className={`delivery-cycle-schedule${cycleFrequency === "Todo mês" || cycleFrequency === "A cada 2 meses" ? " monthly-schedule" : ""}`} id={scheduleId} role="status" aria-live="polite" aria-atomic="true">
+        <div className={`delivery-cycle-schedule${cycleFrequency === "Mensal" ? " monthly-schedule" : ""}`} id={scheduleId} role="status" aria-live="polite" aria-atomic="true">
           {validSubscriptionDelivery(date, minDate ?? saoPauloToday())
-            ? cycleFrequency === "Todo mês" || cycleFrequency === "A cada 2 meses"
+            ? cycleFrequency === "Mensal"
               ? <MonthlyScheduleParagraphs frequency={cycleFrequency} date={date} />
               : cycleSchedule(cycleFrequency, date)
             : "Selecione uma data para ver quando você receberá a sua compra."}

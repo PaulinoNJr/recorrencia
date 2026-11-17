@@ -74,10 +74,10 @@ test("cliente aprende e escolhe os produtos da compra recorrente", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
+
   await page
     .getByLabel("Frequência de Leite integral Shefa")
-    .selectOption("Toda semana");
+    .selectOption("Semanal");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
   expect(errors).toEqual([]);

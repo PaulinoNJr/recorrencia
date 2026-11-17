@@ -25,6 +25,8 @@ import {
 import { ProductEditor, ItemList } from "./products";
 import { SubscriptionDiscovery, SubscriptionRecommendations } from "./subscription-discovery";
 import { SubscriptionFrequency } from "./subscription-frequency";
+import { SubscriptionNameField } from "./subscription-name-field";
+import { cycleSubscriptionName, resolveSubscriptionName } from "@/lib/subscription-name";
 import { AddressChoices, PaymentChoices, DeliveryOptions } from "./choices";
 import { dateLabel, money, total, longDate } from "@/lib/utils";
 import { cycleSchedule } from "@/lib/cycle-schedule";
@@ -37,7 +39,7 @@ import {
   cycleEstimate,
 } from "@/lib/subscription-cycles";
 import { Frequency } from "@/types";
-export function Checkout({ step, frequencyStep = false }: { step: number; frequencyStep?: boolean }) {
+export function Checkout({ step }: { step: number }) {
   const { state, setState, ready, notify } = useStore();
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
@@ -62,6 +64,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     };
   }, []);
   const draft = state.draft;
+  const draftName = resolveSubscriptionName(draft.name, draft.items);
   const cycles = subscriptionDraftCycles(draft, today);
   const earliestCycle = firstCycle(cycles);
   const nextCycles = cycles.filter((cycle) => cycle.date === earliestCycle?.date);
@@ -92,8 +95,11 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     pendingFrequencyIds.includes(item.productId),
   );
   const hasInvalidQuantity = draft.items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1);
+  const invoiceCpf = state.customer?.cpf || draft.cpf || "";
+  const hasInvalidInvoice = draft.invoice === "Sim" && !/^\d{11}$/.test(invoiceCpf.replace(/\D/g, ""));
   const fromCatalog = draft.source !== "cart" && draft.source !== "purchase";
   const fromPurchase = draft.source === "purchase";
+  const todayItems = fromPurchase ? state.purchase?.completedItems ?? [] : state.cart;
   const availableProductIds = [...new Set([
     ...(draft.discoveredProductIds ?? []),
     ...draft.items.map((item) => item.productId),
@@ -108,6 +114,18 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     .map((p) => p.id);
   const patch = (change: Partial<typeof draft>) =>
     setState((s) => ({ ...s, draft: { ...s.draft, ...change } }));
+  const applyFrequency = (ids: string[], frequency: Frequency) => {
+    setState((current) => ({
+      ...current,
+      draft: {
+        ...current.draft,
+        items: current.draft.items.map((item) => ids.includes(item.productId) ? { ...item, frequency } : item),
+        frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((id) => !ids.includes(id)),
+        cycleDeliveries: undefined,
+      },
+    }));
+    notify(ids.length === 1 ? "Frequência do produto atualizada." : `Frequência aplicada a ${ids.length} produtos.`);
+  };
   const address = state.addresses.find((a) => a.id === draft.addressId);
   const payment = state.payments.find((p) => p.id === draft.paymentId);
   if (!ready)
@@ -116,7 +134,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
         Carregando sua compra recorrente…
       </main>
     );
-  if ((step > 0 || frequencyStep) && !draft.items.length)
+  if ((step > 0) && !draft.items.length)
     return (
       <main className="container">
         <EmptyState
@@ -128,11 +146,19 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
         </Link>
       </main>
     );
-  if ((step > 0 || frequencyStep) && hasInvalidQuantity)
+  if ((step > 0) && hasInvalidQuantity)
     return (
       <main className="container">
         <h1>Defina a quantidade dos produtos</h1>
         <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente.</p>
+        <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
+      </main>
+    );
+  if ((step > 0) && hasInvalidInvoice)
+    return (
+      <main className="container">
+        <h1>Informe o CPF para a nota</h1>
+        <p>Preencha os 11 dígitos do CPF ou selecione Não para continuar sem CPF na nota.</p>
         <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
       </main>
     );
@@ -144,7 +170,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
           Defina a frequência de cada item selecionado ou remova-o da compra recorrente
           para continuar.
         </p>
-        <Link className="btn primary" href="/assinatura/frequencia">
+        <Link className="btn primary" href="/assinatura/configurar">
           Escolher frequências
         </Link>
       </main>
@@ -176,7 +202,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     "Revise sua compra recorrente",
   ];
   const descriptions = [
-    "Selecione os produtos e defina pelo menos 1 unidade de cada item. Na próxima etapa, você escolherá as frequências.",
+    "Escolha os produtos e ajuste a quantidade e a frequência de cada um. Depois, continue para a entrega.",
     "Sua rotina, seu endereço, seu melhor horário.",
     "Escolha o cartão para os próximos recebimentos.",
     "Confira os detalhes. Está tudo do seu jeito?",
@@ -188,6 +214,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
       !state.customer || !address || !payment || !draft.items.length ||
       hasMissingFrequency ||
       hasInvalidQuantity ||
+      hasInvalidInvoice ||
       !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
     )
       return;
@@ -201,20 +228,22 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
       subscriptions: [
         ...cycles.map((cycle, index) => ({
           ...s.draft,
+          cpf: s.draft.invoice === "Sim" ? s.customer?.cpf || s.draft.cpf : undefined,
           items: cycle.items,
           date: cycle.date,
           period: cycle.period,
           cycleDeliveries: { [cycle.frequency]: { date: cycle.date, period: cycle.period } },
           id: String(Number(id) + index).padStart(5, "0"),
           originId: id,
-          name: "Minha nova compra recorrente",
+          name: cycleSubscriptionName(resolveSubscriptionName(s.draft.name, s.draft.items), cycle.frequency, cycles.length > 1),
           status: "Ativa" as const,
-          events: [`Compra recorrente criada em ${dateLabel(saoPauloToday())}`],
+          events: [`Compra recorrente “${cycleSubscriptionName(resolveSubscriptionName(s.draft.name, s.draft.items), cycle.frequency, cycles.length > 1)}” criada em ${dateLabel(saoPauloToday())}`],
           history: [],
         })),
         ...s.subscriptions,
       ],
     }));
+    notify(cycles.length === 1 ? `“${draftName}” criada com sucesso.` : `${cycles.length} compras recorrentes de “${draftName}” criadas com sucesso.`);
     router.push("/assinatura/sucesso");
   };
   return (
@@ -225,98 +254,133 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
           { label: "Criar compra recorrente" },
         ]}
       />
-      <CheckoutStepper active={frequencyStep ? 1 : step > 0 ? step + 1 : 0} />
+      <CheckoutStepper active={step} />
       <PageHeading
-        title={frequencyStep ? "Com que frequência você quer receber?" : titles[step]}
-        description={frequencyStep ? "Aplique a mesma frequência a vários produtos de uma vez ou ajuste cada item como preferir." : descriptions[step]}
+        title={titles[step]}
+        description={descriptions[step]}
         eyebrow="COMPRAS QUE ACOMPANHAM SUA ROTINA"
       />
       <div className="content-grid">
-        <div>
-          {step === 0 && !frequencyStep && (
+        <div className={step === 0 ? "subscription-config-sections" : undefined}>
+          {step === 0 && (
             <>
-              <div className="notice">
-                <Repeat2 size={20} />
-                <span>
-                  Primeiro, escolha os produtos e suas quantidades. Depois,
-                  defina a frequência de todos juntos ou em grupos.
-                  <br />
-                  {!fromCatalog && !fromPurchase && (
-                    <strong>
-                      Os itens não selecionados continuam como compra única no
-                      carrinho.
-                    </strong>
-                  )}
-                </span>
-              </div>
-              <SubscriptionDiscovery search={search} onSearch={setSearch} />
-              <ProductEditor
-                ids={
-                  (fromCatalog
-                    ? search.trim()
-                      ? catalogIds
+              <SubscriptionNameField name={draft.name} items={draft.items} onChange={(name) => patch({ name })} />
+              <section className="checkout-box" aria-labelledby="recurring-substitution-title">
+                <h2 id="recurring-substitution-title">1. Substituir itens indisponíveis?</h2>
+                <p>As substituições serão realizadas apenas se houver itens semelhantes disponíveis.</p>
+                <div className="checkout-radio-grid">
+                  {[
+                    "Reembolso do valor",
+                    "Substituir por produto similar de valor igual ou inferior",
+                  ].map((label) => (
+                    <label key={label}>
+                      <input
+                        type="radio"
+                        name="recurring-substitution"
+                        checked={draft.substitute === label}
+                        onChange={() => patch({ substitute: label })}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </section>
+              <section className="subscription-config-products" aria-labelledby="recurring-products-title">
+                <h2 id="recurring-products-title" className="section-title">2. Produtos e frequência</h2>
+                <div className="notice">
+                  <Repeat2 size={20} />
+                  <span>
+                    Quantidade e frequência ficam juntas em cada produto.
+                    Para agilizar, aplique uma frequência a todos e ajuste as exceções abaixo.
+                    <br />
+                    {!fromCatalog && !fromPurchase && (
+                      <strong>
+                        Sua compra de hoje permanece completa no carrinho,
+                        inclusive os produtos selecionados para a próxima recorrência.
+                      </strong>
+                    )}
+                  </span>
+                </div>
+                <SubscriptionDiscovery search={search} onSearch={setSearch} />
+                <SubscriptionFrequency
+                  items={draft.items}
+                  pendingIds={pendingFrequencyIds}
+                  onApply={applyFrequency}
+                />
+                <ProductEditor
+                  ids={
+                    (fromCatalog
+                      ? search.trim()
+                        ? catalogIds
+                        : availableProductIds
                       : availableProductIds
-                    : availableProductIds
-                        .filter((id) => !fromPurchase || productById(id).eligible))
-                    .filter((id) => !draft.removedProductIds?.includes(id))
-                }
-                allowAllProducts={!fromCatalog && !fromPurchase}
-                items={draft.items}
-                showFrequency={false}
-                onRemove={(id) => {
-                  setState((current) => ({
-                    ...current,
-                    draft: {
-                      ...current.draft,
-                      items: current.draft.items.filter((item) => item.productId !== id),
-                      frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((pendingId) => pendingId !== id),
-                      removedProductIds: [...new Set([...(current.draft.removedProductIds ?? []), id])],
-                    },
-                  }));
-                  notify(productById(id).name + " removido da lista.");
-                }}
-                pendingFrequencyIds={pendingFrequencyIds}
-                onFrequencyChange={(id, frequency) =>
-                  patch({
-                    items: draft.items.map((item) =>
-                      item.productId === id ? { ...item, frequency } : item,
-                    ),
-                    frequencyPending: pendingFrequencyIds.filter(
-                      (pendingId) => pendingId !== id,
-                    ),
-                  })
-                }
-                onChange={(items) =>
-                  patch({
-                    items,
-                    frequencyPending: items
-                      .filter(
-                        (item) =>
-                          pendingFrequencyIds.includes(item.productId) ||
-                          !draft.items.some(
-                            (current) => current.productId === item.productId,
-                          ),
-                      )
-                      .map((item) => item.productId),
-                  })
-                }
-              />
-              <SubscriptionRecommendations />
+                          .filter((id) => !fromPurchase || productById(id).eligible))
+                      .filter((id) => !draft.removedProductIds?.includes(id))
+                  }
+                  allowAllProducts={!fromCatalog && !fromPurchase}
+                  items={draft.items}
+                  onRemove={(id) => {
+                    setState((current) => ({
+                      ...current,
+                      draft: {
+                        ...current.draft,
+                        items: current.draft.items.filter((item) => item.productId !== id),
+                        frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((pendingId) => pendingId !== id),
+                        removedProductIds: [...new Set([...(current.draft.removedProductIds ?? []), id])],
+                      },
+                    }));
+                    notify(productById(id).name + " removido da lista.");
+                  }}
+                  pendingFrequencyIds={pendingFrequencyIds}
+                  onFrequencyChange={(id, frequency) => applyFrequency([id], frequency)}
+                  onChange={(items) =>
+                    patch({
+                      items,
+                      frequencyPending: items
+                        .filter(
+                          (item) =>
+                            pendingFrequencyIds.includes(item.productId) ||
+                            !draft.items.some(
+                              (current) => current.productId === item.productId,
+                            ),
+                        )
+                        .map((item) => item.productId),
+                    })
+                  }
+                />
+              </section>
+              <section className="checkout-box" aria-labelledby="recurring-invoice-title">
+                <h2 id="recurring-invoice-title">3. Deseja CPF na nota</h2>
+                <p>Se escolher Sim, informe o CPF que deve constar na nota.</p>
+                <div className="checkout-radio-grid">
+                  {(["Sim", "Não"] as const).map((label) => (
+                    <label key={label}>
+                      <input
+                        type="radio"
+                        name="recurring-invoice"
+                        checked={draft.invoice === label}
+                        onChange={() => patch({ invoice: label, cpf: label === "Sim" ? invoiceCpf : undefined })}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                {draft.invoice === "Sim" && (
+                  <label className="checkout-field">
+                    CPF
+                    <input
+                      inputMode="numeric"
+                      placeholder="000.000.000-00"
+                      value={invoiceCpf}
+                      readOnly={!!state.customer}
+                      required
+                      aria-invalid={hasInvalidInvoice || undefined}
+                      onChange={(event) => patch({ cpf: event.target.value })}
+                    />
+                  </label>
+                )}
+              </section>
             </>
-          )}
-          {frequencyStep && (
-            <SubscriptionFrequency items={draft.items} pendingIds={pendingFrequencyIds} onApply={(ids, frequency) => {
-              setState((current) => ({
-                ...current,
-                draft: {
-                  ...current.draft,
-                  items: current.draft.items.map((item) => ids.includes(item.productId) ? { ...item, frequency } : item),
-                  frequencyPending: (current.draft.frequencyPending ?? current.draft.items.map((item) => item.productId)).filter((id) => !ids.includes(id)),
-                  cycleDeliveries: undefined,
-                },
-              }));
-              notify(`Frequência aplicada a ${ids.length} ${ids.length === 1 ? "produto" : "produtos"}.`);
-            }} />
           )}
           {step === 1 && (
             <>
@@ -399,6 +463,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
           )}
           {step === 3 && (
             <>
+              <SubscriptionNameField name={draft.name} items={draft.items} onChange={(name) => patch({ name })} />
               {cycles.map((cycle) => (
                 <section
                   className="panel section-panel review-cycle"
@@ -518,86 +583,106 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
             </>
           )}
         </div>
-        <Summary
-          items={step > 0 ? nextCycles.flatMap((cycle) => cycle.items) : draft.items}
-          date={step > 0 && hasValidDeliveryDate ? earliestCycle?.date : undefined}
-          deliveryCost={Math.max(1, step > 0 ? nextCycles.length : frequencyStep && !hasMissingFrequency ? cycles.length : 1) * 9.9}
-          totalLabel={
-            step > 0 ? "Valor estimado do próximo ciclo" :
-              frequencyStep && !hasMissingFrequency && cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
-          }
-        >
-          {(step > 0 || frequencyStep) && hasMissingFrequency && (
-            <p className="frequency-required-message" role="status">
-              Escolha a frequência de cada produto selecionado ou remova o item
-              da compra recorrente para continuar.
-            </p>
-          )}
-          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente para continuar.</p>}
-          <Button
-            disabled={
-              !draft.items.length ||
-              ((step > 0 || frequencyStep) && hasMissingFrequency) ||
-              hasInvalidQuantity ||
-              (step > 0 && !hasValidDeliveryDate) ||
-              (step >= 1 && !address) ||
-              (step >= 2 && !payment) ||
-              (step === 3 && !agreed) ||
-              submitting
-            }
-            onClick={() => {
-              if (hasInvalidQuantity) return;
-              if (step === 0 && !frequencyStep) {
-                router.push("/assinatura/frequencia");
-                return;
-              }
-              if (hasMissingFrequency) return;
-              if (
-                step > 0 &&
-                !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
-              )
-                return;
-              if (step === 0 || step === 1) {
-                patch({
-                  date: earliestCycle.date,
-                  cycleDeliveries: Object.fromEntries(cycles.map((cycle) => [
-                    cycle.frequency, { date: cycle.date, period: cycle.period },
-                  ])),
-                });
-              }
-              if (step === 3) confirm();
-              else if (step === 0 && !state.customer)
-                router.push("/identificacao?next=/assinatura/entrega");
-              else
-                router.push(
-                  "/assinatura/" + ["entrega", "pagamento", "revisao"][step],
-                );
-            }}
-          >
-            {submitting
-              ? "Criando compra recorrente…"
-              : step === 0 && !frequencyStep ? "Continuar para frequência" : [
-                  "Continuar para entrega",
-                  "Continuar para pagamento",
-                  "Revisar compra recorrente",
-                  "Confirmar compra recorrente",
-                ][step]}
-            <ArrowRight size={17} />
-          </Button>
-          <Link
-            className="back-link"
-            href={
-              step === 0
-                ? frequencyStep ? "/assinatura/configurar" : fromCatalog ? "/recorrencias" : "/carrinho"
-                : "/assinatura/" +
-                  ["frequencia", "entrega", "pagamento"][step - 1]
+        <div className="subscription-state-summaries">
+          <section className="panel purchase-today" aria-labelledby="purchase-today-title">
+            <div className="purchase-state-label">{fromPurchase ? "Compra concluída" : "Carrinho atual"}</div>
+            <h2 id="purchase-today-title">Sua compra de hoje</h2>
+            <p>{fromPurchase ? "Os produtos e quantidades da compra concluída estão preservados." : "Os produtos e quantidades do seu carrinho estão preservados."}</p>
+            {todayItems.length ? (
+              <details className="purchase-today-items">
+                <summary>
+                  <span>Ver {todayItems.length} {todayItems.length === 1 ? "produto" : "produtos"}</span>
+                  <strong>{money(total(todayItems))}</strong>
+                </summary>
+                <ItemList items={todayItems} recurring={false} />
+              </details>
+            ) : <p>Seu carrinho de hoje está vazio.</p>}
+            <Link className="text-action" href={fromPurchase ? "/checkout/sucesso" : "/carrinho"}>
+              {fromPurchase ? "Ver compra concluída" : "Ver compra de hoje"}
+            </Link>
+          </section>
+          <Summary
+            title="Sua próxima recorrência"
+            description={draftName}
+            items={step > 0 ? nextCycles.flatMap((cycle) => cycle.items) : draft.items}
+            date={step > 0 && hasValidDeliveryDate ? earliestCycle?.date : undefined}
+            deliveryCost={Math.max(1, step > 0 ? nextCycles.length : !hasMissingFrequency ? cycles.length : 1) * 9.9}
+            totalLabel={
+              step > 0 ? "Valor estimado do próximo ciclo" :
+                !hasMissingFrequency && cycles.length > 1 ? "Estimativa dos primeiros ciclos" : undefined
             }
           >
-            <ArrowLeft size={15} />
-            Voltar
-          </Link>
-        </Summary>
+            {draft.items.length > 0 && hasMissingFrequency && (
+              <p className="frequency-required-message" role="status">
+                Escolha a frequência de cada produto selecionado ou remova o item
+                da compra recorrente para continuar.
+              </p>
+            )}
+            {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente para continuar.</p>}
+            {hasInvalidInvoice && <p className="frequency-required-message" role="status">Informe os 11 dígitos do CPF para continuar com CPF na nota.</p>}
+            <Button
+              disabled={
+                !draft.items.length ||
+                hasMissingFrequency ||
+                hasInvalidQuantity ||
+                hasInvalidInvoice ||
+                (step > 0 && !hasValidDeliveryDate) ||
+                (step >= 1 && !address) ||
+                (step >= 2 && !payment) ||
+                (step === 3 && !agreed) ||
+                submitting
+              }
+              onClick={() => {
+                if (hasInvalidQuantity || hasInvalidInvoice) return;
+                if (hasMissingFrequency) return;
+                if (
+                  step > 0 &&
+                  !cycles.every((cycle) => validSubscriptionDelivery(cycle.date))
+                )
+                  return;
+                if (step === 0 || step === 1) {
+                  patch({
+                    date: earliestCycle.date,
+                    cycleDeliveries: Object.fromEntries(cycles.map((cycle) => [
+                      cycle.frequency, { date: cycle.date, period: cycle.period },
+                    ])),
+                  });
+                }
+                if (step === 3) confirm();
+                else if (step === 0 && !state.customer)
+                  router.push("/identificacao?next=/assinatura/entrega");
+                else
+                  router.push(
+                    "/assinatura/" + ["entrega", "pagamento", "revisao"][step],
+                  );
+              }}
+            >
+              {submitting
+                ? "Criando compra recorrente…"
+                : [
+                    "Continuar para entrega",
+                    "Continuar para pagamento",
+                    "Revisar compra recorrente",
+                    "Confirmar compra recorrente",
+                  ][step]}
+              <ArrowRight size={17} />
+            </Button>
+            <Link
+              className="back-link"
+              href={
+                step === 0
+                  ? fromCatalog ? "/recorrencias" : "/carrinho"
+                  : "/assinatura/" +
+                    ["configurar", "entrega", "pagamento"][step - 1]
+              }
+            >
+              <ArrowLeft size={15} />
+              Voltar
+            </Link>
+          </Summary>
+        </div>
       </div>
+      {step === 0 && <SubscriptionRecommendations />}
       {editingCycle && (
         <Modal
           title={`Configurar ciclo · ${editingCycle.frequency}`}
@@ -688,6 +773,7 @@ export function Success() {
           <h2>Compra recorrente #{sub.id}</h2>
           <span className="badge active">Ativa</span>
         </div>
+        <p className="subscription-display-name">{sub.name}</p>
         <div className="success-stats">
           <div>
             <CalendarDays />
@@ -711,6 +797,7 @@ export function Success() {
           {cycles.map((cycle) => (
             <section className="success-cycle" key={cycle.subscriptionId} aria-label={`Resumo do ciclo · ${cycle.frequency}`}>
               <h3>Compra recorrente #{cycle.subscriptionId} · {cycle.frequency}</h3>
+              <p className="subscription-display-name">{created.find((subscription) => subscription.id === cycle.subscriptionId)?.name}</p>
               <p>Primeira entrega: <strong>{dateLabel(cycle.date)}</strong> · {cycle.period}</p>
               <ItemList items={cycle.items} recurring={false} />
               <div className="summary-row"><span>Subtotal dos produtos</span><strong>{money(total(cycle.items))}</strong></div>

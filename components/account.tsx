@@ -19,15 +19,19 @@ import {
   Truck,
   Settings2,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import { useStore } from "./store";
+import { SubscriptionAccountNav } from "./subscription-account-nav";
+import { SubscriptionNameField } from "./subscription-name-field";
+import { resolveSubscriptionName } from "@/lib/subscription-name";
 import { Breadcrumb } from "./shell";
 import { Badge, Button, EmptyState, Modal, PageHeading, Summary } from "./ui";
 import { ItemList, ProductEditor } from "./products";
 import { AddressChoices, DeliveryOptions, PaymentChoices } from "./choices";
 import { dateLabel, money, total, addDays, nextCycle } from "@/lib/utils";
 import { productById } from "@/data/products";
-import { saoPauloToday, firstDeliveryWindow } from "@/lib/delivery-date";
+import { saoPauloToday, firstDeliveryWindow, validSubscriptionDelivery } from "@/lib/delivery-date";
 import { SubscriptionItem } from "@/types";
 import {
   subscriptionCycles,
@@ -35,33 +39,11 @@ import {
   cycleEstimate,
 } from "@/lib/subscription-cycles";
 export function SubscriptionList() {
-  const { state, ready, setState, notify } = useStore();
+  const { state, ready, setState } = useStore();
   const [filter, setFilter] = useState("Todas");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const countCycles = (subscriptions: typeof state.subscriptions) => subscriptions.reduce(
     (count, subscription) => count + subscriptionCycles(subscription.items, subscription.date, subscription.period, subscription.cycleDeliveries).length, 0,
   );
-  const deleting = state.subscriptions.find(
-    (subscription) => subscription.id === deletingId,
-  );
-  const deleteSubscription = () => {
-    if (!deleting) return;
-    setState((current) => ({
-      ...current,
-      subscriptions: current.subscriptions.filter(
-        (subscription) => subscription.id !== deleting.id,
-      ),
-      lastCreated:
-        current.lastCreated === deleting.id ? null : current.lastCreated,
-    }));
-    setDeletingId(null);
-    notify(`Compra recorrente #${deleting.id} excluída.`);
-    requestAnimationFrame(() =>
-      document
-        .querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]')
-        ?.focus(),
-    );
-  };
   const visible = state.subscriptions.filter(
     (s) =>
       filter === "Todas" ||
@@ -88,6 +70,7 @@ export function SubscriptionList() {
               ...current,
               draft: {
                 ...current.draft,
+                name: undefined,
                 source: "catalog",
                 removedProductIds: [],
                 discoveredProductIds: [],
@@ -103,6 +86,7 @@ export function SubscriptionList() {
           </Link>
         }
       />
+      <SubscriptionAccountNav />
       <div className="account-banner">
         <div className="banner-icon">
           <Repeat2 size={30} />
@@ -152,24 +136,20 @@ export function SubscriptionList() {
         <div className="subscription-grid">
           {visible.flatMap((s) => subscriptionCycles(s.items, s.date, s.period, s.cycleDeliveries).map((cycle) => (
             <article className="panel subscription-card" key={`${s.id}-${cycle.frequency}`} aria-label={`Compra recorrente #${s.id} · ${cycle.frequency}`}>
-              <button
-                type="button"
-                className="subscription-delete"
-                aria-label={`Excluir compra recorrente #${s.id}`}
-                title="Excluir compra recorrente"
-                onClick={() => setDeletingId(s.id)}
-              >
-                <Trash2 size={19} />
-              </button>
               <div className="section-title">
                 <span className="subscription-number">COMPRA RECORRENTE #{s.id}</span>
                 <Badge status={s.status} />
               </div>
+              <p className="subscription-status-description">{
+                s.status === "Ativa" ? "Recebimentos programados."
+                : s.status === "Pausada" ? "Recebimentos interrompidos temporariamente."
+                : "Sem novos recebimentos. Você pode reativar quando quiser."
+              }</p>
               <h2>{s.name}</h2>
               <h3 className="subscription-cycle-frequency">{cycle.frequency}</h3>
               <p className="subscription-cycle-count">{cycle.items.length} {cycle.items.length === 1 ? "produto" : "produtos"}</p>
               <div className="subscription-cycle-products"><ItemList items={cycle.items} recurring={false} /></div>
-              {s.status === "Pagamento recusado" && (
+              {s.paymentStatus === "Recusado" && (
                 <div className="inline-alert">
                   <AlertTriangle size={15} />
                   Atualize o cartão para continuar recebendo.
@@ -182,9 +162,9 @@ export function SubscriptionList() {
               )}
               <div className="card-stats">
                 <div>
-                  <span>Próxima entrega</span>
+                  <span>{s.status === "Pausada" ? "Retomada prevista" : "Próxima entrega"}</span>
                   <strong>
-                    {s.status === "Cancelada" ? "—" : dateLabel(cycle.date)}
+                    {s.status === "Cancelada" ? "Sem entregas" : dateLabel(s.status === "Pausada" ? s.pausedUntil || cycle.date : cycle.date)}
                   </strong>
                 </div>
                 <div>
@@ -208,33 +188,14 @@ export function SubscriptionList() {
       )}
       <p className="account-help">
         <Settings2 size={17} /> Você pode editar, pausar ou cancelar sua
-        compra recorrente quando precisar.
+        compra recorrente quando precisar. Pausar e cancelar preservam seus
+        produtos e seu histórico; você pode reativar depois.
       </p>
-      {deleting && (
-        <Modal title="Excluir compra recorrente?" onClose={() => setDeletingId(null)}>
-          <p>
-            A compra recorrente{" "}
-            <strong>
-              #{deleting.id} · {deleting.name}
-            </strong>{" "}
-            será excluída, incluindo todos os seus ciclos e seu histórico. Essa ação não pode ser
-            desfeita.
-          </p>
-          <div className="modal-actions">
-            <Button variant="secondary" onClick={() => setDeletingId(null)}>
-              Manter compra recorrente
-            </Button>
-            <Button variant="danger" onClick={deleteSubscription}>
-              Excluir compra recorrente
-            </Button>
-          </div>
-        </Modal>
-      )}
     </main>
   );
 }
 type Action =
-  "pause" | "skip" | "cancel" | "payment" | "delivery" | "substitute" | null;
+  "pause" | "skip" | "cancel" | "reactivate" | "clear-history" | "rename" | "payment" | "delivery" | "substitute" | null;
 export function SubscriptionDetail({
   id,
   operation = false,
@@ -263,6 +224,9 @@ export function SubscriptionDetail({
     period: "",
   });
   const [reason, setReason] = useState("");
+  const [editedName, setEditedName] = useState<string | undefined>(undefined);
+  const [historyAcknowledged, setHistoryAcknowledged] = useState(false);
+  const [reactivation, setReactivation] = useState({ date: "", period: "08h às 12h" });
   if (!ready) return <main className="container loading">Carregando…</main>;
   if (!s)
     return (
@@ -313,7 +277,7 @@ export function SubscriptionDetail({
       updateSubscription(id, { ...patch, items, cycleDeliveries, date: next.date, period: next.period }, message);
     } else updateSubscription(id, patch, message);
     setAction(null);
-    notify(message);
+    notify(`“${patch.name ?? s.name}”: ${message}`);
   };
   return (
     <main className="container">
@@ -329,9 +293,9 @@ export function SubscriptionDetail({
       <PageHeading
         title={"Compra recorrente #" + id}
         description={s.name + (selectedCycle ? " · " + selectedCycle.frequency : "")}
-        action={<Badge status={s.status} />}
+        action={<div className="subscription-heading-actions"><Badge status={s.status} /><Button variant="secondary" onClick={() => { setEditedName(s.name); setAction("rename"); }}><Pencil size={16} /> Editar nome</Button></div>}
       />
-      {s.status === "Pagamento recusado" && (
+      {s.paymentStatus === "Recusado" && (
         <div className="notice danger-notice">
           <AlertTriangle />
           <span>
@@ -359,29 +323,38 @@ export function SubscriptionDetail({
           </span>
           <Button
             variant="secondary"
-            onClick={() =>
+            onClick={() => {
+              const date = nextCycle(s.items, saoPauloToday());
               save(
-                { status: "Ativa", pausedUntil: undefined },
-                "Compra recorrente reativada com sucesso.",
-              )
-            }
+                { status: "Ativa", pausedUntil: undefined, date },
+                "Compra recorrente reativada com sucesso. Próxima entrega prevista para " + dateLabel(date) + ".",
+              );
+            }}
           >
             Reativar compra recorrente
           </Button>
         </div>
       )}
       {s.status === "Cancelada" && (
-        <div className="notice">
-          Esta compra recorrente foi cancelada. Não haverá novas cobranças ou entregas.
+        <div className="notice canceled-notice">
+          <Repeat2 />
+          <span>
+            <strong>Cancelada: sem novas cobranças ou entregas.</strong><br />
+            Seus produtos, preferências e histórico estão preservados. Reative quando quiser voltar a receber.
+          </span>
+          <Button onClick={() => {
+            setReactivation({ date: nextCycle(s.items, saoPauloToday()), period: s.period });
+            setAction("reactivate");
+          }}>Reativar compra recorrente</Button>
         </div>
       )}
       <div className="detail-overview">
         <div>
           <CalendarDays />
           <span>
-            Próxima entrega
+            {s.status === "Pausada" ? "Retomada prevista" : "Próxima entrega"}
             <strong>
-              {locked ? "Sem entregas agendadas" : dateLabel(s.date)}
+              {locked ? "Sem entregas agendadas" : dateLabel(s.status === "Pausada" ? s.pausedUntil || s.date : s.date)}
             </strong>
           </span>
         </div>
@@ -647,8 +620,18 @@ export function SubscriptionDetail({
           )}
           <div className="notice">
             <Repeat2 size={20} />
-            Controle total, sem complicação.
+            Pausar ou cancelar preserva seus produtos e seu histórico.
           </div>
+          {locked && (
+            <details className="subscription-advanced">
+              <summary>Opções avançadas</summary>
+              <p>Excluir o histórico é uma ação permanente. A compra recorrente continuará cancelada e poderá ser reativada.</p>
+              <button type="button" className="history-delete-action" disabled={!s.history.length && !s.events.length} onClick={() => {
+                setHistoryAcknowledged(false);
+                setAction("clear-history");
+              }}><Trash2 size={16} /> Excluir histórico</button>
+            </details>
+          )}
         </aside>
       </div>
       {action && (
@@ -658,6 +641,9 @@ export function SubscriptionDetail({
               pause: "Pausar sua compra recorrente?",
               skip: "Pular próxima entrega?",
               cancel: "Cancelar compra recorrente?",
+              reactivate: "Reativar compra recorrente?",
+              "clear-history": "Excluir histórico?",
+              rename: "Editar nome da compra recorrente",
               payment: "Alterar pagamento",
               delivery: "Alterar entrega",
               substitute: "Um substituto para seu café",
@@ -665,6 +651,54 @@ export function SubscriptionDetail({
           }
           onClose={() => setAction(null)}
         >
+          {action === "rename" && (
+            <>
+              <SubscriptionNameField compact name={editedName} items={s.items} onChange={setEditedName} />
+              <div className="modal-actions">
+                <Button variant="secondary" onClick={() => setAction(null)}>Voltar sem salvar</Button>
+                <Button onClick={() => {
+                  const name = resolveSubscriptionName(editedName, s.items);
+                  if (name !== s.name) {
+                    updateSubscription(id, { name }, `Nome alterado de “${s.name}” para “${name}”.`);
+                    notify(`“${name}”: nome atualizado com sucesso.`);
+                  }
+                  setAction(null);
+                }}>Salvar nome</Button>
+              </div>
+            </>
+          )}
+          {action === "reactivate" && (
+            <>
+              <p>A próxima entrega foi calculada a partir de hoje, conforme a frequência já selecionada. Confira a data e o período para voltar a receber os mesmos produtos e quantidades. Seu histórico será mantido.</p>
+              <ItemList items={s.items} />
+              <DeliveryOptions date={reactivation.date} period={reactivation.period} minDate={firstDeliveryWindow().min} onChange={(change) => setReactivation((current) => ({ ...current, ...change }))} />
+              {s.paymentStatus === "Recusado" && <p className="inline-alert">Há um pagamento recusado. Atualize o cartão após reativar para liberar os próximos recebimentos.</p>}
+              <div className="modal-actions">
+                <Button variant="secondary" onClick={() => setAction(null)}>Manter cancelada</Button>
+                <Button disabled={!validSubscriptionDelivery(reactivation.date, firstDeliveryWindow().min) || !reactivation.period || !s.items.length} onClick={() => {
+                  if (!validSubscriptionDelivery(reactivation.date, firstDeliveryWindow().min) || !reactivation.period || !s.items.length) return;
+                  save({
+                    status: "Ativa", pausedUntil: undefined,
+                    date: reactivation.date, period: reactivation.period,
+                    cycleDeliveries: Object.fromEntries(groupedCycles.map((cycle) => [cycle.frequency, { date: reactivation.date, period: reactivation.period }])),
+                  }, "Compra recorrente reativada com sucesso.");
+                }}>Confirmar reativação</Button>
+              </div>
+            </>
+          )}
+          {action === "clear-history" && locked && (
+            <>
+              <p>Os registros de ciclos e atividades desta compra recorrente serão excluídos permanentemente. Seus produtos e configurações serão mantidos.</p>
+              <label className="history-delete-confirmation"><input type="checkbox" checked={historyAcknowledged} onChange={(event) => setHistoryAcknowledged(event.target.checked)} /> Entendo que o histórico excluído não poderá ser recuperado.</label>
+              <div className="modal-actions">
+                <Button variant="secondary" onClick={() => setAction(null)}>Manter histórico</Button>
+                <Button variant="danger" disabled={!historyAcknowledged} onClick={() => {
+                  if (!historyAcknowledged || s.status !== "Cancelada") return;
+                  save({ history: [], events: [] }, "Histórico excluído. Compra recorrente mantida como cancelada.");
+                }}>Excluir histórico permanentemente</Button>
+              </div>
+            </>
+          )}
           {action === "pause" && (
             <>
               <p>Durante a pausa, nenhuma nova cobrança será realizada.</p>
@@ -767,7 +801,8 @@ export function SubscriptionDetail({
             <>
               <p>
                 Você deixará de receber os produtos desta compra recorrente. Não haverá
-                novas cobranças.
+                novas cobranças. Seus produtos e histórico serão mantidos,
+                e você poderá reativar quando quiser.
               </p>
               <label>
                 Quer nos contar o motivo? (opcional)
@@ -795,7 +830,7 @@ export function SubscriptionDetail({
                   variant="danger"
                   onClick={() =>
                     save(
-                      { status: "Cancelada" },
+                      { status: "Cancelada", pausedUntil: undefined },
                       "Compra recorrente cancelada." +
                         (reason ? " Motivo: " + reason : ""),
                     )
@@ -814,8 +849,7 @@ export function SubscriptionDetail({
                   save(
                     {
                       paymentId: payment,
-                      status:
-                        s.status === "Pagamento recusado" ? "Ativa" : s.status,
+                      paymentStatus: undefined,
                     },
                     "Forma de pagamento atualizada com sucesso.",
                   )
@@ -930,6 +964,7 @@ export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFreq
         <ProductEditor items={items} ids={selectedItems.map((item) => item.productId)} allowAllProducts onChange={setLocal} />
         <Summary
           items={items}
+          description={sub.name}
           date={selectedCycle?.date}
           deliveryCost={
             sub.cycleDeliveries
@@ -967,7 +1002,7 @@ export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFreq
                 { items: [...sub.items.filter((item) => item.frequency !== selectedCycle?.frequency), ...items] },
                 "Produtos e frequências atualizados.",
               );
-              notify("Compra recorrente atualizada com sucesso.");
+              notify(`“${sub.name}”: compra recorrente atualizada com sucesso.`);
               router.push("/minhas-assinaturas/" + id + cycleQuery);
             }}
           >

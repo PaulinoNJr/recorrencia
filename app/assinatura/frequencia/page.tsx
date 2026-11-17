@@ -1,5 +1,5 @@
-import { Checkout } from "@/components/checkout";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <Checkout step={0} frequencyStep />;
+  redirect("/assinatura/configurar");
 }

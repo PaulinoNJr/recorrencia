@@ -1,0 +1,42 @@
+import { test, expect } from "@playwright/test";
+import { initialState } from "../data/subscriptions";
+
+test("preferencias da compra recorrente persistem sem alterar a compra unica", async ({ page }, testInfo) => {
+  const seed = initialState();
+  seed.customer = null;
+  seed.purchase = { substitute: "Reembolso do valor", invoice: "Não" };
+  seed.draft.items = [{ productId: "leite", quantity: 2, frequency: "Semanal" }];
+  seed.draft.discoveredProductIds = ["leite"];
+  seed.draft.frequencyPending = [];
+  await page.addInitScript((state) => {
+    if (!localStorage.getItem("covabra-prototype-v1")) localStorage.setItem("covabra-prototype-v1", JSON.stringify(state));
+  }, seed);
+  await page.goto("/assinatura/configurar");
+  await expect(page.getByRole("heading", { name: "1. Substituir itens indisponíveis?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2. Produtos e frequência" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3. Deseja CPF na nota" })).toBeVisible();
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  await page.getByRole("radio", { name: "Substituir por produto similar de valor igual ou inferior" }).check();
+  await page.getByRole("radio", { name: "Sim", exact: true }).check();
+  const next = page.getByRole("button", { name: "Continuar para entrega" });
+  await expect(next).toBeDisabled();
+  await page.getByLabel("CPF", { exact: true }).fill("123");
+  await expect(next).toBeDisabled();
+  await page.getByLabel("CPF", { exact: true }).fill("123.456.789-99");
+  await expect(next).toBeEnabled();
+  await page.reload();
+  await expect(page.getByRole("radio", { name: "Sim", exact: true })).toBeChecked();
+  await expect(page.getByLabel("CPF", { exact: true })).toHaveValue("123.456.789-99");
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-recurring-options.png`, fullPage: true });
+  await next.click();
+  await expect(page).toHaveURL(/\/identificacao\?next=/);
+  await page.goto("/assinatura/configurar");
+  await page.getByRole("radio", { name: "Não", exact: true }).check();
+  await expect(page.getByLabel("CPF", { exact: true })).toHaveCount(0);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
+  expect(saved.draft.substitute).toBe("Substituir por produto similar de valor igual ou inferior");
+  expect(saved.draft.invoice).toBe("Não");
+  expect(saved.draft.cpf).toBeUndefined();
+  expect(saved.purchase).toEqual(before.purchase);
+  expect(saved.cart).toEqual(seed.cart);
+});

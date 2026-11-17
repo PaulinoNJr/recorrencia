@@ -44,8 +44,8 @@ test("visitante cria e gerencia compra recorrente com sua própria identificaç�
   await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
   await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }).check();
   await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
-  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
+
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Semanal");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
   await identify(page);
@@ -96,8 +96,8 @@ test("visitante finaliza compra e reaproveita seus dados na compra recorrente", 
   await page.getByRole("button", { name: "Confirmar compra", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Compra realizada!" })).toBeVisible();
   await page.getByRole("button", { name: "Sim, criar compra recorrente" }).click();
-  await page.getByRole("button", { name: "Continuar para frequência" }).click();
-  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Todo mês");
+
+  await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Mensal");
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await expect(page).toHaveURL("/assinatura/entrega");
   await expect(page.getByRole("button", { name: "Continuar para pagamento" })).toBeEnabled();

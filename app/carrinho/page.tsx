@@ -25,7 +25,7 @@ export default function Cart() {
   const subtotal = total(state.cart);
   return (
     <main className="checkout-width checkout-main">
-      <h1 className="checkout-page-title">Meu Carrinho</h1>
+      <h1 className="checkout-page-title">Sua compra de hoje</h1>
       <div className="real-cart-grid">
         <div>
           {state.cart.length ? (
@@ -67,7 +67,7 @@ export default function Cart() {
                   <Repeat2 size={25} />
                   <div>
                     <h3 id="cart-recurrence-title">Quer receber seus essenciais de novo?</h3>
-                    <p>Escolha os produtos e a frequência da sua compra recorrente.</p>
+                    <p>Configure sua próxima recorrência. Sua compra de hoje permanece completa no carrinho.</p>
                   </div>
                   <button
                     className="btn secondary"
@@ -77,6 +77,7 @@ export default function Cart() {
                         ...s,
                         draft: {
                           ...s.draft,
+                          name: undefined,
                           cycleDeliveries: undefined,
                           source: "cart",
                           removedProductIds: [],

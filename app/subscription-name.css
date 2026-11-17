@@ -1,0 +1,23 @@
+.subscription-name-panel { padding: 24px; margin-bottom: 24px; min-width: 0; }
+.subscription-config-sections > .subscription-name-panel { margin-bottom: 0; }
+.subscription-name-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.subscription-name-heading h2 { font-size: 18px; line-height: 1.4; }
+.subscription-name-panel > label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.subscription-name-panel > input { width: 100%; min-width: 0; min-height: 48px; font-size: 16px; }
+.subscription-name-help { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-top: 10px; color: var(--text-secondary); font-size: 12px; }
+.subscription-name-help p { margin: 0; line-height: 1.6; }
+.subscription-name-help > span { flex-shrink: 0; }
+.subscription-name-cycle-note { margin-top: 12px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+.subscription-name-compact { padding: 0; margin: 0; border: 0; box-shadow: none; background: transparent; }
+.subscription-heading-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.subscription-heading-actions .btn { min-height: 44px; }
+.summary-description { font-size: 14px; line-height: 1.6; color: var(--brand-primary-dark); margin: 12px 0 20px; overflow-wrap: anywhere; }
+.subscription-display-name { font-size: 16px; font-weight: 600; color: var(--brand-primary-dark); margin: 12px 0 18px; }
+.subscription-display-name, .subscription-card h2, .finance-subscription header a { overflow-wrap: anywhere; }
+.ops-subscription-name { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 5px; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .subscription-name-panel { padding: 20px 16px; }
+  .subscription-name-compact { padding: 0; }
+  .subscription-name-heading { align-items: flex-start; }
+  .subscription-heading-actions { align-self: flex-start; }
+}

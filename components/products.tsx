@@ -94,7 +94,7 @@ export function ProductEditor({
                     />
                   </label>
                   {showFrequency && <label>
-                    Receber
+                    Frequência
                     <select
                       aria-label={"Frequência de " + p.name}
                       value={

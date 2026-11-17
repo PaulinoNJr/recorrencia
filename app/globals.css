@@ -1249,24 +1249,8 @@ label {
 }
 .subscription-card .section-title {
   gap: 8px;
-  padding-right: 44px;
   min-height: 44px;
   flex-wrap: wrap;
-}
-.subscription-delete {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  color: var(--danger);
-  border-radius: 8px;
-}
-.subscription-delete:hover {
-  background: #fdf0ef;
 }
 .subscription-card h2 {
   font-size: 18px;
@@ -2660,7 +2644,8 @@ hr {
   padding: 24px;
   margin-bottom: 20px;
 }
-.subscription-checkout .checkout-progress > a { width: 20%; }
+.subscription-checkout .checkout-progress > a { width: 25%; }
+.subscription-checkout .checkout-progress small { text-align: center; }
 .frequency-bulk h2 { font-size: 21px; }
 .frequency-bulk > p { margin: 10px 0 18px; color: var(--text-secondary); line-height: 1.5; }
 .frequency-select-all { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; }
@@ -2722,4 +2707,84 @@ hr {
   .subscription-source-options strong {
     font-size: 15px;
   }
+}
+
+@media (min-width: 801px) {
+  .subscription-config .subscription-product {
+    display: grid;
+    grid-template-columns: 20px 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+  }
+  .subscription-config .subscription-product > .product-info { grid-column: 3; grid-row: 1; }
+  .subscription-config .subscription-product > .product-price { grid-column: 4; grid-row: 1; }
+  .subscription-config .product-controls {
+    grid-column: 3 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    align-items: end;
+  }
+  .subscription-config .product-controls > label { font-size: 13px; gap: 8px; }
+  .subscription-config .product-controls select { width: 100%; min-height: 44px; font-size: 14px; }
+}
+
+.subscription-status-description {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  min-height: 36px;
+  margin-bottom: 12px;
+}
+.canceled-notice {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.canceled-notice > span { flex: 1; min-width: 180px; }
+.canceled-notice > svg { flex-shrink: 0; }
+.subscription-advanced {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 12px;
+}
+.subscription-advanced > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.subscription-advanced > p {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.history-delete-action {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 12px;
+  color: var(--danger);
+  font-size: 13px;
+}
+.history-delete-confirmation {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 20px;
+  line-height: 1.6;
+}
+.history-delete-confirmation input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.ops-payment-warning { display: block; color: var(--danger); font-size: 11px; margin-top: 8px; }
+@media (max-width: 600px) {
+  .canceled-notice > .btn { width: 100%; }
 }
