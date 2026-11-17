@@ -32,14 +32,14 @@ export function ExperienceHome() {
         <img className={styles.logo} src="/logo.webp" alt="Covabra Supermercados" width="198" height="70" />
         <span className={styles.eyebrow}>Experiência de compras recorrentes</span>
         <h1>Suas compras.<br /><span>No seu ritmo.</span></h1>
-        <p className={styles.intro}>Explore a experiência de recorrência do Covabra e compartilhe sua opinião com a gente.</p>
+        <p className={styles.intro}>Explore a experiência de compra recorrente do Covabra e compartilhe sua opinião com a gente.</p>
         <div className={styles.actions}>
           <button className={styles.primary} onClick={start} disabled={!ready || starting}>
             <Repeat2 size={24} aria-hidden="true" />
-            <span>{starting ? "Preparando sua experiência…" : "Iniciar uma nova experiência com a recorrência"}</span>
+            <span>{starting ? "Preparando sua experiência…" : "Iniciar uma nova experiência com a compra recorrente"}</span>
             <ArrowRight size={22} aria-hidden="true" />
           </button>
-          <p className={styles.note}>Cada nova experiência começa do zero, sem compras ou assinaturas de testes anteriores.</p>
+          <p className={styles.note}>Cada nova experiência começa do zero, sem pedidos ou compras recorrentes de testes anteriores.</p>
           {error && <p className={styles.error} role="alert">{error}</p>}
         </div>
         <p className={styles.footer}>Protótipo para avaliação · Nenhuma cobrança real é realizada.</p>

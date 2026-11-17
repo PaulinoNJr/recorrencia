@@ -15,7 +15,7 @@ test("navegacao mobile segue o Covabra e preserva acesso a recorrencia", async (
   const menu = page.getByRole("dialog");
   await expect(menu).toBeVisible();
   await page.screenshot({ path: "test-results/mobile-categories-drawer.png" });
-  await menu.getByRole("link", { name: /Recorrências Covabra/ }).click();
+  await menu.getByRole("link", { name: /Compra recorrente Covabra/ }).click();
   await expect(page).toHaveURL("/recorrencias");
   await expect(menu).toHaveCount(0);
   await bottom.getByRole("button", { name: "Categorias" }).click();

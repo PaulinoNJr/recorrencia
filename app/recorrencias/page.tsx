@@ -7,7 +7,7 @@ import { SignedInOnly } from "@/components/customer-identification";
 import "./recorrencias.css";
 
 export const metadata: Metadata = {
-  title: "Recorrências | Sua rotina mais prática | Covabra",
+  title: "Compra recorrente | Sua rotina mais prática | Covabra",
   description: "Escolha seus produtos, defina a frequência e receba suas compras automaticamente.",
 };
 const steps = [
@@ -20,15 +20,15 @@ export default function Recurrences() {
   return (
     <main className="recurrence-landing">
       <div className="recurrence-container">
-        <Breadcrumb items={[{ label: "Recorrências" }]} />
+        <Breadcrumb items={[{ label: "Compra recorrente" }]} />
         <section className="recurrence-overview" aria-labelledby="recurrence-title">
           <div className="recurrence-intro">
-            <span className="recurrence-signature"><Repeat2 size={22} aria-hidden="true" /> RECORRÊNCIAS COVABRA</span>
+            <span className="recurrence-signature"><Repeat2 size={22} aria-hidden="true" /> COMPRA RECORRENTE COVABRA</span>
             <h1 id="recurrence-title">Seus essenciais em dia.<br /><span>Mais tempo para você.</span></h1>
             <p>Escolha os produtos e a frequência. Receba suas compras automaticamente, no ritmo da sua casa.</p>
             <div className="recurrence-actions">
-              <SubscriptionStart>Criar minha assinatura</SubscriptionStart>
-              <SignedInOnly><Link href="/minhas-assinaturas">Minhas assinaturas</Link></SignedInOnly>
+              <SubscriptionStart>Criar minha compra recorrente</SubscriptionStart>
+              <SignedInOnly><Link href="/minhas-assinaturas">Minhas compras recorrentes</Link></SignedInOnly>
             </div>
             <span className="recurrence-control"><Check size={17} aria-hidden="true" /> Edite, pause ou cancele quando precisar.</span>
           </div>

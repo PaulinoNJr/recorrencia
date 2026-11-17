@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { initialState } from "../data/subscriptions";
 
-test("nova assinatura começa vazia e recomenda apenas após selecionar produtos", async ({ page }) => {
+test("nova compra recorrente começa vazia e recomenda apenas após selecionar produtos", async ({ page }) => {
   const seed = initialState();
   seed.cart = [{ productId: "leite", quantity: 2, frequency: "Toda semana" }];
   await page.addInitScript((state) => {
@@ -12,7 +12,7 @@ test("nova assinatura começa vazia e recomenda apenas após selecionar produtos
   await expect(page.locator(".subscription-product")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Compre também" })).toHaveCount(0);
   await page.goto("/minhas-assinaturas");
-  await page.getByRole("link", { name: "Nova assinatura", exact: true }).click();
+  await page.getByRole("link", { name: "Nova compra recorrente", exact: true }).click();
   const recommendations = page.getByRole("region", { name: "Compre também" });
   const search = page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" });
   await expect(search).toBeVisible();
@@ -21,7 +21,7 @@ test("nova assinatura começa vazia e recomenda apenas após selecionar produtos
   await expect(recommendations).toHaveCount(0);
   await search.fill("leite");
   await expect(recommendations).toHaveCount(0);
-  await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }).check();
+  await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }).check();
   await expect(recommendations).toBeVisible();
   await expect(recommendations.getByRole("article")).toHaveCount(3);
   await expect(recommendations.getByRole("article", { name: "Leite integral Shefa", exact: true })).toHaveCount(0);
@@ -53,7 +53,7 @@ for (const source of ["cart", "catalog", "purchase"] as const) {
     const recommendations = page.getByRole("region", { name: "Compre também" });
     await expect(recommendations.getByRole("article", { name: "Pão de forma Pullman" })).toBeVisible();
     await recommendations.getByRole("article", { name: "Pão de forma Pullman" }).getByRole("button", { name: "Eu quero!" }).click();
-    const bread = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Pão de forma Pullman na assinatura" }) });
+    const bread = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Pão de forma Pullman na compra recorrente" }) });
     await expect(bread).toBeVisible();
     await expect(bread.getByRole("checkbox")).toBeChecked();
     const search = page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" });

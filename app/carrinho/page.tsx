@@ -63,6 +63,34 @@ export default function Cart() {
                 <Link className="checkout-more-products" href="/comprar">
                   Escolher mais produtos
                 </Link>
+                <section className="checkout-recurrence-option" aria-labelledby="cart-recurrence-title">
+                  <Repeat2 size={25} />
+                  <div>
+                    <h3 id="cart-recurrence-title">Quer receber seus essenciais de novo?</h3>
+                    <p>Escolha os produtos e a frequência da sua compra recorrente.</p>
+                  </div>
+                  <button
+                    className="btn secondary"
+                    disabled={!ready}
+                    onClick={() => {
+                      setState((s) => ({
+                        ...s,
+                        draft: {
+                          ...s.draft,
+                          cycleDeliveries: undefined,
+                          source: "cart",
+                          removedProductIds: [],
+                          discoveredProductIds: s.cart.map((item) => item.productId),
+                          items: [],
+                          frequencyPending: [],
+                        },
+                      }));
+                      router.push("/assinatura/configurar");
+                    }}
+                  >
+                    Criar compra recorrente <ArrowRight size={16} />
+                  </button>
+                </section>
               </section>
               <section className="checkout-box">
                 <h2>3. Deseja CPF na nota</h2>
@@ -94,34 +122,6 @@ export default function Cart() {
                     />
                   </label>
                 )}
-              </section>
-              <section className="checkout-recurrence-option">
-                <Repeat2 size={25} />
-                <div>
-                  <h2>Quer receber seus essenciais de novo?</h2>
-                  <p>Escolha os produtos e a frequência da sua assinatura.</p>
-                </div>
-                <button
-                  className="btn secondary"
-                  disabled={!ready}
-                  onClick={() => {
-                    setState((s) => ({
-                      ...s,
-                      draft: {
-                        ...s.draft,
-                        cycleDeliveries: undefined,
-                        source: "cart",
-                        removedProductIds: [],
-                        discoveredProductIds: s.cart.map((item) => item.productId),
-                        items: [],
-                        frequencyPending: [],
-                      },
-                    }));
-                    router.push("/assinatura/configurar");
-                  }}
-                >
-                  Criar assinatura <ArrowRight size={16} />
-                </button>
               </section>
             </>
           ) : (

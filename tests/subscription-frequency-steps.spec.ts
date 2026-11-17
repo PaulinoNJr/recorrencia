@@ -2,11 +2,11 @@ import { test, expect } from "./fixtures";
 
 test("produtos exigem quantidade antes de escolher frequência em massa", async ({ page }, testInfo) => {
   await page.goto("/carrinho");
-  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+  await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
   const next = page.getByRole("button", { name: "Continuar para frequência" });
   await expect(next).toBeDisabled();
-  const milk = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }) });
-  const paper = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Papel higiênico folha dupla na assinatura" }) });
+  const milk = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }) });
+  const paper = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Papel higiênico folha dupla na compra recorrente" }) });
   await milk.getByRole("checkbox").check();
   await paper.getByRole("checkbox").check();
   await expect(page.getByRole("combobox")).toHaveCount(0);

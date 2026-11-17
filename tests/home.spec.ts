@@ -38,7 +38,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
     await expect(
       page
         .locator(".department-navigation")
-        .getByRole("link", { name: /Recorrências/ }),
+        .getByRole("link", { name: /Compra recorrente/ }),
     ).toHaveAttribute("href", "/recorrencias");
     await trigger.hover();
   } else await trigger.tap();
@@ -54,7 +54,7 @@ test("página inicial e menu de Robson", async ({ page }, testInfo) => {
     )
     .getByRole("link", {
       name:
-        testInfo.project.name === "desktop" ? /Recorrências/ : "Recorrências",
+        testInfo.project.name === "desktop" ? /Compra recorrente/ : "Compra recorrente",
       exact: testInfo.project.name !== "desktop",
     });
   await expect(managementLink).toBeVisible();

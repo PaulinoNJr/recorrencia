@@ -103,17 +103,17 @@ export function PurchaseCheckout({ step }: { step: string }) {
         >
           <div className="purchase-recurrence-label">
             <Repeat2 size={18} />
-            RECORRÊNCIAS COVABRA
+            COMPRA RECORRENTE COVABRA
           </div>
           <h2 id="purchase-recurrence-title">
             Gostaria de tornar essa compra recorrente?
           </h2>
           <p>
             Use os mesmos produtos e quantidades desta compra. Na próxima tela,
-            escolha a frequência de cada item disponível para assinatura.
+            escolha a frequência de cada item disponível para compra recorrente.
           </p>
           {!recurringItems.length && (
-            <p>Nenhum produto desta compra está disponível para assinatura.</p>
+            <p>Nenhum produto desta compra está disponível para compra recorrente.</p>
           )}
           <div className="purchase-recurrence-actions">
             <button
@@ -122,7 +122,7 @@ export function PurchaseCheckout({ step }: { step: string }) {
               disabled={!recurringItems.length}
               onClick={startRecurrence}
             >
-              Sim, tornar recorrente <ArrowRight size={18} />
+              Sim, criar compra recorrente <ArrowRight size={18} />
             </button>
             <Link className="btn secondary" href="/loja">
               Não, continuar comprando

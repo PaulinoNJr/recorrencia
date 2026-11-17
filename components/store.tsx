@@ -69,8 +69,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             parsed.subscriptions &&
             parsed.payments &&
             parsed.addresses
-          )
+          ) {
+            parsed.subscriptions = parsed.subscriptions.map((subscription) => ({
+              ...subscription,
+              name: subscription.name === "Minha nova assinatura"
+                ? "Minha nova compra recorrente"
+                : subscription.name,
+              events: subscription.events.map((event) => event
+                .replace(/Assinaturas/g, "Compras recorrentes")
+                .replace(/assinaturas/g, "compras recorrentes")
+                .replace(/Assinatura/g, "Compra recorrente")
+                .replace(/assinatura/g, "compra recorrente")),
+            }));
             setState(parsed);
+          }
         }
       } catch {
         localStorage.removeItem("covabra-prototype-v1");

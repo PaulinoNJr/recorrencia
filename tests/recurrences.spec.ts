@@ -1,14 +1,14 @@
 import { test, expect } from "./fixtures";
-test("cliente aprende e escolhe os produtos da assinatura", async ({
+test("cliente aprende e escolhe os produtos da compra recorrente", async ({
   page,
 }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/recorrencias");
   await expect(page.getByRole("heading", { level: 1, name: "Seus essenciais em dia. Mais tempo para você." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Minhas assinaturas", exact: true }).last()).toHaveAttribute("href", "/minhas-assinaturas");
+  await expect(page.getByRole("link", { name: "Minhas compras recorrentes", exact: true }).last()).toHaveAttribute("href", "/minhas-assinaturas");
   await expect(page.getByRole("heading", { name: "Como funciona", exact: true })).toBeVisible();
-  const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+  const createButton = page.getByRole("button", { name: "Criar minha compra recorrente", exact: true });
   await expect(createButton).toBeInViewport();
   if (testInfo.project.name === "desktop") {
     await expect(page.locator(".recurrence-guide li").last()).toBeInViewport();
@@ -21,7 +21,7 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
     page.getByRole("heading", { name: "Como funciona" }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Criar minha assinatura" })
+    .getByRole("button", { name: "Criar minha compra recorrente" })
     .click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.screenshot({
@@ -34,11 +34,11 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   );
   await expect(page.getByRole("checkbox").first()).toBeChecked();
   await expect(
-    page.getByRole("heading", { name: "Monte sua assinatura" }),
+    page.getByRole("heading", { name: "Monte sua compra recorrente" }),
   ).toBeVisible();
   await page.goto("/recorrencias");
   await page
-    .getByRole("button", { name: "Criar minha assinatura", exact: true })
+    .getByRole("button", { name: "Criar minha compra recorrente", exact: true })
     .click();
   await page.getByRole("button", { name: /Do catálogo de produtos/ }).click();
   await expect(page.getByRole("checkbox")).toHaveCount(0);
@@ -83,12 +83,12 @@ test("cliente aprende e escolhe os produtos da assinatura", async ({
   expect(errors).toEqual([]);
 });
 
-test("recorrências se adapta a celulares e tablet sem cortes", async ({ page }, testInfo) => {
+test("compras recorrentes se adapta a celulares e tablet sem cortes", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Validação das larguras móveis");
   for (const width of [320, 360, 390, 430, 768]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/recorrencias");
-    const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+    const createButton = page.getByRole("button", { name: "Criar minha compra recorrente", exact: true });
     await expect(createButton).toBeEnabled();
     const box = await createButton.boundingBox();
     expect(box).not.toBeNull();
@@ -105,7 +105,7 @@ test("recorrências se adapta a celulares e tablet sem cortes", async ({ page },
   await page.setViewportSize({ width: 844, height: 390 });
   await page.goto("/recorrencias");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-  const createButton = page.getByRole("button", { name: "Criar minha assinatura", exact: true });
+  const createButton = page.getByRole("button", { name: "Criar minha compra recorrente", exact: true });
   await createButton.click();
   await expect(page.getByRole("dialog")).toBeVisible();
 });

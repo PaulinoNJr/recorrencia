@@ -46,7 +46,7 @@ export function ProductEditor({
             <label className="product-checkbox">
               <input
                 type="checkbox"
-                aria-label={"Incluir " + p.name + " na assinatura"}
+                aria-label={"Incluir " + p.name + " na compra recorrente"}
                 disabled={!eligible}
                 checked={!!item}
                 onChange={(e) =>
@@ -74,10 +74,10 @@ export function ProductEditor({
               <p>{p.category}</p>
               <small>
                 {!eligible ? (
-                  "Este produto não está disponível para assinatura."
+                  "Este produto não está disponível para compra recorrente."
                 ) : item ? (
                   <>
-                    <Repeat2 size={13} /> Incluído na assinatura
+                    <Repeat2 size={13} /> Incluído na compra recorrente
                   </>
                 ) : null}
               </small>
@@ -178,7 +178,7 @@ export function CartItems({
               {p.eligible && (
                 <small>
                   <Repeat2 size={13} />
-                  Disponível para assinatura
+                  Disponível para compra recorrente
                 </small>
               )}
             </div>

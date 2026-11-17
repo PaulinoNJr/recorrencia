@@ -5,11 +5,11 @@ test.use({ timezoneId: "Asia/Tokyo" });
 async function openDelivery(page: Page, frequency = "Toda semana") {
   await page.goto("/carrinho");
   await page
-    .getByRole("button", { name: "Criar assinatura", exact: true })
+    .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
   await page
     .getByRole("checkbox", {
-      name: "Incluir Leite integral Shefa na assinatura",
+      name: "Incluir Leite integral Shefa na compra recorrente",
     })
     .check();
   await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();

@@ -80,7 +80,7 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
         .completedItems,
   );
   await page.reload();
-  await page.getByRole("button", { name: "Sim, tornar recorrente" }).click();
+  await page.getByRole("button", { name: "Sim, criar compra recorrente" }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
   const draft = await page.evaluate(
     () => JSON.parse(localStorage.getItem("covabra-prototype-v1")!).draft,
@@ -104,18 +104,18 @@ test("checkout de compra unica segue as etapas e preserva os dados", async ({
   await page.reload();
   await expect(
     page.getByRole("checkbox", {
-      name: "Incluir Leite integral Shefa na assinatura",
+      name: "Incluir Leite integral Shefa na compra recorrente",
     }),
   ).toBeChecked();
   expect(errors).toEqual([]);
 });
 
-test("convite usa a compra concluida e permite recusar sem criar assinatura", async ({
+test("convite usa a compra concluida e permite recusar sem criar compra recorrente", async ({
   page,
 }) => {
   await page.goto("/carrinho");
   await page
-    .getByRole("button", { name: "Criar assinatura", exact: true })
+    .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
@@ -142,10 +142,10 @@ test("convite usa a compra concluida e permite recusar sem criar assinatura", as
     ),
   ).not.toBe("purchase");
   await page.goto("/checkout/sucesso");
-  await page.getByRole("button", { name: "Sim, tornar recorrente" }).click();
+  await page.getByRole("button", { name: "Sim, criar compra recorrente" }).click();
   await expect(
     page.getByRole("checkbox", {
-      name: "Incluir Leite integral Shefa na assinatura",
+      name: "Incluir Leite integral Shefa na compra recorrente",
     }),
   ).toBeChecked();
   expect(

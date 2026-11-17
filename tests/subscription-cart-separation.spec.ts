@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { initialState } from "../data/subscriptions";
 
 for (const source of ["cart", "catalog"] as const) {
-  test(`recorrência via ${source} mantém produtos e quantidades separados do carrinho`, async ({ page }) => {
+  test(`compra recorrente via ${source} mantém produtos e quantidades separados do carrinho`, async ({ page }) => {
     const seed = initialState();
     seed.cart = [
       { productId: "leite", quantity: 3, frequency: "Toda semana" },
@@ -13,11 +13,11 @@ for (const source of ["cart", "catalog"] as const) {
     }, seed);
     if (source === "cart") {
       await page.goto("/carrinho");
-      await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+      await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
       await expect(page.locator(".subscription-product")).toHaveCount(2);
     } else {
       await page.goto("/minhas-assinaturas");
-      await page.getByRole("link", { name: "Nova assinatura", exact: true }).click();
+      await page.getByRole("link", { name: "Nova compra recorrente", exact: true }).click();
       await expect(page.locator(".subscription-product")).toHaveCount(0);
     }
     const search = page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" });
@@ -27,7 +27,7 @@ for (const source of ["cart", "catalog"] as const) {
     await results.getByRole("button", { name: "Eu quero!" }).click();
     await expect(results.locator("output")).toHaveText("1");
     await results.getByRole("button", { name: "Aumentar quantidade de Leite integral Shefa" }).click();
-    const milk = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }) });
+    const milk = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }) });
     await expect(milk.locator("output")).toHaveText("2");
     let saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
     expect(saved.cart).toEqual(seed.cart);

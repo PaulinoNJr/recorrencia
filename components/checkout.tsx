@@ -113,7 +113,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
   if (!ready)
     return (
       <main className="container loading" aria-busy="true">
-        Carregando sua assinatura…
+        Carregando sua compra recorrente…
       </main>
     );
   if ((step > 0 || frequencyStep) && !draft.items.length)
@@ -121,7 +121,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
       <main className="container">
         <EmptyState
           title="Vamos escolher seus produtos?"
-          description="Inclua pelo menos um produto para continuar sua assinatura."
+          description="Inclua pelo menos um produto para continuar sua compra recorrente."
         />
         <Link className="btn secondary" href="/assinatura/configurar">
           Escolher produtos
@@ -132,7 +132,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     return (
       <main className="container">
         <h1>Defina a quantidade dos produtos</h1>
-        <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura.</p>
+        <p>Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente.</p>
         <Link className="btn primary" href="/assinatura/configurar">Voltar aos produtos</Link>
       </main>
     );
@@ -141,7 +141,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
       <main className="container">
         <h1>Escolha a frequência dos produtos</h1>
         <p>
-          Defina a frequência de cada item selecionado ou remova-o da assinatura
+          Defina a frequência de cada item selecionado ou remova-o da compra recorrente
           para continuar.
         </p>
         <Link className="btn primary" href="/assinatura/frequencia">
@@ -163,17 +163,17 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     return (
       <main className="container">
         <h1>{!address ? "Adicione um endereço de entrega" : "Adicione um cartão de teste"}</h1>
-        <p>Complete esta etapa antes de revisar sua assinatura.</p>
+        <p>Complete esta etapa antes de revisar sua compra recorrente.</p>
         <Link className="btn primary" href={!address ? "/assinatura/entrega" : "/assinatura/pagamento"}>
           {!address ? "Voltar à entrega" : "Voltar ao pagamento"}
         </Link>
       </main>
     );
   const titles = [
-    "Monte sua assinatura",
+    "Monte sua compra recorrente",
     "Quando e onde você quer receber?",
-    "Pagamento da assinatura",
-    "Revise sua assinatura",
+    "Pagamento da compra recorrente",
+    "Revise sua compra recorrente",
   ];
   const descriptions = [
     "Selecione os produtos e defina pelo menos 1 unidade de cada item. Na próxima etapa, você escolherá as frequências.",
@@ -207,9 +207,9 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
           cycleDeliveries: { [cycle.frequency]: { date: cycle.date, period: cycle.period } },
           id: String(Number(id) + index).padStart(5, "0"),
           originId: id,
-          name: "Minha nova assinatura",
+          name: "Minha nova compra recorrente",
           status: "Ativa" as const,
-          events: [`Assinatura criada em ${dateLabel(saoPauloToday())}`],
+          events: [`Compra recorrente criada em ${dateLabel(saoPauloToday())}`],
           history: [],
         })),
         ...s.subscriptions,
@@ -221,8 +221,8 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
     <main className={`container${step === 0 ? " subscription-config" : step === 3 ? " subscription-review" : step === 1 ? " subscription-delivery" : ""}`}>
       <Breadcrumb
         items={[
-          fromCatalog ? { label: "Recorrências", href: "/recorrencias" } : { label: "Meu carrinho", href: "/carrinho" },
-          { label: "Criar assinatura" },
+          fromCatalog ? { label: "Compra recorrente", href: "/recorrencias" } : { label: "Meu carrinho", href: "/carrinho" },
+          { label: "Criar compra recorrente" },
         ]}
       />
       <CheckoutStepper active={frequencyStep ? 1 : step > 0 ? step + 1 : 0} />
@@ -393,7 +393,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
               </div>
               <p className="muted">
                 Você poderá alterar seu cartão posteriormente em Minhas
-                Assinaturas.
+                compras recorrentes.
               </p>
             </section>
           )}
@@ -511,7 +511,7 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
                 />
                 <span>Li e concordo com os{" "}
                 <button onClick={() => setTerms(true)}>
-                  termos da assinatura
+                  termos da compra recorrente
                 </button>
                 .</span>
               </label>
@@ -530,10 +530,10 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
           {(step > 0 || frequencyStep) && hasMissingFrequency && (
             <p className="frequency-required-message" role="status">
               Escolha a frequência de cada produto selecionado ou remova o item
-              da assinatura para continuar.
+              da compra recorrente para continuar.
             </p>
           )}
-          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura para continuar.</p>}
+          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente para continuar.</p>}
           <Button
             disabled={
               !draft.items.length ||
@@ -575,12 +575,12 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
             }}
           >
             {submitting
-              ? "Criando assinatura…"
+              ? "Criando compra recorrente…"
               : step === 0 && !frequencyStep ? "Continuar para frequência" : [
                   "Continuar para entrega",
                   "Continuar para pagamento",
-                  "Revisar assinatura",
-                  "Confirmar assinatura",
+                  "Revisar compra recorrente",
+                  "Confirmar compra recorrente",
                 ][step]}
             <ArrowRight size={17} />
           </Button>
@@ -635,15 +635,15 @@ export function Checkout({ step, frequencyStep = false }: { step: number; freque
         </Modal>
       )}
       {terms && (
-        <Modal title="Termos da assinatura" onClose={() => setTerms(false)}>
+        <Modal title="Termos da compra recorrente" onClose={() => setTerms(false)}>
           <p>
-            A assinatura agenda os produtos selecionados nas frequências
+            A compra recorrente agenda os produtos selecionados nas frequências
             escolhidas. O preço e a disponibilidade podem variar a cada ciclo,
             com aviso para revisão.
           </p>
           <p>
             Você pode editar, pular uma entrega, pausar ou cancelar em Minhas
-            Assinaturas. Produtos removidos deste ciclo permanecem nos ciclos
+            compras recorrentes. Produtos removidos deste ciclo permanecem nos ciclos
             seguintes.
           </p>
           <p>Esta demonstração não realiza cobranças ou entregas reais.</p>
@@ -669,7 +669,7 @@ export function Success() {
       <main className="container">
         <EmptyState
           title="Sua próxima rotina começa aqui"
-          description="Crie uma assinatura a partir do carrinho."
+          description="Crie uma compra recorrente a partir do carrinho."
         />
       </main>
     );
@@ -681,11 +681,11 @@ export function Success() {
         <Check size={38} />
       </div>
       <div className="eyebrow">MAIS TEMPO PARA O QUE IMPORTA</div>
-      <h1>{created.length > 1 ? "Suas assinaturas foram criadas!" : "Sua assinatura foi criada!"}</h1>
+      <h1>{created.length > 1 ? "Suas compras recorrentes foram criadas!" : "Sua compra recorrente foi criada!"}</h1>
       <p>Agora suas compras essenciais chegam até você automaticamente.</p>
       <section className="panel success-card">
         <div className="section-title">
-          <h2>Assinatura #{sub.id}</h2>
+          <h2>Compra recorrente #{sub.id}</h2>
           <span className="badge active">Ativa</span>
         </div>
         <div className="success-stats">
@@ -710,13 +710,13 @@ export function Success() {
         <div className="saved-cycle-list success-cycles">
           {cycles.map((cycle) => (
             <section className="success-cycle" key={cycle.subscriptionId} aria-label={`Resumo do ciclo · ${cycle.frequency}`}>
-              <h3>Assinatura #{cycle.subscriptionId} · {cycle.frequency}</h3>
+              <h3>Compra recorrente #{cycle.subscriptionId} · {cycle.frequency}</h3>
               <p>Primeira entrega: <strong>{dateLabel(cycle.date)}</strong> · {cycle.period}</p>
               <ItemList items={cycle.items} recurring={false} />
               <div className="summary-row"><span>Subtotal dos produtos</span><strong>{money(total(cycle.items))}</strong></div>
               <div className="summary-row"><span>Entrega estimada</span><strong>{money(9.9)}</strong></div>
               <div className="summary-total"><span>Valor estimado deste ciclo<b>{money(total(cycle.items) + 9.9)}</b></span></div>
-              <Link className="text-action" href={"/minhas-assinaturas/" + cycle.subscriptionId}>Ver detalhes desta assinatura <ArrowRight size={16} /></Link>
+              <Link className="text-action" href={"/minhas-assinaturas/" + cycle.subscriptionId}>Ver detalhes desta compra recorrente <ArrowRight size={16} /></Link>
             </section>
           ))}
         </div>
@@ -725,7 +725,7 @@ export function Success() {
           Tudo sob seu controle. Edite, pause ou cancele quando precisar.
         </div>
         <Link className="btn primary" href={created.length > 1 ? "/minhas-assinaturas" : "/minhas-assinaturas/" + sub.id}>
-          {created.length > 1 ? "Ver minhas assinaturas" : "Ver minha assinatura"} <ArrowRight size={17} />
+          {created.length > 1 ? "Ver minhas compras recorrentes" : "Ver minha compra recorrente"} <ArrowRight size={17} />
         </Link>
         <Link className="back-link" href="/comprar">
           Continuar comprando

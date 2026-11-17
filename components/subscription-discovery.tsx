@@ -42,7 +42,7 @@ export function SubscriptionDiscovery({ search, onSearch }: { search: string; on
   return (
     <section className="panel subscription-discovery" aria-labelledby="discover-products-title">
       <h2 id="discover-products-title"><Search size={21} /> Encontre novos produtos</h2>
-      <p>Escolha os produtos para sua recorrência e ajuste as quantidades sem sair desta etapa.</p>
+      <p>Escolha os produtos para sua compra recorrente e ajuste as quantidades sem sair desta etapa.</p>
       <label htmlFor="subscription-product-search">Buscar no catálogo de produtos</label>
       <input id="subscription-product-search" type="search" placeholder="Ex.: leite, pão ou mercearia" value={search} onChange={(event) => onSearch(event.target.value)} />
       {expanded && (

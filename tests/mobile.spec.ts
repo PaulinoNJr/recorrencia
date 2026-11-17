@@ -28,7 +28,7 @@ const routes = [
 async function seed(page: import("@playwright/test").Page) {
   await page.goto("/carrinho");
   await page
-    .getByRole("button", { name: "Criar assinatura", exact: true })
+    .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
   await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
@@ -116,7 +116,7 @@ test("menu e modais funcionam em telas pequenas e na horizontal", async ({
     await expect(page).toHaveURL("/listas");
     await page.goto("/recorrencias");
     await page
-      .getByRole("button", { name: "Quero criar minha assinatura" })
+      .getByRole("button", { name: "Quero criar minha compra recorrente" })
       .click();
     await expect(page.getByRole("dialog")).toBeVisible();
     const modal = await page.getByRole("dialog").boundingBox();
@@ -125,7 +125,7 @@ test("menu e modais funcionam em telas pequenas e na horizontal", async ({
     await expect(page.locator("#subscription-search")).toBeVisible();
     await page.goto("/minhas-assinaturas/00124");
     await page
-      .getByRole("button", { name: "Pausar assinatura", exact: true })
+      .getByRole("button", { name: "Pausar compra recorrente", exact: true })
       .click();
     await page.setViewportSize({ width: 844, height: 390 });
     const dialog = page.getByRole("dialog");
@@ -138,7 +138,7 @@ test("menu e modais funcionam em telas pequenas e na horizontal", async ({
       .click();
     await expect(dialog).toHaveCount(0);
     await page
-      .getByRole("button", { name: "Reativar assinatura", exact: true })
+      .getByRole("button", { name: "Reativar compra recorrente", exact: true })
       .click();
   }
 });

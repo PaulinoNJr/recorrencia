@@ -10,7 +10,7 @@ export function Operation() {
   const subscriptions = state.subscriptions;
   const stats = [
     [
-      "Assinaturas ativas",
+      "Compras recorrentes ativas",
       subscriptions.filter((s) => s.status === "Ativa").length,
     ],
     [
@@ -24,7 +24,7 @@ export function Operation() {
       subscriptions.filter((s) => s.status === "Pagamento recusado").length,
     ],
     [
-      "Assinaturas pausadas",
+      "Compras recorrentes pausadas",
       subscriptions.filter((s) => s.status === "Pausada").length,
     ],
     [
@@ -37,7 +37,7 @@ export function Operation() {
       <Breadcrumb items={[{ label: "Operação" }]} />
       <PageHeading
         eyebrow="COVABRA · VISÃO INTERNA"
-        title="Operação de assinaturas"
+        title="Operação de compras recorrentes"
         description="Uma visão dos próximos recebimentos e dos pontos que precisam de atenção."
       />
       <div className="ops-stats">
@@ -51,7 +51,7 @@ export function Operation() {
       <section className="panel ops-table">
         <div className="ops-row table-header">
           <span>CLIENTE</span>
-          <span>ASSINATURA</span>
+          <span>COMPRA RECORRENTE</span>
           <span>PRÓXIMO CICLO</span>
           <span>VALOR ESTIMADO</span>
           <span>STATUS</span>

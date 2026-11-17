@@ -10,7 +10,7 @@ async function checkAddresses(page: Page) {
 
 test("endereços permanecem no reinício, troca de login, cadastro, saída e restauração", async ({ page }, testInfo) => {
   await page.goto("/home");
-  await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
+  await page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" }).click();
   await expect(page).toHaveURL("/loja");
   await checkAddresses(page);
   for (const email of ["primeiro@example.net", "segundo@example.org"]) {
@@ -36,14 +36,14 @@ test("endereços permanecem no reinício, troca de login, cadastro, saída e res
   await page.getByRole("button", { name: "Restaurar dados do protótipo" }).click();
   await checkAddresses(page);
   await page.goto("/home");
-  await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
+  await page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" }).click();
   await expect(page).toHaveURL("/loja");
   await checkAddresses(page);
 });
 
 test("sessões antigas recuperam os endereços sem perder o endereço selecionado", async ({ page }) => {
   await page.goto("/home");
-  await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
+  await page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" }).click();
   await expect(page).toHaveURL("/loja");
   await page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);

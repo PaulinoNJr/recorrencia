@@ -2,9 +2,9 @@
 
 test("frequência pendente é obrigatória e remover o item libera continuar", async ({ page }) => {
   await page.goto("/carrinho");
-  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+  await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
   for (const name of ["Leite integral Shefa", "Papel higiênico folha dupla"]) {
-    const row = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: `Incluir ${name} na assinatura` }) });
+    const row = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: `Incluir ${name} na compra recorrente` }) });
     await row.getByRole("checkbox").check();
     await row.getByRole("button", { name: "Aumentar quantidade" }).click();
   }

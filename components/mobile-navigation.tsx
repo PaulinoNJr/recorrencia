@@ -125,7 +125,7 @@ export function MobileNavigation({
                 >
                   <Repeat2 size={22} />
                   <span>
-                    Recorrências Covabra
+                    Compra recorrente Covabra
                     <small>Seus produtos, no seu tempo</small>
                   </span>
                   <ChevronRight size={18} />
@@ -197,7 +197,7 @@ export function MobileNavigation({
                 </Link>
                 <Link href="/minhas-assinaturas" onClick={close}>
                   <Repeat2 size={20} />
-                  Recorrências
+                  Compra recorrente
                   <ChevronRight size={18} />
                 </Link>
                 <Link
@@ -205,7 +205,7 @@ export function MobileNavigation({
                   href="/recorrencias"
                   onClick={close}
                 >
-                  Conheça as recorrências Covabra
+                  Conheça a compra recorrente Covabra
                   <ChevronRight size={18} />
                 </Link>
                 <button type="button" onClick={() => {

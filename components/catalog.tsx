@@ -36,7 +36,7 @@ export function Catalog() {
                 ? "Ofertas para sua casa"
                 : "O que sua casa precisa hoje?"
         }
-        description="Escolha seus produtos. Depois, decida o que combina com uma assinatura."
+        description="Escolha seus produtos. Depois, decida o que combina com uma compra recorrente."
         action={
           <Link className="btn secondary" href="/carrinho">
             <ShoppingCart size={17} />

@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures";
 
 test("selecionar começa em zero e todos os produtos precisam de quantidade positiva", async ({ page }) => {
   await page.goto("/minhas-assinaturas");
-  await page.getByRole("link", { name: "Nova assinatura", exact: true }).click();
+  await page.getByRole("link", { name: "Nova compra recorrente", exact: true }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
   const search = page.getByRole("searchbox", { name: "Buscar no catálogo de produtos" });
   await search.fill("leite");

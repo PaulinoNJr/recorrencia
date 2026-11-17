@@ -9,7 +9,7 @@ import "./mobile-storefront.css";
 export const metadata: Metadata = {
   title: "Covabra | Compras que acompanham sua rotina",
   description:
-    "Suas compras essenciais, no seu tempo. Protótipo de assinaturas Covabra.",
+    "Suas compras essenciais, no seu tempo. Protótipo de compras recorrentes Covabra.",
 };
 export default function RootLayout({
   children,

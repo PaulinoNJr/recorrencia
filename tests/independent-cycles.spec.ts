@@ -4,16 +4,16 @@ import type { Page } from "@playwright/test";
 async function selectProducts(page: Page, mixed = true) {
   await page.goto("/carrinho");
   await page
-    .getByRole("button", { name: "Criar assinatura", exact: true })
+    .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
   for (const name of [
     "Leite integral Shefa",
     "Café torrado e moído",
   ]) {
     await page
-      .getByRole("checkbox", { name: `Incluir ${name} na assinatura` })
+      .getByRole("checkbox", { name: `Incluir ${name} na compra recorrente` })
       .check();
-    const row = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: `Incluir ${name} na assinatura` }) });
+    const row = page.locator(".subscription-product").filter({ has: page.getByRole("checkbox", { name: `Incluir ${name} na compra recorrente` }) });
     for (let count = 0; count < (name === "Leite integral Shefa" ? 4 : 2); count++)
       await row.getByRole("button", { name: "Aumentar quantidade" }).click();
   }
@@ -23,7 +23,7 @@ async function selectProducts(page: Page, mixed = true) {
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
 }
 
-test("frequencias distintas possuem entregas independentes na revisao e na assinatura", async ({
+test("frequencias distintas possuem entregas independentes na revisao e na compra recorrente", async ({
   page,
 }, testInfo) => {
   await page.clock.install({ time: new Date("2026-10-13T15:00:00Z") });
@@ -48,7 +48,7 @@ test("frequencias distintas possuem entregas independentes na revisao e na assin
   await monthly.getByLabel("Data de entrega · Todo mês").fill(max);
   await monthly.getByRole("button", { name: /Tarde/ }).click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
-  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   const cards = page.locator(".review-cycle");
   await expect(cards).toHaveCount(2);
   const reviewWeekly = page.getByRole("region", {
@@ -97,7 +97,7 @@ test("frequencias distintas possuem entregas independentes na revisao e na assin
   });
   await expect(reviewWeekly).toContainText("18h às 21h");
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Confirmar assinatura" }).click();
+  await page.getByRole("button", { name: "Confirmar compra recorrente" }).click();
   const created = await page.evaluate(() => {
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
     return state.subscriptions.filter(
@@ -126,14 +126,14 @@ test("frequencias distintas possuem entregas independentes na revisao e na assin
   await expect(successMonthly).toContainText("2 unidades");
   await expect(successMonthly.locator(".summary-total")).toContainText("R$ 65,70");
   await page.screenshot({ path: `test-results/${testInfo.project.name}-success-cycles.png`, fullPage: true });
-  await successWeekly.getByRole("link", { name: "Ver detalhes desta assinatura" }).click();
+  await successWeekly.getByRole("link", { name: "Ver detalhes desta compra recorrente" }).click();
   await expect(page).toHaveURL(`/minhas-assinaturas/${sub.id}`);
   await expect(page.locator(".detail-product")).toHaveCount(1);
   await expect(page.locator(".detail-product")).toContainText("Leite integral Shefa");
   await expect(page.locator(".detail-product")).not.toContainText("Café torrado e moído");
   await page.goto("/minhas-assinaturas");
-  const weeklyCard = page.getByRole("article", { name: `Assinatura #${sub.id} · Toda semana` });
-  const monthlyCard = page.getByRole("article", { name: `Assinatura #${monthlySub.id} · Todo mês` });
+  const weeklyCard = page.getByRole("article", { name: `Compra recorrente #${sub.id} · Toda semana` });
+  const monthlyCard = page.getByRole("article", { name: `Compra recorrente #${monthlySub.id} · Todo mês` });
   await expect(weeklyCard).toContainText("Leite integral Shefa");
   await expect(weeklyCard).not.toContainText("Café torrado e moído");
   await expect(weeklyCard.locator(".card-stats")).toContainText("R$ 31,86");
@@ -142,7 +142,7 @@ test("frequencias distintas possuem entregas independentes na revisao e na assin
   await expect(monthlyCard.locator(".card-stats")).toContainText("R$ 65,70");
   await page.screenshot({ path: `test-results/${testInfo.project.name}-separate-subscriptions.png`, fullPage: true });
   await weeklyCard.getByRole("link", { name: "Ver detalhes" }).click();
-  await page.getByRole("button", { name: "Cancelar assinatura", exact: true }).click();
+  await page.getByRole("button", { name: "Cancelar compra recorrente", exact: true }).click();
   await page.getByRole("button", { name: "Confirmar cancelamento" }).click();
   await page.goto("/minhas-assinaturas");
   await expect(weeklyCard).toContainText("Cancelada");
@@ -157,7 +157,7 @@ test("produtos com a mesma frequencia compartilham um unico ciclo", async ({
 }) => {
   await selectProducts(page, false);
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
-  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   await expect(page.locator(".review-cycle")).toHaveCount(1);
   await expect(page.locator(".summary-total")).toContainText("R$ 87,66");
 });

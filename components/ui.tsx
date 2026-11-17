@@ -136,7 +136,7 @@ const steps = [
 ];
 export function CheckoutStepper({ active }: { active: number }) {
   return (
-    <div className="checkout-steps" aria-label="Etapas da assinatura">
+    <div className="checkout-steps" aria-label="Etapas da compra recorrente">
       {steps.map(([label, route], i) => (
         <div
           key={label}
@@ -179,7 +179,7 @@ export function Summary({
   const subtotal = total(items);
   return (
     <aside className="summary panel">
-      <h2>{cart ? "Resumo do pedido" : "Sua assinatura"}</h2>
+      <h2>{cart ? "Resumo do pedido" : "Sua compra recorrente"}</h2>
       <div className="summary-row">
         <span>{cart ? "Produtos" : "Produtos recorrentes"}</span>
         <strong>{items.length}</strong>

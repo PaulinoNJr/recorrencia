@@ -6,16 +6,16 @@ test("criação, edição e gerenciamento persistem", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/carrinho");
   await page
-    .getByRole("button", { name: "Criar assinatura", exact: true })
+    .getByRole("button", { name: "Criar compra recorrente", exact: true })
     .click();
   await page
     .getByRole("checkbox", {
-      name: "Incluir Leite integral Shefa na assinatura",
+      name: "Incluir Leite integral Shefa na compra recorrente",
     })
     .check();
   await page
     .getByRole("checkbox", {
-      name: "Incluir Papel higiênico folha dupla na assinatura",
+      name: "Incluir Papel higiênico folha dupla na compra recorrente",
     })
     .check();
   for (let count = 0; count < 4; count++)
@@ -37,15 +37,15 @@ test("criação, edição e gerenciamento persistem", async ({
   await page.getByRole("button", { name: /Tarde/ }).first().click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await page.getByRole("button", { name: /Visa/ }).click();
-  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   await page.getByRole("checkbox").check();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-revisao.png`,
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Confirmar assinatura" }).click();
+  await page.getByRole("button", { name: "Confirmar compra recorrente" }).click();
   await expect(
-    page.getByRole("heading", { name: "Suas assinaturas foram criadas!" }),
+    page.getByRole("heading", { name: "Suas compras recorrentes foram criadas!" }),
   ).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-sucesso.png`,
@@ -55,9 +55,9 @@ test("criação, edição e gerenciamento persistem", async ({
     const state = JSON.parse(localStorage.getItem("covabra-prototype-v1")!);
     return state.subscriptions.find((subscription: { originId: string; items: { productId: string }[] }) => subscription.originId === state.lastCreated && subscription.items.some((item) => item.productId === "leite")).id;
   });
-  await page.getByRole("region", { name: "Resumo do ciclo · Todo mês" }).getByRole("link", { name: "Ver detalhes desta assinatura" }).click();
+  await page.getByRole("region", { name: "Resumo do ciclo · Todo mês" }).getByRole("link", { name: "Ver detalhes desta compra recorrente" }).click();
   await expect(
-    page.getByRole("heading", { name: `Assinatura #${id}` }),
+    page.getByRole("heading", { name: `Compra recorrente #${id}` }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Editar produtos" }).first().click();
   await page
@@ -74,12 +74,12 @@ test("criação, edição e gerenciamento persistem", async ({
   await page.getByRole("button", { name: "Pular próxima entrega" }).click();
   await page.getByRole("button", { name: "Pular esta entrega" }).click();
   await expect(page.getByRole("status")).toContainText("pulada");
-  await page.getByRole("button", { name: "Pausar assinatura" }).click();
+  await page.getByRole("button", { name: "Pausar compra recorrente" }).click();
   await page.getByRole("button", { name: "15 dias", exact: true }).click();
   await page.getByRole("button", { name: "Confirmar pausa" }).click();
   await page.reload();
   await expect(page.getByText("Pausada", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Reativar assinatura" }).click();
+  await page.getByRole("button", { name: "Reativar compra recorrente" }).click();
   await page
     .getByRole("button", { name: "Alterar pagamento", exact: true })
     .click();
@@ -89,16 +89,16 @@ test("criação, edição e gerenciamento persistem", async ({
   await expect(
     page.getByRole("heading", { name: "Uma história de praticidade" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Voltar para assinatura" }).click();
+  await page.getByRole("link", { name: "Voltar para compra recorrente" }).click();
   await page
-    .getByRole("button", { name: "Cancelar assinatura", exact: true })
+    .getByRole("button", { name: "Cancelar compra recorrente", exact: true })
     .click();
   await page.getByRole("button", { name: "Confirmar cancelamento" }).click();
   await page.reload();
   await expect(page.getByText("Cancelada", { exact: true })).toBeVisible();
   await page.goto("/minhas-assinaturas");
   await page.getByRole("tab", { name: /Canceladas/ }).click();
-  await expect(page.getByText(`ASSINATURA #${id}`)).toBeVisible();
+  await expect(page.getByText(`COMPRA RECORRENTE #${id}`)).toBeVisible();
   expect(errors).toEqual([]);
 });
 test("substituição, histórico e pagamento recusado", async ({ page }) => {

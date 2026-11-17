@@ -47,7 +47,7 @@ export function initialState(): PrototypeState {
         period: "08h às 12h",
         addressId: "casa",
         paymentId: "master",
-        events: ["Assinatura criada em 18/06/2026"],
+        events: ["Compra recorrente criada em 18/06/2026"],
         history: [
           {
             id: "c3",

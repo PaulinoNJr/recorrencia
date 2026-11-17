@@ -9,7 +9,7 @@ test("entrar aceita e-mail sem cadastro e senha de um caractere sem salvar a sen
   };
   const menu = page.locator(testInfo.project.name === "mobile" ? "#mobile-store-menu" : "#account-dropdown");
   await openMenu();
-  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: /Compra recorrente/ })).toHaveCount(0);
   await menu.getByRole("link", { name: "Entrar", exact: true }).click();
   await expect(page).toHaveURL("/entrar");
   await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);
@@ -21,7 +21,7 @@ test("entrar aceita e-mail sem cadastro e senha de um caractere sem salvar a sen
   await openMenu();
   await expect(menu.getByText("Olá, Paulino!", { exact: true })).toBeVisible();
   await expect(menu.getByText("sem-cadastro+teste@example.net", { exact: true })).toBeVisible();
-  await expect(menu.getByRole("link", { name: "Recorrências", exact: testInfo.project.name === "mobile" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Compra recorrente", exact: testInfo.project.name === "mobile" })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("covabra-prototype-v1")!));
   expect(saved.customer.email).toBe("sem-cadastro+teste@example.net");
   expect(saved.customer.firstName).toBe("Paulino");
@@ -42,12 +42,12 @@ test("login retoma o fluxo e avança para entrega sem repetir identificação", 
   await page.getByLabel("Senha", { exact: true }).fill("qualquer senha de teste");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page).toHaveURL("/minhas-assinaturas");
-  await expect(page.getByRole("heading", { name: "Minhas assinaturas", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Minhas compras recorrentes", exact: true })).toBeVisible();
   await page.goto("/loja");
   await page.locator(".home-product").first().getByRole("button", { name: "Eu quero!", exact: true }).click();
   await page.goto("/carrinho");
-  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
-  await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na assinatura" }).check();
+  await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
+  await page.getByRole("checkbox", { name: "Incluir Leite integral Shefa na compra recorrente" }).check();
   await page.locator(".subscription-product.selected").getByRole("button", { name: "Aumentar quantidade" }).click();
   await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
@@ -61,8 +61,8 @@ test("login retoma o fluxo e avança para entrega sem repetir identificação", 
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await page.getByRole("button", { name: "Adicionar cartão fictício" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Adicionar cartão", exact: true }).click();
-  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Confirmar assinatura" }).click();
-  await expect(page.getByRole("heading", { name: "Sua assinatura foi criada!" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirmar compra recorrente" }).click();
+  await expect(page.getByRole("heading", { name: "Sua compra recorrente foi criada!" })).toBeVisible();
 });

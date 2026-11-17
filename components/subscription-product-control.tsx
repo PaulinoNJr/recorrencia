@@ -31,8 +31,8 @@ export function SubscriptionProductControl({ product }: { product: Product }) {
         },
       };
     });
-    if (!quantity && delta > 0) notify(product.name + " adicionado à recorrência.");
-    if (quantity === 1 && delta < 0) notify(product.name + " removido da recorrência.");
+    if (!quantity && delta > 0) notify(product.name + " adicionado à compra recorrente.");
+    if (quantity === 1 && delta < 0) notify(product.name + " removido da compra recorrente.");
   }
 
   return (
@@ -42,7 +42,7 @@ export function SubscriptionProductControl({ product }: { product: Product }) {
           <Repeat2 size={17} /> Eu quero!
         </button>
       ) : (
-        <div className="product-cart-quantity" role="group" aria-label={"Quantidade de " + product.name + " na recorrência"}>
+        <div className="product-cart-quantity" role="group" aria-label={"Quantidade de " + product.name + " na compra recorrente"}>
           <button type="button" disabled={!ready} aria-label={"Diminuir quantidade de " + product.name} onClick={() => changeQuantity(-1)}>
             <Minus size={18} />
           </button>

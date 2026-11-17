@@ -195,7 +195,7 @@ export function Header() {
               onClick={() => setAccountOpen(false)}
             >
               <Repeat2 size={18} />
-              Recorrências <small>NOVO</small>
+              Compra recorrente <small>NOVO</small>
             </Link>
             <button type="button" className="text-action" onClick={() => {
               signOut();
@@ -254,7 +254,7 @@ export function Header() {
               href="/recorrencias"
               aria-current={path === "/recorrencias" ? "page" : undefined}
             >
-              Recorrências
+              Compra recorrente
             </Link>
             <Link className="nav-pill" href="/cupons">
               <BadgePercent size={23} />

@@ -12,7 +12,7 @@ test("identificação e saída usam apenas o participante atual", async ({ page 
   await expect(page.locator('a[href="/minhas-assinaturas"]')).toHaveCount(0);
   await openMenu();
   await expect(menu.getByRole("link")).toHaveCount(2);
-  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: /Compra recorrente/ })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Entrar", exact: true })).toHaveAttribute("href", "/entrar");
   await menu.getByRole("link", { name: "Cadastrar-se", exact: true }).click();
   await expect(page).toHaveURL("/cadastro");
@@ -27,13 +27,13 @@ test("identificação e saída usam apenas o participante atual", async ({ page 
   await page.reload();
   await openMenu();
   await expect(menu.getByText("Olá, Paulino!", { exact: true })).toBeVisible();
-  await expect(menu.getByRole("link", { name: "Recorrências", exact: testInfo.project.name === "mobile" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Compra recorrente", exact: testInfo.project.name === "mobile" })).toBeVisible();
   await expect(menu.getByRole("link", { name: "Minhas listas", exact: true })).toBeVisible();
   await menu.getByRole("button", { name: "Sair", exact: true }).click();
   await expect(page).toHaveURL("/loja");
   await openMenu();
   await expect(menu.getByRole("link")).toHaveCount(2);
-  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: /Compra recorrente/ })).toHaveCount(0);
   await page.goto("/minhas-assinaturas");
   await expect(page.getByRole("heading", { name: "Entrar", exact: true })).toBeVisible();
   await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);

@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-test("cartão fictício já selecionado permite compra e recorrência sem adicionar cartão", async ({ page }) => {
+test("cartão fictício já selecionado permite compra e compra recorrente sem adicionar cartão", async ({ page }) => {
   await page.goto("/home");
-  await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
+  await page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" }).click();
   await expect(page).toHaveURL("/loja");
   await page.locator(".home-product").first().getByRole("button", { name: "Eu quero!", exact: true }).click();
   await page.goto("/carrinho");
@@ -20,7 +20,7 @@ test("cartão fictício já selecionado permite compra e recorrência sem adicio
   await expect(page.locator(".choice-grid .chosen")).toContainText("1234");
   await expect(page.getByRole("button", { name: "Confirmar compra", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Confirmar compra", exact: true }).click();
-  await page.getByRole("button", { name: "Sim, tornar recorrente" }).click();
+  await page.getByRole("button", { name: "Sim, criar compra recorrente" }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
   await page.getByRole("button", { name: "Continuar para frequência" }).click();
   await page.getByLabel("Frequência de Leite integral Shefa").selectOption("Toda semana");
@@ -28,11 +28,11 @@ test("cartão fictício já selecionado permite compra e recorrência sem adicio
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await expect(page).toHaveURL("/assinatura/pagamento");
   await expect(page.locator(".choice-grid .chosen")).toContainText("Mastercard");
-  await expect(page.getByRole("button", { name: "Revisar assinatura" })).toBeEnabled();
-  await page.getByRole("button", { name: "Revisar assinatura" }).click();
+  await expect(page.getByRole("button", { name: "Revisar compra recorrente" })).toBeEnabled();
+  await page.getByRole("button", { name: "Revisar compra recorrente" }).click();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Confirmar assinatura" }).click();
-  await expect(page.getByRole("heading", { name: "Sua assinatura foi criada!" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirmar compra recorrente" }).click();
+  await expect(page.getByRole("heading", { name: "Sua compra recorrente foi criada!" })).toBeVisible();
 });
 
 test("cartão retorna em sessões antigas e permanece após saída e reinício", async ({ page }, testInfo) => {
@@ -61,7 +61,7 @@ test("cartão retorna em sessões antigas e permanece após saída e reinício",
   await menu.getByRole("button", { name: "Sair", exact: true }).click();
   await check();
   await page.goto("/home");
-  await page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" }).click();
+  await page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" }).click();
   await expect(page).toHaveURL("/loja");
   await check();
 });

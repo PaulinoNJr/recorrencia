@@ -55,7 +55,7 @@ export function SubscriptionList() {
         current.lastCreated === deleting.id ? null : current.lastCreated,
     }));
     setDeletingId(null);
-    notify(`Assinatura #${deleting.id} excluída.`);
+    notify(`Compra recorrente #${deleting.id} excluída.`);
     requestAnimationFrame(() =>
       document
         .querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]')
@@ -77,10 +77,10 @@ export function SubscriptionList() {
   return (
     <main className="container">
       <Breadcrumb
-        items={[{ label: "Minha conta" }, { label: "Minhas assinaturas" }]}
+        items={[{ label: "Minha conta" }, { label: "Minhas compras recorrentes" }]}
       />
       <PageHeading
-        title="Minhas assinaturas"
+        title="Minhas compras recorrentes"
         description="Os essenciais da sua casa, sempre no seu tempo."
         action={
           <Link className="btn primary" href="/assinatura/configurar" onClick={() => {
@@ -99,7 +99,7 @@ export function SubscriptionList() {
             }));
           }}>
             <Plus size={17} />
-            Nova assinatura
+            Nova compra recorrente
           </Link>
         }
       />
@@ -118,7 +118,7 @@ export function SubscriptionList() {
           <CalendarDays size={44} />
         </span>
       </div>
-      <div className="tabs" role="tablist" aria-label="Filtrar assinaturas">
+      <div className="tabs" role="tablist" aria-label="Filtrar compras recorrentes">
         {["Todas", "Ativas", "Pausadas", "Canceladas"].map((f) => (
           <button
             role="tab"
@@ -147,22 +147,22 @@ export function SubscriptionList() {
         ))}
       </div>
       {!ready ? (
-        <div className="loading">Carregando suas assinaturas…</div>
+        <div className="loading">Carregando suas compras recorrentes…</div>
       ) : visible.length ? (
         <div className="subscription-grid">
           {visible.flatMap((s) => subscriptionCycles(s.items, s.date, s.period, s.cycleDeliveries).map((cycle) => (
-            <article className="panel subscription-card" key={`${s.id}-${cycle.frequency}`} aria-label={`Assinatura #${s.id} · ${cycle.frequency}`}>
+            <article className="panel subscription-card" key={`${s.id}-${cycle.frequency}`} aria-label={`Compra recorrente #${s.id} · ${cycle.frequency}`}>
               <button
                 type="button"
                 className="subscription-delete"
-                aria-label={`Excluir assinatura #${s.id}`}
-                title="Excluir assinatura"
+                aria-label={`Excluir compra recorrente #${s.id}`}
+                title="Excluir compra recorrente"
                 onClick={() => setDeletingId(s.id)}
               >
                 <Trash2 size={19} />
               </button>
               <div className="section-title">
-                <span className="subscription-number">ASSINATURA #{s.id}</span>
+                <span className="subscription-number">COMPRA RECORRENTE #{s.id}</span>
                 <Badge status={s.status} />
               </div>
               <h2>{s.name}</h2>
@@ -202,18 +202,18 @@ export function SubscriptionList() {
         </div>
       ) : (
         <EmptyState
-          title="Nenhuma assinatura por aqui"
-          description="Suas assinaturas com este status aparecerão aqui."
+          title="Nenhuma compra recorrente por aqui"
+          description="Suas compras recorrentes com este status aparecerão aqui."
         />
       )}
       <p className="account-help">
         <Settings2 size={17} /> Você pode editar, pausar ou cancelar sua
-        assinatura quando precisar.
+        compra recorrente quando precisar.
       </p>
       {deleting && (
-        <Modal title="Excluir assinatura?" onClose={() => setDeletingId(null)}>
+        <Modal title="Excluir compra recorrente?" onClose={() => setDeletingId(null)}>
           <p>
-            A assinatura{" "}
+            A compra recorrente{" "}
             <strong>
               #{deleting.id} · {deleting.name}
             </strong>{" "}
@@ -222,10 +222,10 @@ export function SubscriptionList() {
           </p>
           <div className="modal-actions">
             <Button variant="secondary" onClick={() => setDeletingId(null)}>
-              Manter assinatura
+              Manter compra recorrente
             </Button>
             <Button variant="danger" onClick={deleteSubscription}>
-              Excluir assinatura
+              Excluir compra recorrente
             </Button>
           </div>
         </Modal>
@@ -268,8 +268,8 @@ export function SubscriptionDetail({
     return (
       <main className="container">
         <EmptyState
-          title="Assinatura não encontrada"
-          description="Confira suas assinaturas para continuar."
+          title="Compra recorrente não encontrada"
+          description="Confira suas compras recorrentes para continuar."
         />
       </main>
     );
@@ -320,14 +320,14 @@ export function SubscriptionDetail({
       <Breadcrumb
         items={[
           {
-            label: operation ? "Operação" : "Minhas assinaturas",
+            label: operation ? "Operação" : "Minhas compras recorrentes",
             href: operation ? "/operacao" : "/minhas-assinaturas",
           },
-          { label: "Assinatura #" + id },
+          { label: "Compra recorrente #" + id },
         ]}
       />
       <PageHeading
-        title={"Assinatura #" + id}
+        title={"Compra recorrente #" + id}
         description={s.name + (selectedCycle ? " · " + selectedCycle.frequency : "")}
         action={<Badge status={s.status} />}
       />
@@ -354,7 +354,7 @@ export function SubscriptionDetail({
         <div className="notice warning-notice">
           <Pause />
           <span>
-            Assinatura pausada até {dateLabel(s.pausedUntil || s.date)}. Nenhuma
+            Compra recorrente pausada até {dateLabel(s.pausedUntil || s.date)}. Nenhuma
             nova cobrança será realizada durante a pausa.
           </span>
           <Button
@@ -362,17 +362,17 @@ export function SubscriptionDetail({
             onClick={() =>
               save(
                 { status: "Ativa", pausedUntil: undefined },
-                "Assinatura reativada com sucesso.",
+                "Compra recorrente reativada com sucesso.",
               )
             }
           >
-            Reativar assinatura
+            Reativar compra recorrente
           </Button>
         </div>
       )}
       {s.status === "Cancelada" && (
         <div className="notice">
-          Esta assinatura foi cancelada. Não haverá novas cobranças ou entregas.
+          Esta compra recorrente foi cancelada. Não haverá novas cobranças ou entregas.
         </div>
       )}
       <div className="detail-overview">
@@ -401,7 +401,7 @@ export function SubscriptionDetail({
         <div>
           <Package />
           <span>
-            Itens na assinatura<strong>{s.items.length} produtos</strong>
+            Itens na compra recorrente<strong>{s.items.length} produtos</strong>
           </span>
         </div>
         <Link href={"/minhas-assinaturas/" + id + "/historico"}>
@@ -496,7 +496,7 @@ export function SubscriptionDetail({
           )}
           <section className="panel section-panel">
             <div className="section-title">
-              <h2>Produtos da assinatura</h2>
+              <h2>Produtos da compra recorrente</h2>
               {!locked && (
                 <Link href={"/minhas-assinaturas/" + id + "/editar" + cycleQuery}>
                   Editar produtos
@@ -584,7 +584,7 @@ export function SubscriptionDetail({
           )}
         </div>
         <aside className="panel management">
-          <h2>Sua assinatura, seu jeito</h2>
+          <h2>Sua compra recorrente, seu jeito</h2>
           <p>Ajuste sempre que sua rotina mudar.</p>
           {!locked && (
             <>
@@ -635,13 +635,13 @@ export function SubscriptionDetail({
                 onClick={() => setAction("pause")}
               >
                 <Pause size={18} />
-                Pausar assinatura
+                Pausar compra recorrente
               </button>
               <button
                 className="cancel-action"
                 onClick={() => setAction("cancel")}
               >
-                Cancelar assinatura
+                Cancelar compra recorrente
               </button>
             </>
           )}
@@ -655,9 +655,9 @@ export function SubscriptionDetail({
         <Modal
           title={
             {
-              pause: "Pausar sua assinatura?",
+              pause: "Pausar sua compra recorrente?",
               skip: "Pular próxima entrega?",
-              cancel: "Cancelar assinatura?",
+              cancel: "Cancelar compra recorrente?",
               payment: "Alterar pagamento",
               delivery: "Alterar entrega",
               substitute: "Um substituto para seu café",
@@ -709,7 +709,7 @@ export function SubscriptionDetail({
                         pausedUntil: date,
                         date: s.date < date ? date : s.date,
                       },
-                      "Assinatura pausada até " + dateLabel(date) + ".",
+                      "Compra recorrente pausada até " + dateLabel(date) + ".",
                     );
                   }}
                 >
@@ -766,7 +766,7 @@ export function SubscriptionDetail({
           {action === "cancel" && (
             <>
               <p>
-                Você deixará de receber os produtos desta assinatura. Não haverá
+                Você deixará de receber os produtos desta compra recorrente. Não haverá
                 novas cobranças.
               </p>
               <label>
@@ -789,14 +789,14 @@ export function SubscriptionDetail({
               </label>
               <div className="modal-actions">
                 <Button variant="secondary" onClick={() => setAction(null)}>
-                  Manter assinatura
+                  Manter compra recorrente
                 </Button>
                 <Button
                   variant="danger"
                   onClick={() =>
                     save(
                       { status: "Cancelada" },
-                      "Assinatura cancelada." +
+                      "Compra recorrente cancelada." +
                         (reason ? " Motivo: " + reason : ""),
                     )
                   }
@@ -906,8 +906,8 @@ export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFreq
     return (
       <main className="container">
         <EmptyState
-          title="Assinatura indisponível para edição"
-          description="Confira suas assinaturas para continuar."
+          title="Compra recorrente indisponível para edição"
+          description="Confira suas compras recorrentes para continuar."
         />
       </main>
     );
@@ -917,8 +917,8 @@ export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFreq
     <main className="container">
       <Breadcrumb
         items={[
-          { label: "Minhas assinaturas", href: "/minhas-assinaturas" },
-          { label: "Assinatura #" + id, href: "/minhas-assinaturas/" + id + cycleQuery },
+          { label: "Minhas compras recorrentes", href: "/minhas-assinaturas" },
+          { label: "Compra recorrente #" + id, href: "/minhas-assinaturas/" + id + cycleQuery },
           { label: "Editar produtos" },
         ]}
       />
@@ -967,13 +967,13 @@ export function EditSubscription({ id, cycleFrequency }: { id: string; cycleFreq
                 { items: [...sub.items.filter((item) => item.frequency !== selectedCycle?.frequency), ...items] },
                 "Produtos e frequências atualizados.",
               );
-              notify("Assinatura atualizada com sucesso.");
+              notify("Compra recorrente atualizada com sucesso.");
               router.push("/minhas-assinaturas/" + id + cycleQuery);
             }}
           >
             Salvar alterações
           </Button>
-          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da assinatura para salvar.</p>}
+          {hasInvalidQuantity && <p className="frequency-required-message" role="status">Escolha pelo menos 1 unidade de cada produto selecionado ou remova-o da compra recorrente para salvar.</p>}
           <Link className="back-link" href={"/minhas-assinaturas/" + id + cycleQuery}>
             Voltar sem salvar
           </Link>
@@ -991,8 +991,8 @@ export function SubscriptionHistory({ id }: { id: string }) {
     return (
       <main className="container">
         <EmptyState
-          title="Assinatura não encontrada"
-          description="Volte para Minhas Assinaturas."
+          title="Compra recorrente não encontrada"
+          description="Volte para Minhas Compras recorrentes."
         />
       </main>
     );
@@ -1001,14 +1001,14 @@ export function SubscriptionHistory({ id }: { id: string }) {
     <main className="container narrow">
       <Breadcrumb
         items={[
-          { label: "Minhas assinaturas", href: "/minhas-assinaturas" },
-          { label: "Assinatura #" + id, href: "/minhas-assinaturas/" + id },
+          { label: "Minhas compras recorrentes", href: "/minhas-assinaturas" },
+          { label: "Compra recorrente #" + id, href: "/minhas-assinaturas/" + id },
           { label: "Histórico" },
         ]}
       />
       <PageHeading
         title="Uma história de praticidade"
-        description={"Histórico da assinatura #" + id}
+        description={"Histórico da compra recorrente #" + id}
       />
       <section className="panel section-panel">
         <h2>Entregas e pagamentos</h2>
@@ -1022,7 +1022,7 @@ export function SubscriptionHistory({ id }: { id: string }) {
                 <div>
                   <small>{dateLabel(c.date)}</small>
                   <h3>{c.status}</h3>
-                  <p>Ciclo da assinatura #{id}</p>
+                  <p>Ciclo da compra recorrente #{id}</p>
                 </div>
                 <strong>{money(c.amount)}</strong>
                 <ChevronRight size={18} />
@@ -1037,7 +1037,7 @@ export function SubscriptionHistory({ id }: { id: string }) {
         )}
       </section>
       <section className="panel section-panel">
-        <h2>Atividade da assinatura</h2>
+        <h2>Atividade da compra recorrente</h2>
         {sub.events.map((event, i) => (
           <p key={i} className="event-row">
             <Repeat2 size={16} />
@@ -1046,7 +1046,7 @@ export function SubscriptionHistory({ id }: { id: string }) {
         ))}
       </section>
       <Link className="btn secondary" href={"/minhas-assinaturas/" + id}>
-        Voltar para assinatura
+        Voltar para compra recorrente
       </Link>
       {selected && (
         <Modal
@@ -1059,7 +1059,7 @@ export function SubscriptionHistory({ id }: { id: string }) {
           <p>
             Valor registrado: <strong>{money(selected.amount)}</strong>
           </p>
-          <p>Assinatura #{id} · Pagamento com cartão salvo.</p>
+          <p>Compra recorrente #{id} · Pagamento com cartão salvo.</p>
           <div className="notice">
             Registro histórico de demonstração. Alterações atuais nos produtos
             não modificam os valores deste ciclo.

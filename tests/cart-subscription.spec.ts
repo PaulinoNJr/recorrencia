@@ -15,15 +15,15 @@ test("todos os produtos do carrinho podem ser configurados para recorrencia", as
     }
   }, state);
   await page.goto("/carrinho");
-  await page.getByRole("button", { name: "Criar assinatura", exact: true }).click();
+  await page.getByRole("button", { name: "Criar compra recorrente", exact: true }).click();
   await expect(page).toHaveURL("/assinatura/configurar");
   await expect(page.locator(".subscription-product")).toHaveCount(state.cart.length);
   for (const product of products.filter((product) => product.id !== "substituto")) {
-    await expect(page.getByRole("checkbox", { name: `Incluir ${product.name} na assinatura` })).toBeEnabled();
+    await expect(page.getByRole("checkbox", { name: `Incluir ${product.name} na compra recorrente` })).toBeEnabled();
   }
   const next = page.getByRole("button", { name: "Continuar para frequência" });
   for (const name of ["Óleo de soja Soya", "Abacaxi pérola"]) {
-    const checkbox = page.getByRole("checkbox", { name: `Incluir ${name} na assinatura` });
+    const checkbox = page.getByRole("checkbox", { name: `Incluir ${name} na compra recorrente` });
     await checkbox.check();
     await expect(next).toBeDisabled();
     const row = page.locator(".subscription-product").filter({ has: checkbox });
@@ -31,7 +31,7 @@ test("todos os produtos do carrinho podem ser configurados para recorrencia", as
   }
   await expect(next).toBeEnabled();
   await page.reload();
-  await expect(page.getByRole("checkbox", { name: "Incluir Abacaxi pérola na assinatura" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Incluir Abacaxi pérola na compra recorrente" })).toBeChecked();
   await next.click();
   await page.getByLabel("Receber os produtos selecionados").selectOption("Toda semana");
   await page.getByRole("button", { name: "Aplicar a 2 produtos" }).click();

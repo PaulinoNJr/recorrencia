@@ -96,7 +96,7 @@ export function Storefront() {
             >
               <div className="home-recurrence-copy">
                 <span className="home-recurrence-label">
-                  <Repeat2 size={17} /> RECORRÊNCIAS COVABRA
+                  <Repeat2 size={17} /> COMPRA RECORRENTE COVABRA
                 </span>
                 <h2 id="home-recurrence-heading">
                   Seus essenciais.<em>No seu tempo.</em>
@@ -106,7 +106,7 @@ export function Storefront() {
                   a frequência e controla tudo.
                 </p>
                 <Link className="btn primary" href="/recorrencias">
-                  Conheça a recorrência <ArrowRight size={18} />
+                  Conheça a compra recorrente <ArrowRight size={18} />
                 </Link>
               </div>
               <div className="home-recurrence-art" aria-hidden="true">

@@ -48,7 +48,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
       </button>
       {open && (
         <Modal
-          title="Como quer montar sua assinatura?"
+          title="Como quer montar sua compra recorrente?"
           onClose={() => setOpen(false)}
         >
           <p>
@@ -67,7 +67,7 @@ export function SubscriptionStart({ children }: { children: React.ReactNode }) {
                 <strong>Do meu carrinho atual</strong>
                 <small>
                   {state.cart.length
-                    ? "Traga os itens disponíveis para assinatura, com as quantidades do seu carrinho."
+                    ? "Traga os itens disponíveis para compra recorrente, com as quantidades do seu carrinho."
                     : "Seu carrinho está vazio. Escolha produtos no catálogo."}
                 </small>
               </span>

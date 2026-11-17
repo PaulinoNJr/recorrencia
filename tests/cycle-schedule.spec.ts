@@ -124,8 +124,8 @@ test("revisão informa a frequência e o início de cada ciclo e atualiza após 
     await page.setViewportSize({ width: 844, height: 390 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     await page.getByRole("checkbox").check();
-    await expect(page.getByRole("button", { name: "Confirmar assinatura", exact: true })).toBeEnabled();
-    await page.getByRole("button", { name: "termos da assinatura", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Confirmar compra recorrente", exact: true })).toBeEnabled();
+    await page.getByRole("button", { name: "termos da compra recorrente", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.getByRole("dialog").getByRole("button", { name: /Fechar/ }).click();
   }

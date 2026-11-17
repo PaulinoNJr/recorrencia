@@ -16,7 +16,7 @@ test("nova experiência limpa os dados anteriores e permanece limpa após recarr
   });
   await page.goto("/");
   await expect(page).toHaveURL("/home");
-  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" });
+  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" });
   await expect(start).toBeEnabled();
   await expect(page.getByRole("button", { name: "Responder pesquisa" })).toHaveCount(0);
   // Visiting the entry page must preserve the current participant's progress.
@@ -48,7 +48,7 @@ test("nova experiência limpa os dados anteriores e permanece limpa após recarr
   await expect(page.locator(".cart-link b")).toHaveText("0");
   await page.getByRole("button", { name: "Menu da conta" }).click();
   const menu = page.locator(testInfo.project.name === "mobile" ? "#mobile-store-menu" : "#account-dropdown");
-  await expect(menu.getByRole("link", { name: /Recorrências/ })).toHaveCount(0);
+  await expect(menu.getByRole("link", { name: /Compra recorrente/ })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Entrar", exact: true })).toBeVisible();
   await expect(menu.getByRole("link", { name: "Cadastrar-se", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
@@ -65,7 +65,7 @@ test("nova experiência limpa os dados anteriores e permanece limpa após recarr
 
 test("voltar pelo navegador permite iniciar outra experiência", async ({ page }) => {
   await page.goto("/home");
-  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" });
+  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" });
   await start.click();
   await expect(page).toHaveURL("/loja");
   await page.goBack();
@@ -80,7 +80,7 @@ test("cache sem resposta mostra erro e libera uma nova tentativa", async ({ page
   await page.evaluate(() => {
     caches.keys = () => new Promise<string[]>(() => {});
   });
-  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a recorrência" });
+  const start = page.getByRole("button", { name: "Iniciar uma nova experiência com a compra recorrente" });
   await start.click();
   await expect(page.locator('main [role="alert"]')).toBeVisible({ timeout: 10000 });
   await expect(start).toBeEnabled();
